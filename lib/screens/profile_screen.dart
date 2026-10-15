@@ -3,6 +3,7 @@ import '../config/colors.dart';
 import '../config/constants.dart';
 import '../data/booking_storage.dart';
 import '../widgets/custom_button.dart';
+import 'admin/admin_login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -470,7 +471,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             Text(
-                              'Enabled (Offline)',
+                              'Enabled (Cloud Synced)',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -480,6 +481,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Business Owner & Admin Portal Link
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.primaryMint.withOpacity(0.3),
+                      ),
+                    ),
+                    child: ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryMintLight,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.admin_panel_settings_rounded,
+                          color: AppColors.primaryMintDark,
+                          size: 20,
+                        ),
+                      ),
+                      title: const Text(
+                        'Business Owner Portal',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.charcoal,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Dispatch bookings & manage staff (Dhule)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: AppColors.primaryMintDark,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AdminLoginScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
 

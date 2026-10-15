@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/booking_model.dart';
 
-/// Local persistence manager for Mopster customer bookings.
-/// Uses SharedPreferences to persist bookings on the device without requiring Firebase or paid backends.
+/// Central Booking Repository for Mopster.
+/// Coordinates between Supabase Cloud Database and device SharedPreferences for offline capability.
 class BookingStorage extends ChangeNotifier {
   static final BookingStorage _instance = BookingStorage._internal();
   factory BookingStorage() => _instance;
@@ -18,6 +19,7 @@ class BookingStorage extends ChangeNotifier {
 
   List<BookingModel> _bookings = [];
   bool _isInitialized = false;
+  bool _isSyncing = false;
 
   String _currentLocality = 'Deopur, Dhule';
   String _customerName = 'Rohan Patil';
@@ -35,8 +37,9 @@ class BookingStorage extends ChangeNotifier {
   String get customerPhone => _customerPhone;
   String get customerAddress => _customerAddress;
   bool get isInitialized => _isInitialized;
+  bool get isSyncing => _isSyncing;
 
-  /// Initialize and load saved bookings from disk
+  /// Initialize and load saved bookings from disk and synchronize with Supabase
   Future<void> init() async {
     if (_isInitialized) return;
 
@@ -56,12 +59,11 @@ class BookingStorage extends ChangeNotifier {
             .map((item) => BookingModel.fromJson(item as Map<String, dynamic>))
             .toList();
       } else {
-        // Seed initial friendly sample booking so the user can immediately experience the "My Bookings" screen
         _seedInitialSample();
         await _persistToDisk(prefs);
       }
     } catch (e) {
-      debugPrint('Error loading saved bookings: $e');
+      debugPrint('Error loading local bookings: $e');
       if (_bookings.isEmpty) {
         _seedInitialSample();
       }
@@ -69,6 +71,51 @@ class BookingStorage extends ChangeNotifier {
 
     _isInitialized = true;
     notifyListeners();
+
+    // Trigger cloud synchronization in the background
+    refreshFromCloud();
+  }
+
+  /// Fetch latest customer bookings from Supabase and merge with local store
+  Future<void> refreshFromCloud() async {
+    try {
+      _isSyncing = true;
+      notifyListeners();
+
+      final supabase = Supabase.instance.client;
+      final response = await supabase
+          .from('bookings')
+          .select()
+          .order('created_at', ascending: false);
+
+      final List<dynamic> records = response as List<dynamic>;
+      if (records.isNotEmpty) {
+        final List<BookingModel> remoteBookings = records
+            .map((row) =>
+                BookingModel.fromSupabaseMap(row as Map<String, dynamic>))
+            .toList();
+
+        // Merge: take remote bookings and update matching or add new
+        final Map<String, BookingModel> mergedMap = {};
+        for (final b in _bookings) {
+          mergedMap[b.id] = b;
+        }
+        for (final b in remoteBookings) {
+          mergedMap[b.id] = b; // Remote supersedes local
+        }
+
+        _bookings = mergedMap.values.toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        final prefs = await SharedPreferences.getInstance();
+        await _persistToDisk(prefs);
+      }
+    } catch (e) {
+      debugPrint('Note: Supabase sync skipped or offline: $e');
+    } finally {
+      _isSyncing = false;
+      notifyListeners();
+    }
   }
 
   void _seedInitialSample() {
@@ -112,13 +159,23 @@ class BookingStorage extends ChangeNotifier {
     ];
   }
 
-  /// Create a new booking and persist to local device storage
+  /// Create a new booking: saves to Supabase and saves locally
   Future<bool> addBooking(BookingModel newBooking) async {
     try {
-      _bookings.insert(0, newBooking); // Insert at the beginning (latest first)
+      // 1. Add locally first for instant user feedback
+      _bookings.insert(0, newBooking);
       final prefs = await SharedPreferences.getInstance();
       await _persistToDisk(prefs);
       notifyListeners();
+
+      // 2. Persist to Supabase Cloud Database
+      try {
+        final supabase = Supabase.instance.client;
+        await supabase.from('bookings').insert(newBooking.toSupabaseMap());
+      } catch (cloudErr) {
+        debugPrint('Supabase insert warning (saved locally): $cloudErr');
+      }
+
       return true;
     } catch (e) {
       debugPrint('Error saving booking: $e');
@@ -126,7 +183,7 @@ class BookingStorage extends ChangeNotifier {
     }
   }
 
-  /// Cancel an existing booking
+  /// Cancel an existing booking in Supabase and locally
   Future<bool> cancelBooking(String bookingId) async {
     final index = _bookings.indexWhere((b) => b.id == bookingId);
     if (index != -1) {
@@ -137,6 +194,17 @@ class BookingStorage extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await _persistToDisk(prefs);
       notifyListeners();
+
+      // Update in Supabase
+      try {
+        final supabase = Supabase.instance.client;
+        await supabase
+            .from('bookings')
+            .update({'booking_status': 'Cancelled'}).eq('id', bookingId);
+      } catch (cloudErr) {
+        debugPrint('Supabase cancel warning (saved locally): $cloudErr');
+      }
+
       return true;
     }
     return false;
