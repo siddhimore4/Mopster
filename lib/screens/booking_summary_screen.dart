@@ -44,6 +44,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   }
 
   Future<void> _handleConfirmBooking() async {
+    if (_isSubmitting) return; // Prevent duplicate submissions
+
     setState(() {
       _isSubmitting = true;
     });
@@ -65,8 +67,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           ? 'Cash on Delivery (Pay after service)'
           : 'Razorpay Online Gateway (Future)',
       paymentStatus: 'Pending (Pay upon completion)',
-      bookingStatus: 'Confirmed',
-      assignedStaff: 'Mopster Dhule Specialist Team',
+      bookingStatus: 'Pending Approval',
+      assignedStaff: 'Awaiting Owner Approval',
       createdAt: DateTime.now(),
     );
 
@@ -205,13 +207,13 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                   children: [
                     _buildDetailRow(
                       icon: Icons.calendar_today_rounded,
-                      label: 'Date',
+                      label: 'Preferred Date',
                       value: dateFormatted,
                     ),
                     const Divider(height: 20, color: AppColors.divider),
                     _buildDetailRow(
                       icon: Icons.access_time_rounded,
-                      label: 'Time Window',
+                      label: 'Preferred Slot',
                       value: widget.timeSlot,
                     ),
                     const Divider(height: 20, color: AppColors.divider),
@@ -411,27 +413,31 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
               const SizedBox(height: 20),
 
-              // Local Offline Booking Persistence Note
+              // Approval Required Notice
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Icon(
-                      Icons.storage_rounded,
-                      color: AppColors.textSecondary,
-                      size: 18,
+                      Icons.hourglass_top_rounded,
+                      color: Color(0xFFB45309),
+                      size: 20,
                     ),
-                    SizedBox(width: 8),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'This booking will be saved on your local device storage and is visible in My Bookings.',
+                        'Approval Required: This booking request will be saved as "Pending Approval". The business owner will review your requested time and address before confirming.',
                         style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
+                          fontSize: 12,
+                          color: Color(0xFF92400E),
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
                         ),
                       ),
                     ),
@@ -441,12 +447,12 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
               const SizedBox(height: 28),
 
-              // Confirm Booking Button
+              // Submit Request Button
               CustomButton(
-                text: 'Confirm & Place Booking',
-                icon: Icons.check_circle_outline_rounded,
+                text: 'Submit Booking Request',
+                icon: Icons.send_rounded,
                 isLoading: _isSubmitting,
-                onPressed: _handleConfirmBooking,
+                onPressed: _isSubmitting ? null : _handleConfirmBooking,
               ),
 
               const SizedBox(height: 24),

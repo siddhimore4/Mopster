@@ -165,7 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  storage.customerName,
+                                  storage.customerName.isNotEmpty
+                                      ? storage.customerName
+                                      : 'Welcome to Mopster',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     color: AppColors.textSecondary,

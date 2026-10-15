@@ -211,8 +211,17 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
 
                 const SizedBox(height: 24),
 
-                // SECTION 1: Date & Time Selection
-                _buildSectionHeader('1. Choose Date & Time Slot'),
+                // SECTION 1: Preferred Date & Time Selection
+                _buildSectionHeader('1. Choose Preferred Date & Time Window'),
+                const SizedBox(height: 4),
+                const Text(
+                  'Your chosen date and time are requested preferences. The business owner will review and approve availability before confirming.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
                 const SizedBox(height: 12),
 
                 // Date Picker Card
@@ -350,11 +359,11 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 _buildTextField(
                   controller: _nameController,
                   label: 'Full Name',
-                  hint: 'Enter your name',
+                  hint: 'Enter your full name',
                   icon: Icons.person_outline_rounded,
                   validator: (val) {
                     if (val == null || val.trim().length < 2) {
-                      return 'Please enter a valid full name';
+                      return 'Please enter your full name';
                     }
                     return null;
                   },
@@ -366,7 +375,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 _buildTextField(
                   controller: _phoneController,
                   label: 'Contact Number',
-                  hint: '98221XXXXX',
+                  hint: 'Enter your phone number',
                   icon: Icons.phone_android_rounded,
                   prefixText: '+91 ',
                   keyboardType: TextInputType.phone,
@@ -436,13 +445,13 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 // Full Street Address
                 _buildTextField(
                   controller: _addressController,
-                  label: 'House / Flat No., Society / Landmark',
-                  hint: 'e.g. Flat 302, Sai Residency, Near Agra Road',
+                  label: 'Full Address in Dhule',
+                  hint: 'Enter your house/flat no., society, landmark',
                   icon: Icons.home_outlined,
                   maxLines: 2,
                   validator: (val) {
                     if (val == null || val.trim().length < 5) {
-                      return 'Please provide your full street address';
+                      return 'Please enter your complete street address';
                     }
                     return null;
                   },

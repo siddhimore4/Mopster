@@ -61,6 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: nameCtrl,
                 decoration: InputDecoration(
                   labelText: 'Customer Name',
+                  hintText: 'Enter your full name',
                   prefixIcon: const Icon(Icons.person_outline_rounded,
                       color: AppColors.primaryMint),
                   border: OutlineInputBorder(
@@ -74,6 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: 'Mobile Phone',
+                  hintText: 'Enter 10-digit mobile number',
                   prefixText: '+91 ',
                   prefixIcon: const Icon(Icons.phone_android_rounded,
                       color: AppColors.primaryMint),
@@ -88,6 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Dhule Address',
+                  hintText: 'Enter your complete street address in Dhule',
                   prefixIcon: const Icon(Icons.home_outlined,
                       color: AppColors.primaryMint),
                   border: OutlineInputBorder(
@@ -196,7 +199,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     .take(2)
                     .join()
                     .toUpperCase()
-                : 'M';
+                : 'G';
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
@@ -235,7 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          storage.customerName,
+                          storage.customerName.isNotEmpty
+                              ? storage.customerName
+                              : 'Guest Customer',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -244,7 +249,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          storage.customerPhone,
+                          storage.customerPhone.isNotEmpty
+                              ? storage.customerPhone
+                              : 'Tap Edit Details to set phone number',
                           style: const TextStyle(
                             fontSize: 13,
                             color: AppColors.textSecondary,
@@ -336,7 +343,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                storage.customerAddress,
+                                storage.customerAddress.isNotEmpty
+                                    ? storage.customerAddress
+                                    : 'No address saved yet. Tap edit to save your Dhule address.',
                                 style: const TextStyle(
                                   fontSize: 13,
                                   color: AppColors.textSecondary,

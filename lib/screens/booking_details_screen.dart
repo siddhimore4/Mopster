@@ -28,27 +28,35 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   }
 
   Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
+    switch (status.toLowerCase().trim()) {
       case 'confirmed':
         return AppColors.statusConfirmed;
+      case 'in progress':
+        return const Color(0xFF7C3AED);
       case 'completed':
         return AppColors.statusCompleted;
+      case 'rejected':
       case 'cancelled':
         return AppColors.statusCancelled;
+      case 'pending approval':
       case 'pending':
       default:
-        return AppColors.statusPending;
+        return const Color(0xFFD97706);
     }
   }
 
   Color _getStatusBg(String status) {
-    switch (status.toLowerCase()) {
+    switch (status.toLowerCase().trim()) {
       case 'confirmed':
         return AppColors.accentSoftGreen;
+      case 'in progress':
+        return const Color(0xFFEDE9FE);
       case 'completed':
         return const Color(0xFFDBEAFE);
+      case 'rejected':
       case 'cancelled':
         return const Color(0xFFFEE2E2);
+      case 'pending approval':
       case 'pending':
       default:
         return const Color(0xFFFEF3C7);
@@ -64,14 +72,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           title: const Text(
-            'Cancel Booking?',
+            'Cancel Booking Request?',
             style: TextStyle(
               fontWeight: FontWeight.w800,
               color: AppColors.charcoal,
             ),
           ),
           content: Text(
-            'Are you sure you want to cancel appointment ${_currentBooking.id} for ${_currentBooking.serviceTitle}?',
+            'Are you sure you want to cancel booking ${_currentBooking.id} for ${_currentBooking.serviceTitle}?',
             style: const TextStyle(
               fontSize: 14,
               color: AppColors.textSecondary,
@@ -190,49 +198,56 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.borderLight),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'Current Status',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textMuted,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Current Status',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textMuted,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _currentBooking.bookingStatus,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: statusColor,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          _currentBooking.bookingStatus,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: statusColor,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusBg,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            _currentBooking.bookingStatus,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusBg,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        _currentBooking.bookingStatus,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
+
+                    // Descriptive status helper box
+                    _buildStatusExplanationBox(),
                   ],
                 ),
               ),
@@ -288,7 +303,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               const SizedBox(height: 20),
 
               // Schedule & Appointment Details
-              _buildSectionTitle('Schedule & Address'),
+              _buildSectionTitle('Requested Schedule & Address'),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -301,13 +316,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   children: [
                     _buildDetailRow(
                       icon: Icons.calendar_month_rounded,
-                      label: 'Date',
+                      label: 'Preferred Date',
                       value: dateFormatted,
                     ),
                     const Divider(height: 20, color: AppColors.divider),
                     _buildDetailRow(
                       icon: Icons.access_time_rounded,
-                      label: 'Time Window',
+                      label: 'Preferred Slot',
                       value: _currentBooking.timeSlot,
                     ),
                     const Divider(height: 20, color: AppColors.divider),
@@ -373,7 +388,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
 
               const SizedBox(height: 28),
 
-              // Cancellation Action (Eligible when Confirmed or Pending)
+              // Cancellation Action (Allowed only when Pending Approval or Confirmed)
               if (_currentBooking.canCancel)
                 CustomButton(
                   text: 'Cancel This Booking',
@@ -381,25 +396,6 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   icon: Icons.cancel_outlined,
                   isLoading: _isCancelling,
                   onPressed: _showCancelDialog,
-                )
-              else if (_currentBooking.bookingStatus == 'Cancelled')
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEE2E2),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'This booking was cancelled. No charges incurred.',
-                      style: TextStyle(
-                        color: AppColors.statusCancelled,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
                 ),
 
               const SizedBox(height: 24),
@@ -408,6 +404,179 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildStatusExplanationBox() {
+    if (_currentBooking.isPendingApproval) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEF3C7),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.hourglass_top_rounded,
+                color: Color(0xFFB45309), size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Awaiting Owner Approval: Your booking request is being reviewed by the Mopster business owner. Once approved, the status will update to Confirmed.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF92400E),
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_currentBooking.isConfirmed) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.accentSoftGreen,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.check_circle_rounded,
+                color: AppColors.primaryMintDark, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Booking Confirmed: The business owner has approved your appointment. Our Dhule team will arrive at your requested time slot.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.primaryMintDark,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_currentBooking.isInProgress) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEDE9FE),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.build_circle_rounded,
+                color: Color(0xFF7C3AED), size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Service In Progress: Our specialist is currently executing the service at your address.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF6D28D9),
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_currentBooking.isRejected) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEE2E2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.cancel_rounded,
+                color: AppColors.statusCancelled, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Request Declined: The business owner was unable to accommodate this request. Please contact support or book another slot.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.statusCancelled,
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_currentBooking.isCompleted) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFDBEAFE),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.task_alt_rounded,
+                color: AppColors.statusCompleted, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Service Completed: Thank you for trusting Mopster for your home in Dhule!',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF1E40AF),
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else if (_currentBooking.isCancelled) {
+      return Container(
+        margin: const EdgeInsets.only(top: 14),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEE2E2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Icon(Icons.info_outline_rounded,
+                color: AppColors.statusCancelled, size: 18),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'This booking was cancelled. No charges were incurred.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.statusCancelled,
+                  height: 1.3,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Widget _buildSectionTitle(String title) {

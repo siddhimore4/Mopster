@@ -28,25 +28,29 @@ class BookingConfirmationScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
 
-              // Animated/Glow Success Badge
+              // Hourglass / Pending Approval Badge
               Container(
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryMint,
+                  color: const Color(0xFFFEF3C7),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B).withOpacity(0.4),
+                    width: 2,
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primaryMint.withOpacity(0.35),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
+                      color: const Color(0xFFF59E0B).withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
                 child: const Icon(
-                  Icons.check_rounded,
-                  color: Colors.white,
-                  size: 52,
+                  Icons.hourglass_top_rounded,
+                  color: Color(0xFFB45309),
+                  size: 48,
                 ),
               ),
 
@@ -54,7 +58,7 @@ class BookingConfirmationScreen extends StatelessWidget {
 
               // Headline
               const Text(
-                'Booking Confirmed!',
+                'Request Submitted!',
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
@@ -66,7 +70,7 @@ class BookingConfirmationScreen extends StatelessWidget {
               const SizedBox(height: 8),
 
               const Text(
-                'Your home service has been scheduled. Our local Dhule team has received your request.',
+                'Your booking request has been submitted and is currently awaiting owner approval. We will review your preferred slot shortly.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
@@ -126,21 +130,24 @@ class BookingConfirmationScreen extends StatelessWidget {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.accentSoftGreen,
+                            color: const Color(0xFFFEF3C7),
                             borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFFF59E0B).withOpacity(0.4),
+                            ),
                           ),
                           child: Row(
                             children: const [
                               Icon(
-                                Icons.check_circle_rounded,
+                                Icons.access_time_rounded,
                                 size: 14,
-                                color: AppColors.primaryMintDark,
+                                color: Color(0xFFB45309),
                               ),
                               SizedBox(width: 4),
                               Text(
-                                'Confirmed',
+                                'Pending Approval',
                                 style: TextStyle(
-                                  color: AppColors.primaryMintDark,
+                                  color: Color(0xFFB45309),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -155,44 +162,49 @@ class BookingConfirmationScreen extends StatelessWidget {
 
                     _buildInfoRow('Service', booking.serviceTitle),
                     const SizedBox(height: 10),
-                    _buildInfoRow('Scheduled Date', dateFormatted),
+                    _buildInfoRow('Preferred Date', dateFormatted),
                     const SizedBox(height: 10),
-                    _buildInfoRow('Time Slot', booking.timeSlot),
+                    _buildInfoRow('Preferred Slot', booking.timeSlot),
                     const SizedBox(height: 10),
                     _buildInfoRow(
                         'Location', '${booking.dhuleArea}, Dhule'),
                     const SizedBox(height: 10),
                     _buildInfoRow('Amount Due', booking.formattedAmount),
                     const SizedBox(height: 10),
-                    _buildInfoRow('Payment', 'Cash on Delivery'),
+                    _buildInfoRow('Payment', 'Cash on Delivery (Pay after service)'),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Local Dispatch Note
+              // Owner Approval Warning Note
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryMintLight,
+                  color: const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFF59E0B).withOpacity(0.35),
+                  ),
                 ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Icon(
-                      Icons.info_outline_rounded,
-                      color: AppColors.primaryMintDark,
-                      size: 20,
+                      Icons.warning_amber_rounded,
+                      color: Color(0xFFB45309),
+                      size: 22,
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Saved to device storage. You can view or cancel this booking anytime under "My Bookings".',
+                        'Notice: Your service is NOT yet confirmed. The business owner in Dhule will review and confirm availability. You will see the updated status in "My Bookings" once approved.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.charcoal,
-                          height: 1.3,
+                          color: Color(0xFF92400E),
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -200,7 +212,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
               // Buttons
               CustomButton(

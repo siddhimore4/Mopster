@@ -21,6 +21,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   List<Map<String, dynamic>> _cloudServices = [];
   bool _isLoading = false;
   String _selectedStatusFilter = 'All';
+  DateTime? _selectedDateFilter;
   String _searchQuery = '';
 
   final List<String> _dhuleWorkers = [
@@ -63,10 +64,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       if (bookingsList.isNotEmpty) {
         _bookings = bookingsList
             .map((b) => BookingModel.fromSupabaseMap(b as Map<String, dynamic>))
+            .where((b) => !BookingStorage.isDummyBooking(b))
             .toList();
       } else {
         // Fallback to local storage if remote table is brand new
-        _bookings = List.from(BookingStorage().bookings);
+        _bookings = BookingStorage()
+            .bookings
+            .where((b) => !BookingStorage.isDummyBooking(b))
+            .toList();
       }
 
       // 2. Fetch all services from Supabase
@@ -77,7 +82,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       _cloudServices = List<Map<String, dynamic>>.from(servicesRes);
     } catch (e) {
       debugPrint('Admin load fallback to local storage: $e');
-      _bookings = List.from(BookingStorage().bookings);
+      _bookings = BookingStorage()
+          .bookings
+          .where((b) => !BookingStorage.isDummyBooking(b))
+          .toList();
     } finally {
       if (mounted) {
         setState(() {
@@ -94,6 +102,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           .from('bookings')
           .update({'booking_status': newStatus}).eq('id', bookingId);
 
+      // Synchronize BookingStorage local store
+      await BookingStorage().updateBookingStatus(bookingId, newStatus);
+
       // Update local state
       setState(() {
         final idx = _bookings.indexWhere((b) => b.id == bookingId);
@@ -101,9 +112,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           _bookings[idx] = _bookings[idx].copyWith(bookingStatus: newStatus);
         }
       });
-
-      // Synchronize BookingStorage
-      BookingStorage().refreshFromCloud();
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -186,15 +194,116 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     }
   }
 
+  void _confirmApproveBooking(BookingModel booking) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.check_circle_rounded,
+                color: AppColors.statusConfirmed, size: 24),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Approve Booking Request?',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Approve request ${booking.id} for ${booking.customerName}?\n\n'
+          '• Service: ${booking.serviceTitle}\n'
+          '• Preferred Date: ${DateFormat('dd MMM yyyy').format(booking.bookingDate)}\n'
+          '• Preferred Time: ${booking.timeSlot}\n'
+          '• Total Amount: ₹${booking.totalAmount.toStringAsFixed(0)}\n\n'
+          'Status will be updated to "Confirmed" and visible to the customer.',
+          style: const TextStyle(
+              fontSize: 13, height: 1.4, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _updateBookingStatus(booking.id, 'Confirmed');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.statusConfirmed,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Approve Booking',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmRejectBooking(BookingModel booking) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.cancel_rounded,
+                color: AppColors.statusCancelled, size: 24),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Reject Booking Request?',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Reject request ${booking.id} from ${booking.customerName}?\n\n'
+          'The customer will see their booking status updated to "Rejected".',
+          style: const TextStyle(
+              fontSize: 13, height: 1.4, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _updateBookingStatus(booking.id, 'Rejected');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.statusCancelled,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Reject Booking',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showStatusDialog(BookingModel booking) {
     showDialog(
       context: context,
       builder: (ctx) {
         final statuses = [
-          'Pending',
+          'Pending Approval',
           'Confirmed',
           'In Progress',
           'Completed',
+          'Rejected',
           'Cancelled',
         ];
         return SimpleDialog(
@@ -401,8 +510,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   @override
   Widget build(BuildContext context) {
     final filteredBookings = _bookings.where((b) {
-      final matchesStatus = _selectedStatusFilter == 'All' ||
-          b.bookingStatus.toLowerCase() == _selectedStatusFilter.toLowerCase();
+      bool matchesStatus;
+      if (_selectedStatusFilter == 'All') {
+        matchesStatus = true;
+      } else if (_selectedStatusFilter == 'Pending Approval') {
+        matchesStatus = b.isPendingApproval;
+      } else if (_selectedStatusFilter == 'Confirmed') {
+        matchesStatus = b.isConfirmed;
+      } else if (_selectedStatusFilter == 'In Progress') {
+        matchesStatus = b.isInProgress;
+      } else if (_selectedStatusFilter == 'Completed') {
+        matchesStatus = b.isCompleted;
+      } else if (_selectedStatusFilter == 'Rejected') {
+        matchesStatus = b.isRejected;
+      } else if (_selectedStatusFilter == 'Cancelled') {
+        matchesStatus = b.isCancelled;
+      } else {
+        matchesStatus = b.bookingStatus.toLowerCase() ==
+            _selectedStatusFilter.toLowerCase();
+      }
+
+      bool matchesDate = true;
+      if (_selectedDateFilter != null) {
+        matchesDate = b.bookingDate.year == _selectedDateFilter!.year &&
+            b.bookingDate.month == _selectedDateFilter!.month &&
+            b.bookingDate.day == _selectedDateFilter!.day;
+      }
+
       final q = _searchQuery.toLowerCase();
       final matchesSearch = q.isEmpty ||
           b.id.toLowerCase().contains(q) ||
@@ -410,18 +544,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           b.customerPhone.toLowerCase().contains(q) ||
           b.dhuleArea.toLowerCase().contains(q) ||
           b.serviceTitle.toLowerCase().contains(q);
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesDate && matchesSearch;
     }).toList();
 
     final totalBookings = _bookings.length;
-    final confirmedCount =
-        _bookings.where((b) => b.bookingStatus == 'Confirmed').length;
     final pendingCount =
-        _bookings.where((b) => b.bookingStatus == 'Pending').length;
+        _bookings.where((b) => b.isPendingApproval).length;
+    final confirmedCount =
+        _bookings.where((b) => b.isConfirmed).length;
+    final inProgressCount =
+        _bookings.where((b) => b.isInProgress).length;
     final completedCount =
-        _bookings.where((b) => b.bookingStatus == 'Completed').length;
+        _bookings.where((b) => b.isCompleted).length;
     final totalRevenue = _bookings
-        .where((b) => b.bookingStatus == 'Completed')
+        .where((b) => b.isCompleted)
         .fold(0.0, (sum, b) => sum + b.totalAmount);
 
     return Scaffold(
@@ -509,8 +645,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                           // KPI Metric Cards
                           _buildKpiRow(
                             total: totalBookings,
-                            confirmed: confirmedCount,
                             pending: pendingCount,
+                            confirmed: confirmedCount,
+                            inProgress: inProgressCount,
                             completed: completedCount,
                             revenue: totalRevenue,
                           ),
@@ -668,8 +805,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   Widget _buildKpiRow({
     required int total,
-    required int confirmed,
     required int pending,
+    required int confirmed,
+    required int inProgress,
     required int completed,
     required double revenue,
   }) {
@@ -677,14 +815,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildKpiCard('Total Bookings', '$total', Icons.assignment_rounded,
+          _buildKpiCard('Total Requests', '$total', Icons.assignment_rounded,
               AppColors.primaryMint),
+          const SizedBox(width: 10),
+          _buildKpiCard('Pending Approval', '$pending',
+              Icons.hourglass_top_rounded, AppColors.statusPending),
           const SizedBox(width: 10),
           _buildKpiCard('Confirmed', '$confirmed', Icons.check_circle_rounded,
               AppColors.statusConfirmed),
           const SizedBox(width: 10),
-          _buildKpiCard('Pending', '$pending', Icons.hourglass_top_rounded,
-              AppColors.statusPending),
+          _buildKpiCard('In Progress', '$inProgress',
+              Icons.engineering_rounded, const Color(0xFF7C3AED)),
           const SizedBox(width: 10),
           _buildKpiCard('Completed', '$completed', Icons.task_alt_rounded,
               AppColors.statusCompleted),
@@ -736,14 +877,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   Widget _buildFilterBar() {
     final statuses = [
       'All',
+      'Pending Approval',
       'Confirmed',
-      'Pending',
       'In Progress',
       'Completed',
-      'Cancelled'
+      'Rejected',
+      'Cancelled',
     ];
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Search Input
         Container(
@@ -768,6 +911,64 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                   EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             ),
           ),
+        ),
+        const SizedBox(height: 10),
+        // Date Filter Row
+        Row(
+          children: [
+            OutlinedButton.icon(
+              onPressed: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDateFilter ?? DateTime.now(),
+                  firstDate: DateTime(2025),
+                  lastDate: DateTime(2030),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _selectedDateFilter = picked;
+                  });
+                }
+              },
+              icon: const Icon(Icons.calendar_month_rounded, size: 14),
+              label: Text(
+                _selectedDateFilter == null
+                    ? 'Filter by Date'
+                    : 'Date: ${DateFormat('dd MMM yyyy').format(_selectedDateFilter!)}',
+                style:
+                    const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _selectedDateFilter != null
+                    ? AppColors.primaryMintDark
+                    : AppColors.charcoal,
+                backgroundColor: _selectedDateFilter != null
+                    ? AppColors.primaryMintLight
+                    : Colors.white,
+                side: BorderSide(
+                  color: _selectedDateFilter != null
+                      ? AppColors.primaryMint
+                      : AppColors.borderLight,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            if (_selectedDateFilter != null) ...[
+              const SizedBox(width: 8),
+              IconButton(
+                icon: const Icon(Icons.cancel_rounded,
+                    size: 18, color: AppColors.textMuted),
+                tooltip: 'Clear Date Filter',
+                onPressed: () {
+                  setState(() {
+                    _selectedDateFilter = null;
+                  });
+                },
+              ),
+            ],
+          ],
         ),
         const SizedBox(height: 10),
         // Status Filter Chips
@@ -817,13 +1018,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     final dateFormatted =
         DateFormat('dd MMM yyyy').format(booking.bookingDate);
 
-    Color statusColor = AppColors.statusConfirmed;
-    if (booking.bookingStatus == 'Pending') {
+    Color statusColor;
+    if (booking.isPendingApproval) {
       statusColor = AppColors.statusPending;
-    } else if (booking.bookingStatus == 'Cancelled') {
-      statusColor = AppColors.statusCancelled;
-    } else if (booking.bookingStatus == 'Completed') {
+    } else if (booking.isConfirmed) {
+      statusColor = AppColors.statusConfirmed;
+    } else if (booking.isInProgress) {
+      statusColor = const Color(0xFF7C3AED);
+    } else if (booking.isCompleted) {
       statusColor = AppColors.statusCompleted;
+    } else if (booking.isRejected || booking.isCancelled) {
+      statusColor = AppColors.statusCancelled;
+    } else {
+      statusColor = AppColors.textSecondary;
     }
 
     return Container(
@@ -919,22 +1126,45 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
           const SizedBox(height: 12),
 
-          // Service Title
-          Text(
-            booking.serviceTitle,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: AppColors.charcoal,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${booking.serviceCategory} • Slot: ${booking.timeSlot}',
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.textSecondary,
-            ),
+          // Service Title & Total Price
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      booking.serviceTitle,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.charcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${booking.serviceCategory} • Preferred: $dateFormatted (${booking.timeSlot})',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '₹${booking.totalAmount.toStringAsFixed(0)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.primaryMintDark,
+                ),
+              ),
+            ],
           ),
 
           const SizedBox(height: 10),
@@ -1025,6 +1255,132 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               ],
             ),
           ),
+
+          // Action Section: Approve / Reject for Pending Requests
+          if (booking.isPendingApproval) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFFBEB),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFFDE68A)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.hourglass_top_rounded,
+                          size: 16, color: Color(0xFFD97706)),
+                      SizedBox(width: 6),
+                      Text(
+                        'Awaiting Business Owner Action',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFFB45309),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _confirmApproveBooking(booking),
+                          icon: const Icon(Icons.check_circle_outline_rounded,
+                              size: 16),
+                          label: const Text('Approve Booking',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 13)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.statusConfirmed,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _confirmRejectBooking(booking),
+                          icon: const Icon(Icons.cancel_outlined, size: 16),
+                          label: const Text('Reject Booking',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 13)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.statusCancelled,
+                            side: const BorderSide(
+                                color: AppColors.statusCancelled),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          // Quick progression for Confirmed Bookings
+          if (booking.isConfirmed) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () =>
+                    _updateBookingStatus(booking.id, 'In Progress'),
+                icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                label: const Text('Dispatch / Start Service (In Progress)',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
+
+          // Quick progression for In Progress Bookings
+          if (booking.isInProgress) ...[
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () =>
+                    _updateBookingStatus(booking.id, 'Completed'),
+                icon: const Icon(Icons.task_alt_rounded, size: 16),
+                label: const Text('Mark Service Completed',
+                    style:
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.statusCompleted,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(vertical: 9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
 
           const SizedBox(height: 12),
 

@@ -21,7 +21,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -69,15 +69,18 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                   unselectedLabelColor: AppColors.charcoal,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                   unselectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                   tabs: [
                     Tab(
                       text: 'Upcoming (${storage.upcomingBookings.length})',
+                    ),
+                    Tab(
+                      text: 'In Progress (${storage.inProgressBookings.length})',
                     ),
                     Tab(
                       text: 'Past (${storage.pastBookings.length})',
@@ -94,27 +97,47 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
           animation: storage,
           builder: (context, _) {
             final upcoming = storage.upcomingBookings;
+            final inProgress = storage.inProgressBookings;
             final past = storage.pastBookings;
+            final hasAny = storage.hasAnyBookings;
 
             return TabBarView(
               controller: _tabController,
               children: [
-                // 1. Upcoming Tab
+                // 1. Upcoming Tab (Pending Approval & Confirmed)
                 _buildBookingList(
                   bookings: upcoming,
-                  emptyTitle: 'No Upcoming Appointments',
-                  emptySubtitle:
-                      'You do not have any scheduled cleaning or gardening visits in Dhule.',
-                  showExploreButton: true,
+                  emptyTitle: hasAny
+                      ? 'No Upcoming Bookings'
+                      : "You haven't booked any services yet",
+                  emptySubtitle: hasAny
+                      ? 'You have no active requests awaiting approval or confirmed.'
+                      : 'Browse our home cleaning and gardening services in Dhule and request your first booking!',
+                  showExploreButton: !hasAny,
                 ),
 
-                // 2. Past Tab
+                // 2. In Progress Tab
+                _buildBookingList(
+                  bookings: inProgress,
+                  emptyTitle: hasAny
+                      ? 'No Services In Progress'
+                      : "You haven't booked any services yet",
+                  emptySubtitle: hasAny
+                      ? 'Active cleaning or gardening visits currently underway will appear here.'
+                      : 'Browse our home cleaning and gardening services in Dhule and request your first booking!',
+                  showExploreButton: !hasAny,
+                ),
+
+                // 3. Past Tab (Completed, Rejected, Cancelled)
                 _buildBookingList(
                   bookings: past,
-                  emptyTitle: 'No Past Service Records',
-                  emptySubtitle:
-                      'Completed or cancelled bookings will appear here.',
-                  showExploreButton: false,
+                  emptyTitle: hasAny
+                      ? 'No Past Service Records'
+                      : "You haven't booked any services yet",
+                  emptySubtitle: hasAny
+                      ? 'Completed, rejected, or cancelled services will appear here.'
+                      : 'Browse our home cleaning and gardening services in Dhule and request your first booking!',
+                  showExploreButton: !hasAny,
                 ),
               ],
             );
@@ -140,7 +163,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
               Container(
                 width: 76,
                 height: 76,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.surfaceMuted,
                   shape: BoxShape.circle,
                 ),
@@ -153,6 +176,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
               const SizedBox(height: 20),
               Text(
                 emptyTitle,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -172,7 +196,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
               if (showExploreButton) ...[
                 const SizedBox(height: 24),
                 CustomButton(
-                  text: 'Explore Services',
+                  text: 'Book a Service',
                   icon: Icons.cleaning_services_rounded,
                   onPressed: () {
                     Navigator.push(

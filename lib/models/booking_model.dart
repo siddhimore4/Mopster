@@ -13,7 +13,7 @@ class BookingModel {
   final String specialInstructions;
   final String paymentMethod;
   final String paymentStatus;
-  final String bookingStatus; // 'Confirmed', 'In Progress', 'Completed', 'Cancelled'
+  final String bookingStatus; // 'Pending Approval', 'Confirmed', 'In Progress', 'Completed', 'Rejected', 'Cancelled'
   final String assignedStaff;
   final DateTime createdAt;
 
@@ -32,16 +32,30 @@ class BookingModel {
     this.specialInstructions = '',
     this.paymentMethod = 'Cash on Delivery (Pay after service)',
     this.paymentStatus = 'Pending (Pay upon completion)',
-    this.bookingStatus = 'Confirmed',
+    this.bookingStatus = 'Pending Approval',
     this.assignedStaff = 'Mopster Dhule Specialist Team',
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  bool get isUpcoming =>
-      bookingStatus == 'Confirmed' || bookingStatus == 'Pending';
+  bool get isPendingApproval =>
+      bookingStatus.toLowerCase() == 'pending approval' ||
+      bookingStatus.toLowerCase() == 'pending';
 
-  bool get canCancel =>
-      bookingStatus == 'Confirmed' || bookingStatus == 'Pending';
+  bool get isConfirmed => bookingStatus.toLowerCase() == 'confirmed';
+
+  bool get isInProgress => bookingStatus.toLowerCase() == 'in progress';
+
+  bool get isCompleted => bookingStatus.toLowerCase() == 'completed';
+
+  bool get isRejected => bookingStatus.toLowerCase() == 'rejected';
+
+  bool get isCancelled => bookingStatus.toLowerCase() == 'cancelled';
+
+  // Upcoming bookings are those awaiting approval or confirmed
+  bool get isUpcoming => isPendingApproval || isConfirmed;
+
+  // Customers can cancel as long as it's not yet in progress, completed, or already rejected/cancelled
+  bool get canCancel => isPendingApproval || isConfirmed;
 
   String get formattedAmount => '₹${totalAmount.toStringAsFixed(0)}';
 
@@ -100,17 +114,18 @@ class BookingModel {
       serviceTitle: json['serviceTitle'] as String,
       serviceCategory: json['serviceCategory'] as String,
       totalAmount: (json['totalAmount'] as num).toDouble(),
-      customerName: json['customerName'] as String,
-      customerPhone: json['customerPhone'] as String,
+      customerName: json['customerName'] as String? ?? '',
+      customerPhone: json['customerPhone'] as String? ?? '',
       dhuleArea: json['dhuleArea'] as String? ?? 'Dhule Central',
-      fullAddress: json['fullAddress'] as String,
+      fullAddress: json['fullAddress'] as String? ?? '',
       bookingDate: DateTime.parse(json['bookingDate'] as String),
       timeSlot: json['timeSlot'] as String,
       specialInstructions: json['specialInstructions'] as String? ?? '',
       paymentMethod: json['paymentMethod'] as String? ?? 'Cash on Delivery',
       paymentStatus: json['paymentStatus'] as String? ?? 'Pending',
-      bookingStatus: json['bookingStatus'] as String? ?? 'Confirmed',
-      assignedStaff: json['assignedStaff'] as String? ?? 'Dhule Local Specialist',
+      bookingStatus: json['bookingStatus'] as String? ?? 'Pending Approval',
+      assignedStaff:
+          json['assignedStaff'] as String? ?? 'Mopster Dhule Specialist Team',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : DateTime.now(),
@@ -146,10 +161,10 @@ class BookingModel {
       serviceTitle: json['service_title'] as String? ?? 'Home Service',
       serviceCategory: json['service_category'] as String? ?? 'Home Cleaning',
       totalAmount: (json['total_amount'] as num?)?.toDouble() ?? 0.0,
-      customerName: json['customer_name'] as String? ?? 'Customer',
+      customerName: json['customer_name'] as String? ?? '',
       customerPhone: json['customer_phone'] as String? ?? '',
       dhuleArea: json['dhule_area'] as String? ?? 'Dhule Central',
-      fullAddress: json['full_address'] as String? ?? 'Dhule',
+      fullAddress: json['full_address'] as String? ?? '',
       bookingDate: json['booking_date'] != null
           ? DateTime.parse(json['booking_date'] as String)
           : DateTime.now(),
@@ -157,7 +172,7 @@ class BookingModel {
       specialInstructions: json['special_instructions'] as String? ?? '',
       paymentMethod: json['payment_method'] as String? ?? 'Cash on Delivery',
       paymentStatus: json['payment_status'] as String? ?? 'Pending',
-      bookingStatus: json['booking_status'] as String? ?? 'Confirmed',
+      bookingStatus: json['booking_status'] as String? ?? 'Pending Approval',
       assignedStaff:
           json['assigned_staff'] as String? ?? 'Mopster Dhule Specialist Team',
       createdAt: json['created_at'] != null

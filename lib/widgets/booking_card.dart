@@ -14,27 +14,35 @@ class BookingCard extends StatelessWidget {
   });
 
   Color _getStatusColor() {
-    switch (booking.bookingStatus.toLowerCase()) {
+    switch (booking.bookingStatus.toLowerCase().trim()) {
       case 'confirmed':
         return AppColors.statusConfirmed;
+      case 'in progress':
+        return const Color(0xFF7C3AED);
       case 'completed':
         return AppColors.statusCompleted;
+      case 'rejected':
       case 'cancelled':
         return AppColors.statusCancelled;
+      case 'pending approval':
       case 'pending':
       default:
-        return AppColors.statusPending;
+        return const Color(0xFFD97706);
     }
   }
 
   Color _getStatusBg() {
-    switch (booking.bookingStatus.toLowerCase()) {
+    switch (booking.bookingStatus.toLowerCase().trim()) {
       case 'confirmed':
         return AppColors.accentSoftGreen;
+      case 'in progress':
+        return const Color(0xFFEDE9FE);
       case 'completed':
         return const Color(0xFFDBEAFE);
+      case 'rejected':
       case 'cancelled':
         return const Color(0xFFFEE2E2);
+      case 'pending approval':
       case 'pending':
       default:
         return const Color(0xFFFEF3C7);
