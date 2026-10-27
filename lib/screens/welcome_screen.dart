@@ -46,21 +46,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               // Brand Hero Badge
               Center(
                 child: Container(
-                  width: 80,
-                  height: 80,
+                  width: 84,
+                  height: 84,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryMintLight,
-                    shape: BoxShape.circle,
+                    color: const Color(0xFFECF8AE),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: AppColors.primaryMint.withOpacity(0.3),
-                      width: 2,
+                      color: AppColors.primaryMint.withOpacity(0.35),
+                      width: 1.8,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryMint.withOpacity(0.2),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.cleaning_services_rounded,
-                      color: AppColors.primaryMintDark,
-                      size: 40,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),

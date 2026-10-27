@@ -888,6 +888,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 24),
+
+                  // Mopster Brand Signature Footer
+                  Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFECF8AE),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.primaryMint.withOpacity(0.3),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(13),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Mopster • Dhule, Maharashtra',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          'Professional Home & Garden Services',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   const SizedBox(height: 30),
                 ],
               ),

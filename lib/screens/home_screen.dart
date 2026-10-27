@@ -169,6 +169,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              margin: const EdgeInsets.only(right: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFECF8AE),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppColors.primaryMint.withOpacity(0.3),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(11),
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
