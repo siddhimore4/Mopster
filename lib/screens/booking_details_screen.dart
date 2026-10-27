@@ -63,6 +63,24 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
     }
   }
 
+  IconData _getStatusIcon(String status) {
+    switch (status.toLowerCase().trim()) {
+      case 'confirmed':
+        return Icons.check_circle_rounded;
+      case 'in progress':
+        return Icons.autorenew_rounded;
+      case 'completed':
+        return Icons.task_alt_rounded;
+      case 'rejected':
+      case 'cancelled':
+        return Icons.cancel_rounded;
+      case 'pending approval':
+      case 'pending':
+      default:
+        return Icons.hourglass_top_rounded;
+    }
+  }
+
   void _showCancelDialog() {
     showDialog(
       context: context,
@@ -227,20 +245,31 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
+                            horizontal: 12,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             color: statusBg,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: Text(
-                            _currentBooking.bookingStatus,
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                            ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getStatusIcon(_currentBooking.bookingStatus),
+                                size: 14,
+                                color: statusColor,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                _currentBooking.bookingStatus,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

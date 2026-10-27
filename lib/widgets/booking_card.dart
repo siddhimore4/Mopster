@@ -49,6 +49,24 @@ class BookingCard extends StatelessWidget {
     }
   }
 
+  IconData _getStatusIcon() {
+    switch (booking.bookingStatus.toLowerCase().trim()) {
+      case 'confirmed':
+        return Icons.check_circle_rounded;
+      case 'in progress':
+        return Icons.autorenew_rounded;
+      case 'completed':
+        return Icons.task_alt_rounded;
+      case 'rejected':
+      case 'cancelled':
+        return Icons.cancel_rounded;
+      case 'pending approval':
+      case 'pending':
+      default:
+        return Icons.hourglass_top_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final formattedDate =
@@ -118,15 +136,12 @@ class BookingCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(),
-                              shape: BoxShape.circle,
-                            ),
+                          Icon(
+                            _getStatusIcon(),
+                            size: 13,
+                            color: _getStatusColor(),
                           ),
-                          const SizedBox(width: 5),
+                          const SizedBox(width: 4),
                           Text(
                             booking.bookingStatus,
                             style: TextStyle(

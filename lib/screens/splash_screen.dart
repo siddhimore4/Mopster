@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
-import 'welcome_screen.dart';
+import '../services/auth_service.dart';
+import 'auth/login_screen.dart';
+import 'main_nav_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -39,13 +41,15 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Auto navigate to WelcomeScreen after 2.2 seconds
+    // Check persistent login session after 2.2 seconds
     _timer = Timer(const Duration(milliseconds: 2200), () {
       if (mounted) {
+        final isLoggedIn = AuthService().isLoggedIn;
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, anim1, anim2) => const WelcomeScreen(),
+            pageBuilder: (context, anim1, anim2) =>
+                isLoggedIn ? const MainNavScreen() : const LoginScreen(),
             transitionsBuilder: (context, anim1, anim2, child) {
               return FadeTransition(opacity: anim1, child: child);
             },

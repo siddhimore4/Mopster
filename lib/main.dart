@@ -4,6 +4,7 @@ import 'config/colors.dart';
 import 'config/constants.dart';
 import 'config/supabase_config.dart';
 import 'data/booking_storage.dart';
+import 'services/auth_service.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
@@ -18,6 +19,9 @@ void main() async {
   } catch (e) {
     debugPrint('Supabase initialization warning: $e');
   }
+
+  // Initialize authentication service and cached session
+  await AuthService().init();
 
   // Initialize booking persistence service (local + cloud sync)
   await BookingStorage().init();

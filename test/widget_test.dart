@@ -16,12 +16,11 @@ void main() {
     // 1. Verify that the brand name Mopster is rendered on the splash screen
     expect(find.text(AppConstants.appName), findsOneWidget);
 
-    // 2. Advance time past splash timer (2.2 seconds) to trigger transition to WelcomeScreen
+    // 2. Advance time past splash timer (2.2 seconds) to trigger transition
     await tester.pump(const Duration(milliseconds: 2300));
     await tester.pumpAndSettle();
 
-    // 3. Verify that WelcomeScreen is presented with Dhule city features
-    expect(find.text('Welcome to Mopster'), findsOneWidget);
-    expect(find.text('Select your Dhule Locality'), findsOneWidget);
+    // 3. Verify that the unauthenticated customer is directed to LoginScreen with Mopster branding
+    expect(find.text('Customer Sign In / Register'), findsOneWidget);
   });
 }

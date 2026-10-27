@@ -4,6 +4,7 @@ import '../config/colors.dart';
 import '../config/constants.dart';
 import '../data/booking_storage.dart';
 import '../models/service_item.dart';
+import '../services/auth_service.dart';
 import '../widgets/custom_button.dart';
 import 'booking_summary_screen.dart';
 
@@ -35,16 +36,29 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   void initState() {
     super.initState();
     final storage = BookingStorage();
+    final profile = AuthService().currentProfile;
 
-    _nameController = TextEditingController(text: storage.customerName);
-    _phoneController = TextEditingController(
-      text: storage.customerPhone.replaceAll('+91 ', '').trim(),
-    );
-    _addressController = TextEditingController(text: storage.customerAddress);
+    final initialName = profile?.fullName.isNotEmpty == true
+        ? profile!.fullName
+        : storage.customerName;
+    final initialPhone = profile?.phone.isNotEmpty == true
+        ? profile!.phone.replaceAll('+91 ', '').replaceAll('+91', '').trim()
+        : storage.customerPhone
+            .replaceAll('+91 ', '')
+            .replaceAll('+91', '')
+            .trim();
+    final initialAddress = profile?.homeAddress.isNotEmpty == true
+        ? profile!.homeAddress
+        : storage.customerAddress;
+
+    _nameController = TextEditingController(text: initialName);
+    _phoneController = TextEditingController(text: initialPhone);
+    _addressController = TextEditingController(text: initialAddress);
     _instructionsController = TextEditingController();
 
-    _selectedDhuleArea =
-        storage.currentLocality.split(',').first.trim();
+    _selectedDhuleArea = profile?.dhuleArea.isNotEmpty == true
+        ? profile!.dhuleArea
+        : storage.currentLocality.split(',').first.trim();
     if (!AppConstants.dhuleLocalities.contains(_selectedDhuleArea)) {
       _selectedDhuleArea = AppConstants.dhuleLocalities.first;
     }
@@ -93,23 +107,36 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
 
   void _proceedToSummary() {
     if (_formKey.currentState?.validate() ?? false) {
+      final name = _nameController.text.trim();
+      final phone = '+91 ${_phoneController.text.trim()}';
+      final address = _addressController.text.trim();
+
       // Save customer details back to storage for future bookings
       BookingStorage().updateProfile(
-        name: _nameController.text.trim(),
-        phone: '+91 ${_phoneController.text.trim()}',
-        address: _addressController.text.trim(),
+        name: name,
+        phone: phone,
+        address: address,
       );
       BookingStorage().updateLocality('$_selectedDhuleArea, Dhule');
+
+      // Also sync to customer auth profile if logged in
+      if (AuthService().isLoggedIn) {
+        AuthService().updateProfile(
+          fullName: name,
+          dhuleArea: _selectedDhuleArea,
+          homeAddress: address,
+        );
+      }
 
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => BookingSummaryScreen(
             service: widget.service,
-            customerName: _nameController.text.trim(),
-            customerPhone: '+91 ${_phoneController.text.trim()}',
+            customerName: name,
+            customerPhone: phone,
             dhuleArea: _selectedDhuleArea,
-            fullAddress: _addressController.text.trim(),
+            fullAddress: address,
             bookingDate: _selectedDate,
             timeSlot: _selectedTimeSlot,
             specialInstructions: _instructionsController.text.trim(),

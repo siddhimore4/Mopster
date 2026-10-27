@@ -105,9 +105,73 @@ void main() {
         timeSlot: '10:00 AM - 12:00 PM',
       );
 
+      final inspectDummy = BookingModel(
+        id: 'MOP-INSPECT-528719',
+        serviceId: 'clean_deep',
+        serviceTitle: 'Deep Home Cleaning',
+        serviceCategory: 'Home Cleaning',
+        totalAmount: 2499.0,
+        customerName: 'Inspect',
+        customerPhone: '9822100000',
+        dhuleArea: 'Deopur',
+        fullAddress: 'Test Street',
+        bookingDate: DateTime.now(),
+        timeSlot: '10:00 AM',
+      );
+
+      final seedDummy = BookingModel(
+        id: 'MOP-DHU-5506',
+        serviceId: 'clean_bathroom',
+        serviceTitle: 'Bathroom Cleaning',
+        serviceCategory: 'Home Cleaning',
+        totalAmount: 499.0,
+        customerName: 'Rohan Patil',
+        customerPhone: '+91 9822144556',
+        dhuleArea: 'Sakri Road',
+        fullAddress: 'Row House 14, Anand Nagar, Deopur, Dhule',
+        bookingDate: DateTime.now(),
+        timeSlot: '01:30 PM',
+      );
+
       expect(BookingStorage.isDummyBooking(dummy1), isTrue);
       expect(BookingStorage.isDummyBooking(dummy2), isTrue);
+      expect(BookingStorage.isDummyBooking(inspectDummy), isTrue);
+      expect(BookingStorage.isDummyBooking(seedDummy), isTrue);
       expect(BookingStorage.isDummyBooking(genuine), isFalse);
+    });
+
+    test('BookingModel toSupabaseMap supports schema compatibility with and without customer_id', () {
+      final genuine = BookingModel(
+        id: 'MOP-DHU-102938',
+        customerId: 'auth-user-123',
+        serviceId: 'clean_kitchen',
+        serviceTitle: 'Kitchen Cleaning',
+        serviceCategory: 'Home Cleaning',
+        totalAmount: 899.0,
+        customerName: 'Gaurav Sharma',
+        customerPhone: '+91 98223 34455',
+        dhuleArea: 'Deopur',
+        fullAddress: 'Plot 10, Sharda Nagar, Deopur, Dhule',
+        bookingDate: DateTime.utc(2026, 10, 25, 10, 0),
+        timeSlot: '10:00 AM - 12:00 PM',
+      );
+
+      // Default preserves customerId when present
+      final mapDefault = genuine.toSupabaseMap();
+      expect(mapDefault['customer_id'], equals('auth-user-123'));
+      expect(mapDefault['id'], equals('MOP-DHU-102938'));
+      expect(mapDefault['service_id'], equals('clean_kitchen'));
+      expect(mapDefault['service_title'], equals('Kitchen Cleaning'));
+      expect(mapDefault['service_category'], equals('Home Cleaning'));
+      expect(mapDefault['total_amount'], equals(899.0));
+      expect(mapDefault['customer_name'], equals('Gaurav Sharma'));
+      expect(mapDefault['customer_phone'], equals('+91 98223 34455'));
+      expect(mapDefault['booking_status'], equals('Pending Approval'));
+
+      // Schema compatibility mode excludes customer_id for tables without that column
+      final mapWithoutCustId = genuine.toSupabaseMap(includeCustomerId: false);
+      expect(mapWithoutCustId.containsKey('customer_id'), isFalse);
+      expect(mapWithoutCustId['id'], equals('MOP-DHU-102938'));
     });
   });
 
@@ -254,6 +318,48 @@ void main() {
       expect(storage.customerPhone, equals('+91 98231 99999'));
       expect(
           storage.customerAddress, equals('Bungalow 7, Walwadi, Dhule - 424005'));
+    });
+  });
+
+  group('Payment Method & Status Lifecycle Tests (Requirement 4)', () {
+    test('Distinguishes payment method from payment status and updates properly',
+        () async {
+      final storage = BookingStorage();
+      await storage.init();
+
+      final upiBooking = BookingModel(
+        id: 'MOP-PAY-1001',
+        serviceId: 'clean_kitchen',
+        serviceTitle: 'Kitchen Deep Cleaning',
+        serviceCategory: 'Home Cleaning',
+        totalAmount: 1199.0,
+        customerName: 'Aditi Joshi',
+        customerPhone: '+91 98230 44556',
+        dhuleArea: 'Deopur',
+        fullAddress: 'Plot 12, Deopur, Dhule',
+        bookingDate: DateTime.now().add(const Duration(days: 2)),
+        timeSlot: '10:00 AM - 12:00 PM',
+        paymentMethod: 'Direct UPI to Business (Pay after service)',
+        paymentStatus: 'Pending (Pay upon completion)',
+      );
+
+      await storage.addBooking(upiBooking);
+      final stored = storage.bookings.firstWhere((b) => b.id == 'MOP-PAY-1001');
+
+      // Payment method is Direct UPI, but status is strictly Pending (not automatically paid)
+      expect(stored.paymentMethod, contains('Direct UPI'));
+      expect(stored.paymentStatus, contains('Pending'));
+      expect(stored.paymentStatus.toLowerCase().contains('paid'), isFalse);
+
+      // Business Owner records payment received
+      final updated = await storage.updatePaymentStatus(
+          'MOP-PAY-1001', 'Paid via Direct UPI (23 Oct 2026, 11:30 AM)');
+      expect(updated, isTrue);
+
+      final paidBooking =
+          storage.bookings.firstWhere((b) => b.id == 'MOP-PAY-1001');
+      expect(paidBooking.paymentStatus, contains('Paid via Direct UPI'));
+      expect(paidBooking.paymentStatus.toLowerCase().contains('paid'), isTrue);
     });
   });
 }

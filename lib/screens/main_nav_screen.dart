@@ -34,7 +34,10 @@ class MainNavScreenState extends State<MainNavScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HomeScreen(onNavigateToBookings: () => switchTab(1)),
+      HomeScreen(
+        onNavigateToBookings: () => switchTab(1),
+        onNavigateToProfile: () => switchTab(2),
+      ),
       const MyBookingsScreen(),
       const ProfileScreen(),
     ];

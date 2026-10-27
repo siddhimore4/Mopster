@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
 import '../data/booking_storage.dart';
+import '../services/auth_service.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/privacy_dialog.dart';
 import 'admin/admin_login_screen.dart';
+import 'auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,12 +17,29 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   void _editProfileModal() {
+    final auth = AuthService();
+    final profile = auth.currentProfile;
     final storage = BookingStorage();
-    final nameCtrl = TextEditingController(text: storage.customerName);
-    final phoneCtrl = TextEditingController(
-      text: storage.customerPhone.replaceAll('+91 ', '').trim(),
+
+    final nameCtrl = TextEditingController(
+      text: profile?.fullName.isNotEmpty == true
+          ? profile!.fullName
+          : storage.customerName,
     );
-    final addrCtrl = TextEditingController(text: storage.customerAddress);
+    final emailCtrl = TextEditingController(
+      text: profile?.email ?? '',
+    );
+    String selectedArea = profile?.dhuleArea.isNotEmpty == true
+        ? profile!.dhuleArea
+        : storage.currentLocality.split(',').first.trim();
+    if (!AppConstants.dhuleLocalities.contains(selectedArea)) {
+      selectedArea = AppConstants.dhuleLocalities.first;
+    }
+    final addrCtrl = TextEditingController(
+      text: profile?.homeAddress.isNotEmpty == true
+          ? profile!.homeAddress
+          : storage.customerAddress,
+    );
 
     showModalBottomSheet(
       context: context,
@@ -28,93 +48,195 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Edit Profile & Address',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.charcoal,
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 24,
+                bottom: MediaQuery.of(modalCtx).viewInsets.bottom + 24,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Edit Profile & Address',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.charcoal,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: () => Navigator.pop(modalCtx),
+                        ),
+                      ],
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: nameCtrl,
-                decoration: InputDecoration(
-                  labelText: 'Customer Name',
-                  hintText: 'Enter your full name',
-                  prefixIcon: const Icon(Icons.person_outline_rounded,
-                      color: AppColors.primaryMint),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                    const SizedBox(height: 10),
+                    // Verified Phone Banner (Read-only for security)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F5E9),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.statusConfirmed.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.verified_rounded,
+                            size: 16,
+                            color: AppColors.statusConfirmed,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Verified Mobile: ${profile?.formattedPhone ?? storage.customerPhone}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF2E7D32),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'Customer Full Name *',
+                        hintText: 'Enter your full name',
+                        prefixIcon: const Icon(
+                          Icons.person_outline_rounded,
+                          color: AppColors.primaryMint,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: emailCtrl,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Email Address (Optional)',
+                        hintText: 'e.g. yourname@example.com',
+                        prefixIcon: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.primaryMint,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      value: selectedArea,
+                      decoration: InputDecoration(
+                        labelText: 'Dhule Locality *',
+                        prefixIcon: const Icon(
+                          Icons.location_city_rounded,
+                          color: AppColors.primaryMint,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      items: AppConstants.dhuleLocalities.map((area) {
+                        return DropdownMenuItem(
+                          value: area,
+                          child: Text(area, style: const TextStyle(fontSize: 14)),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setModalState(() {
+                            selectedArea = val;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: addrCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: 'Complete Dhule Address *',
+                        hintText: 'House / Flat number, Landmark, Dhule',
+                        prefixIcon: const Icon(
+                          Icons.home_outlined,
+                          color: AppColors.primaryMint,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    CustomButton(
+                      text: 'Save Changes',
+                      onPressed: () async {
+                        final newName = nameCtrl.text.trim();
+                        final newEmail = emailCtrl.text.trim();
+                        final newAddress = addrCtrl.text.trim();
+
+                        if (newName.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please enter your full name'),
+                            ),
+                          );
+                          return;
+                        }
+
+                        Navigator.pop(modalCtx);
+
+                        final res = await auth.updateProfile(
+                          fullName: newName,
+                          email: newEmail.isNotEmpty ? newEmail : null,
+                          dhuleArea: selectedArea,
+                          homeAddress: newAddress,
+                        );
+
+                        if (!mounted) return;
+                        if (res) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.statusConfirmed,
+                              content: Text('Profile updated successfully!'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.statusCancelled,
+                              content: Text('Update failed. Please try again.'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: phoneCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: 'Mobile Phone',
-                  hintText: 'Enter 10-digit mobile number',
-                  prefixText: '+91 ',
-                  prefixIcon: const Icon(Icons.phone_android_rounded,
-                      color: AppColors.primaryMint),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: addrCtrl,
-                maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Dhule Address',
-                  hintText: 'Enter your complete street address in Dhule',
-                  prefixIcon: const Icon(Icons.home_outlined,
-                      color: AppColors.primaryMint),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'Save Changes',
-                onPressed: () {
-                  storage.updateProfile(
-                    name: nameCtrl.text.trim(),
-                    phone: '+91 ${phoneCtrl.text.trim()}',
-                    address: addrCtrl.text.trim(),
-                  );
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile updated successfully!')),
-                  );
-                },
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -170,9 +292,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _confirmLogout() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'Log Out of Mopster?',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: AppColors.charcoal,
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to log out? You can sign back in anytime using your registered mobile number and OTP.',
+          style: TextStyle(
+            fontSize: 14,
+            color: AppColors.textSecondary,
+            height: 1.4,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await AuthService().signOut();
+              if (!mounted) return;
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                (route) => false,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final storage = BookingStorage();
+    final auth = AuthService();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -190,16 +363,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body: SafeArea(
         child: AnimatedBuilder(
-          animation: storage,
+          animation: Listenable.merge([storage, auth]),
           builder: (context, _) {
-            final initials = storage.customerName.isNotEmpty
-                ? storage.customerName
-                    .split(' ')
-                    .map((n) => n.isNotEmpty ? n[0] : '')
-                    .take(2)
-                    .join()
-                    .toUpperCase()
-                : 'G';
+            final profile = auth.currentProfile;
+            final displayName = profile?.fullName.isNotEmpty == true
+                ? profile!.fullName
+                : storage.customerName.isNotEmpty
+                    ? storage.customerName
+                    : 'Customer';
+
+            final displayPhone = profile?.formattedPhone.isNotEmpty == true
+                ? profile!.formattedPhone
+                : storage.customerPhone.isNotEmpty
+                    ? storage.customerPhone
+                    : 'No Phone';
+
+            final displayEmail = profile?.email ?? '';
+            final displayLocality = profile?.dhuleArea.isNotEmpty == true
+                ? profile!.dhuleArea
+                : storage.currentLocality.split(',').first.trim();
+
+            final displayAddress = profile?.homeAddress.isNotEmpty == true
+                ? profile!.homeAddress
+                : storage.customerAddress;
+
+            final initials = profile?.initials ??
+                (displayName.isNotEmpty && displayName != 'Customer'
+                    ? displayName
+                        .split(' ')
+                        .map((n) => n.isNotEmpty ? n[0] : '')
+                        .take(2)
+                        .join()
+                        .toUpperCase()
+                    : 'M');
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
@@ -238,26 +434,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          storage.customerName.isNotEmpty
-                              ? storage.customerName
-                              : 'Guest Customer',
+                          displayName,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
                             color: AppColors.charcoal,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          storage.customerPhone.isNotEmpty
-                              ? storage.customerPhone
-                              : 'Tap Edit Details to set phone number',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        const SizedBox(height: 6),
+                        // Verified Phone Row
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.phone_android_rounded,
+                              size: 14,
+                              color: AppColors.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              displayPhone,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AppColors.charcoal,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.statusConfirmed
+                                      .withOpacity(0.4),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: const [
+                                  Icon(
+                                    Icons.verified_rounded,
+                                    size: 11,
+                                    color: AppColors.statusConfirmed,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'VERIFIED',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.statusConfirmed,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
+                        if (displayEmail.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.email_outlined,
+                                size: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                displayEmail,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 12),
                         // City Badge
                         Container(
@@ -279,7 +540,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                '${storage.currentLocality.split(',').first}, Dhule',
+                                '$displayLocality, Dhule',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -333,9 +594,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Home (Default)',
-                                style: TextStyle(
+                              Text(
+                                'Home ($displayLocality)',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.charcoal,
@@ -343,8 +604,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                storage.customerAddress.isNotEmpty
-                                    ? storage.customerAddress
+                                displayAddress.isNotEmpty
+                                    ? displayAddress
                                     : 'No address saved yet. Tap edit to save your Dhule address.',
                                 style: const TextStyle(
                                   fontSize: 13,
@@ -489,6 +750,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
+                        const Divider(height: 22, color: AppColors.divider),
+                        InkWell(
+                          onTap: () => PrivacyDialog.show(context),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: const [
+                                Row(
+                                  children: [
+                                    Icon(Icons.shield_outlined,
+                                        size: 16,
+                                        color: AppColors.primaryMintDark),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Customer Privacy Policy',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.charcoal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Icon(Icons.arrow_forward_ios_rounded,
+                                    size: 13, color: AppColors.textMuted),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -545,6 +837,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         );
                       },
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Customer Logout Option
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.red.shade200,
+                      ),
+                    ),
+                    child: ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.logout_rounded,
+                          color: Colors.red.shade700,
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        'Log Out',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.red.shade700,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Sign out from this account on this device',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: Colors.red.shade400,
+                      ),
+                      onTap: _confirmLogout,
                     ),
                   ),
 

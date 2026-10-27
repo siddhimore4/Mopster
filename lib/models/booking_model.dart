@@ -1,5 +1,6 @@
 class BookingModel {
   final String id;
+  final String? customerId;
   final String serviceId;
   final String serviceTitle;
   final String serviceCategory;
@@ -19,6 +20,7 @@ class BookingModel {
 
   BookingModel({
     required this.id,
+    this.customerId,
     required this.serviceId,
     required this.serviceTitle,
     required this.serviceCategory,
@@ -60,12 +62,14 @@ class BookingModel {
   String get formattedAmount => '₹${totalAmount.toStringAsFixed(0)}';
 
   BookingModel copyWith({
+    String? customerId,
     String? bookingStatus,
     String? paymentStatus,
     String? assignedStaff,
   }) {
     return BookingModel(
       id: id,
+      customerId: customerId ?? this.customerId,
       serviceId: serviceId,
       serviceTitle: serviceTitle,
       serviceCategory: serviceCategory,
@@ -88,6 +92,7 @@ class BookingModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'customerId': customerId,
       'serviceId': serviceId,
       'serviceTitle': serviceTitle,
       'serviceCategory': serviceCategory,
@@ -110,6 +115,7 @@ class BookingModel {
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
       id: json['id'] as String,
+      customerId: json['customerId'] as String?,
       serviceId: json['serviceId'] as String,
       serviceTitle: json['serviceTitle'] as String,
       serviceCategory: json['serviceCategory'] as String,
@@ -132,8 +138,8 @@ class BookingModel {
     );
   }
 
-  Map<String, dynamic> toSupabaseMap() {
-    return {
+  Map<String, dynamic> toSupabaseMap({bool? includeCustomerId}) {
+    final map = <String, dynamic>{
       'id': id,
       'service_id': serviceId,
       'service_title': serviceTitle,
@@ -143,20 +149,27 @@ class BookingModel {
       'customer_phone': customerPhone,
       'dhule_area': dhuleArea,
       'full_address': fullAddress,
-      'booking_date': bookingDate.toIso8601String(),
+      'booking_date': bookingDate.toUtc().toIso8601String(),
       'time_slot': timeSlot,
       'special_instructions': specialInstructions,
       'payment_method': paymentMethod,
       'payment_status': paymentStatus,
       'booking_status': bookingStatus,
       'assigned_staff': assignedStaff,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt.toUtc().toIso8601String(),
     };
+    final shouldIncludeCustId =
+        includeCustomerId ?? (customerId != null && customerId!.isNotEmpty);
+    if (shouldIncludeCustId && customerId != null && customerId!.isNotEmpty) {
+      map['customer_id'] = customerId;
+    }
+    return map;
   }
 
   factory BookingModel.fromSupabaseMap(Map<String, dynamic> json) {
     return BookingModel(
       id: json['id'] as String,
+      customerId: json['customer_id'] as String?,
       serviceId: json['service_id'] as String? ?? '',
       serviceTitle: json['service_title'] as String? ?? 'Home Service',
       serviceCategory: json['service_category'] as String? ?? 'Home Cleaning',

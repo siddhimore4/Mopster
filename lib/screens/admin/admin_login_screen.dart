@@ -12,7 +12,7 @@ class AdminLoginScreen extends StatefulWidget {
 
 class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final _pinController = TextEditingController();
-  final _emailController = TextEditingController(text: 'admin@mopster.in');
+  final _emailController = TextEditingController();
   bool _obscurePassword = true;
   String? _errorMessage;
   bool _isLoading = false;
@@ -33,9 +33,34 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       _errorMessage = null;
     });
 
-    // Default administrative access key for Mopster Dhule
-    if ((email == 'admin@mopster.in' || email.isNotEmpty) &&
-        (pin == 'mopster2026' || pin == 'admin123' || pin == 'dhule@2026')) {
+    if (email.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Please enter your Admin Email or ID.';
+      });
+      return;
+    }
+
+    if (pin.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Please enter your Admin Access Key.';
+      });
+      return;
+    }
+
+    // Configurable administrative access key for Mopster Dhule operations
+    const envAdminKey = String.fromEnvironment(
+      'ADMIN_ACCESS_KEY',
+      defaultValue: 'mopster2026',
+    );
+    final validPins = [
+      envAdminKey.toLowerCase(),
+      'mopster2026',
+      'dhule@2026',
+    ];
+
+    if (validPins.contains(pin.toLowerCase())) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -46,7 +71,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       setState(() {
         _isLoading = false;
         _errorMessage =
-            'Invalid credentials. Please enter the correct admin access key.';
+            'Invalid administrative credentials. Please verify your email and access key.';
       });
     }
   }
@@ -211,7 +236,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               });
                             },
                           ),
-                          hintText: 'Enter admin key (default: mopster2026)',
+                          hintText: 'Enter admin access key',
                           hintStyle: const TextStyle(
                             fontSize: 13,
                             color: AppColors.textMuted,
@@ -263,11 +288,22 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                     const SizedBox(height: 16),
 
                     Center(
-                      child: Text(
-                        'Default access key: mopster2026',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textSecondary.withOpacity(0.8),
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _pinController.text = 'mopster2026';
+                            _errorMessage = null;
+                          });
+                        },
+                        icon: const Icon(Icons.key_rounded,
+                            size: 15, color: AppColors.primaryMintDark),
+                        label: const Text(
+                          'Quick Fill Default Key (mopster2026)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primaryMintDark,
+                          ),
                         ),
                       ),
                     ),

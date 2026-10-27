@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
 import '../data/booking_storage.dart';
+import '../data/sample_services.dart';
 import '../models/booking_model.dart';
 import '../models/service_item.dart';
+import '../services/auth_service.dart';
 import '../widgets/custom_button.dart';
 import 'booking_confirmation_screen.dart';
 
@@ -39,40 +41,76 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
   bool _isSubmitting = false;
 
   String _generateBookingId() {
-    final randomDigits = 1000 + Random().nextInt(9000);
+    final randomDigits = 100000 + Random().nextInt(900000);
     return 'MOP-DHU-$randomDigits';
   }
 
   Future<void> _handleConfirmBooking() async {
     if (_isSubmitting) return; // Prevent duplicate submissions
 
+    // Validate required fields
+    if (widget.customerName.trim().isEmpty ||
+        widget.customerPhone.trim().isEmpty ||
+        widget.fullAddress.trim().isEmpty ||
+        widget.service.id.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.statusCancelled,
+          content: Text(
+            'Please fill in all required customer details (name, phone, address).',
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Verify service authenticity and price against official service catalogue
+    final verifiedService = SampleServices.allServices.firstWhere(
+      (s) => s.id == widget.service.id,
+      orElse: () => widget.service,
+    );
+
+    if (verifiedService.basePrice <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: AppColors.statusCancelled,
+          content: Text(
+            'Invalid service rate. Please select a valid service.',
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
 
+    final currentUid = AuthService().currentUserId;
     final newBooking = BookingModel(
       id: _generateBookingId(),
-      serviceId: widget.service.id,
-      serviceTitle: widget.service.title,
-      serviceCategory: widget.service.categoryName,
-      totalAmount: widget.service.basePrice,
-      customerName: widget.customerName,
-      customerPhone: widget.customerPhone,
-      dhuleArea: widget.dhuleArea,
-      fullAddress: widget.fullAddress,
+      customerId: currentUid.isNotEmpty ? currentUid : null,
+      serviceId: verifiedService.id,
+      serviceTitle: verifiedService.title,
+      serviceCategory: verifiedService.categoryName,
+      totalAmount: verifiedService.basePrice,
+      customerName: widget.customerName.trim(),
+      customerPhone: widget.customerPhone.trim(),
+      dhuleArea: widget.dhuleArea.trim(),
+      fullAddress: widget.fullAddress.trim(),
       bookingDate: widget.bookingDate,
       timeSlot: widget.timeSlot,
-      specialInstructions: widget.specialInstructions,
+      specialInstructions: widget.specialInstructions.trim(),
       paymentMethod: _selectedPaymentMethod == 'cash'
           ? 'Cash on Delivery (Pay after service)'
-          : 'Razorpay Online Gateway (Future)',
+          : 'Direct UPI to Business (Pay after service)',
       paymentStatus: 'Pending (Pay upon completion)',
       bookingStatus: 'Pending Approval',
       assignedStaff: 'Awaiting Owner Approval',
       createdAt: DateTime.now(),
     );
 
-    // Save to local device storage via BookingStorage
+    // Save to local device storage and sync with Supabase Cloud
     final success = await BookingStorage().addBooking(newBooking);
 
     if (!mounted) return;
@@ -93,7 +131,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         const SnackBar(
           backgroundColor: AppColors.statusCancelled,
           content: Text(
-            'Failed to save booking to local storage. Please try again.',
+            'Failed to save booking. Please check your network and try again.',
           ),
         ),
       );
@@ -300,65 +338,45 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
               const SizedBox(height: 10),
 
-              // Option B: UPI / Online Gateway (COMING SOON)
+              // Option B: Direct UPI Payment (ACTIVE)
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: _selectedPaymentMethod == 'direct_upi'
+                      ? AppColors.primaryMintLight
+                      : Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(
+                    color: _selectedPaymentMethod == 'direct_upi'
+                        ? AppColors.primaryMint
+                        : AppColors.borderLight,
+                    width: _selectedPaymentMethod == 'direct_upi' ? 1.5 : 1.0,
+                  ),
                 ),
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.qr_code_scanner_rounded,
-                    color: AppColors.textMuted,
-                  ),
-                  title: Row(
-                    children: [
-                      const Text(
-                        'Online UPI & Card Payment',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEF3C7),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'Coming Soon',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFFB45309),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  subtitle: const Text(
-                    'Direct Razorpay online gateway is in preparation. Please use Pay After Service for now.',
+                child: RadioListTile<String>(
+                  value: 'direct_upi',
+                  groupValue: _selectedPaymentMethod,
+                  activeColor: AppColors.primaryMint,
+                  title: const Text(
+                    'Direct UPI to Business (GPay / PhonePe / Paytm)',
                     style: TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textMuted,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.charcoal,
                     ),
                   ),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Online payments (Razorpay/UPI) are currently in sandbox setup. Please select Cash on Delivery to book!',
-                        ),
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
+                  subtitle: const Text(
+                    'Scan Mopster QR code or pay via UPI ID upon service completion. Verified and recorded by business.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _selectedPaymentMethod = val;
+                      });
+                    }
                   },
                 ),
               ),

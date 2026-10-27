@@ -6,6 +6,42 @@ import '../../data/booking_storage.dart';
 import '../../models/booking_model.dart';
 import '../main_nav_screen.dart';
 
+class AdminCustomerSummary {
+  final String id;
+  final String name;
+  final String phone;
+  final String? email;
+  final String dhuleArea;
+  final String homeAddress;
+  final DateTime registrationDate;
+  final List<BookingModel> bookings;
+
+  AdminCustomerSummary({
+    required this.id,
+    required this.name,
+    required this.phone,
+    this.email,
+    required this.dhuleArea,
+    required this.homeAddress,
+    required this.registrationDate,
+    required this.bookings,
+  });
+
+  int get bookingCount => bookings.length;
+  double get totalSpend => bookings
+      .where((b) => b.isCompleted)
+      .fold(0.0, (sum, b) => sum + b.totalAmount);
+
+  String get initials {
+    if (name.trim().isEmpty) return 'C';
+    final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return parts[0][0].toUpperCase();
+  }
+}
+
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
@@ -19,73 +55,194 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   List<BookingModel> _bookings = [];
   List<Map<String, dynamic>> _cloudServices = [];
+  List<AdminCustomerSummary> _customerList = [];
   bool _isLoading = false;
   String _selectedStatusFilter = 'All';
+  String _selectedCategoryFilter = 'All';
   DateTime? _selectedDateFilter;
   String _searchQuery = '';
+  String _customerSearchQuery = '';
 
   final List<String> _dhuleWorkers = [
-    'Sachin Shinde (Cleaning Lead)',
-    'Kailash Mali (Garden Specialist)',
-    'Rahul Patil (Cleaning Associate)',
-    'Sunita Jadhav (Deep Clean Expert)',
-    'Ganesh Pawar (Lawn & Plant Care)',
-    'Mopster Dhule Specialist Team',
+    'Unassigned / Pending Team Allocation',
+    'Mopster Core Team (Dhule Operations)',
+    'Owner Fulfilled (Self)',
   ];
+
+  RealtimeChannel? _realtimeChannel;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadData();
+    _setupRealtimeSubscription();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    if (_realtimeChannel != null) {
+      try {
+        Supabase.instance.client.removeChannel(_realtimeChannel!);
+      } catch (_) {}
+    }
     super.dispose();
   }
 
-  Future<void> _loadData() async {
-    setState(() {
-      _isLoading = true;
-    });
+  /// Subscribe to live Supabase Postgres changes on the bookings table
+  void _setupRealtimeSubscription() {
+    try {
+      final supabase = Supabase.instance.client;
+      _realtimeChannel = supabase.channel('admin_bookings_realtime_sync')
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'bookings',
+          callback: (payload) {
+            debugPrint('Realtime admin event detected: ${payload.eventType}');
+            _loadData(silent: true);
+          },
+        )
+        ..subscribe();
+    } catch (e) {
+      debugPrint('Realtime channel error in AdminDashboardScreen: $e');
+    }
+  }
+
+  Future<void> _loadData({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     try {
       final supabase = Supabase.instance.client;
 
-      // 1. Fetch all bookings from Supabase
+      // 1. Fetch genuine bookings directly from Supabase (sorted newest first)
       final bookingsRes = await supabase
           .from('bookings')
           .select()
           .order('created_at', ascending: false);
 
       final List<dynamic> bookingsList = bookingsRes as List<dynamic>;
-      if (bookingsList.isNotEmpty) {
-        _bookings = bookingsList
-            .map((b) => BookingModel.fromSupabaseMap(b as Map<String, dynamic>))
-            .where((b) => !BookingStorage.isDummyBooking(b))
-            .toList();
-      } else {
-        // Fallback to local storage if remote table is brand new
-        _bookings = BookingStorage()
-            .bookings
-            .where((b) => !BookingStorage.isDummyBooking(b))
-            .toList();
-      }
-
-      // 2. Fetch all services from Supabase
-      final servicesRes = await supabase
-          .from('services')
-          .select()
-          .order('category', ascending: true);
-      _cloudServices = List<Map<String, dynamic>>.from(servicesRes);
-    } catch (e) {
-      debugPrint('Admin load fallback to local storage: $e');
-      _bookings = BookingStorage()
-          .bookings
+      _bookings = bookingsList
+          .map((b) => BookingModel.fromSupabaseMap(b as Map<String, dynamic>))
           .where((b) => !BookingStorage.isDummyBooking(b))
           .toList();
+
+      // 2. Fetch all services from Supabase
+      try {
+        final servicesRes = await supabase
+            .from('services')
+            .select()
+            .order('category', ascending: true);
+        _cloudServices = List<Map<String, dynamic>>.from(servicesRes);
+      } catch (servicesErr) {
+        debugPrint('Admin load services note: $servicesErr');
+      }
+
+      // 3. Correlate customers from Supabase profiles and genuine customer bookings
+      List<Map<String, dynamic>> profilesRaw = [];
+      try {
+        final profilesRes = await supabase
+            .from('profiles')
+            .select()
+            .order('created_at', ascending: false);
+        profilesRaw =
+            List<Map<String, dynamic>>.from(profilesRes as List<dynamic>);
+      } catch (e) {
+        debugPrint('Admin load profiles note: $e');
+      }
+
+      final Map<String, AdminCustomerSummary> customerMap = {};
+
+      for (final p in profilesRaw) {
+        final id = p['id']?.toString() ?? '';
+        final phone = p['phone']?.toString() ?? '';
+        final name = p['full_name']?.toString() ?? 'Customer';
+        final email = p['email']?.toString();
+        final dhuleArea = p['dhule_area']?.toString() ?? 'Deopur';
+        final homeAddress = p['home_address']?.toString() ?? '';
+        DateTime regDate;
+        try {
+          regDate = p['created_at'] != null
+              ? DateTime.parse(p['created_at'].toString())
+              : DateTime.now();
+        } catch (_) {
+          regDate = DateTime.now();
+        }
+
+        final cleanCustomerPhone =
+            phone.replaceAll(' ', '').replaceAll('+91', '').trim();
+        final custBookings = _bookings.where((b) {
+          final matchesId = b.customerId != null && b.customerId == id;
+          final bPhoneClean =
+              b.customerPhone.replaceAll(' ', '').replaceAll('+91', '').trim();
+          final matchesPhone = cleanCustomerPhone.isNotEmpty &&
+              bPhoneClean == cleanCustomerPhone;
+          return matchesId || matchesPhone;
+        }).toList();
+
+        final key = id.isNotEmpty ? id : phone;
+        if (key.isNotEmpty) {
+          customerMap[key] = AdminCustomerSummary(
+            id: id,
+            name: name,
+            phone: phone,
+            email: email,
+            dhuleArea: dhuleArea,
+            homeAddress: homeAddress,
+            registrationDate: regDate,
+            bookings: custBookings,
+          );
+        }
+      }
+
+      // Correlate genuine customers who booked from the app
+      for (final b in _bookings) {
+        final cleanBPhone =
+            b.customerPhone.replaceAll(' ', '').replaceAll('+91', '').trim();
+        final existingKey = customerMap.keys.firstWhere(
+          (k) {
+            final c = customerMap[k]!;
+            final cClean =
+                c.phone.replaceAll(' ', '').replaceAll('+91', '').trim();
+            return (b.customerId != null && b.customerId == c.id) ||
+                (cleanBPhone.isNotEmpty && cClean == cleanBPhone);
+          },
+          orElse: () => '',
+        );
+
+        if (existingKey.isEmpty && cleanBPhone.isNotEmpty) {
+          final custBookings = _bookings.where((other) {
+            final otherClean = other.customerPhone
+                .replaceAll(' ', '')
+                .replaceAll('+91', '')
+                .trim();
+            return otherClean == cleanBPhone;
+          }).toList();
+
+          customerMap['phone_$cleanBPhone'] = AdminCustomerSummary(
+            id: b.customerId ?? 'guest_${b.id}',
+            name: b.customerName,
+            phone: b.customerPhone,
+            email: null,
+            dhuleArea: b.dhuleArea,
+            homeAddress: b.fullAddress,
+            registrationDate: b.createdAt,
+            bookings: custBookings,
+          );
+        }
+      }
+
+      _customerList = customerMap.values.toList()
+        ..sort((a, b) => b.registrationDate.compareTo(a.registrationDate));
+    } catch (e) {
+      debugPrint('Admin load error: $e');
+      // If error occurs, do not fabricate demo bookings!
+      _bookings = [];
     } finally {
       if (mounted) {
         setState(() {
@@ -162,6 +319,44 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         SnackBar(
           backgroundColor: AppColors.statusCancelled,
           content: Text('Failed to assign worker: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _updatePaymentStatus(
+      String bookingId, String newPaymentStatus) async {
+    try {
+      final supabase = Supabase.instance.client;
+      await supabase
+          .from('bookings')
+          .update({'payment_status': newPaymentStatus}).eq('id', bookingId);
+
+      // Synchronize BookingStorage local store
+      await BookingStorage().updatePaymentStatus(bookingId, newPaymentStatus);
+
+      // Update local state
+      setState(() {
+        final idx = _bookings.indexWhere((b) => b.id == bookingId);
+        if (idx != -1) {
+          _bookings[idx] =
+              _bookings[idx].copyWith(paymentStatus: newPaymentStatus);
+        }
+      });
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.primaryMintDark,
+          content: Text('Payment status updated to "$newPaymentStatus"'),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.statusCancelled,
+          content: Text('Failed to update payment status: $e'),
         ),
       );
     }
@@ -441,6 +636,93 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     );
   }
 
+  void _showPaymentDialog(BookingModel booking) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final nowStr =
+            DateFormat('dd MMM yyyy, hh:mm a').format(DateTime.now());
+        return SimpleDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'Record Payment for ${booking.id}',
+            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+              child: Text(
+                'Total Amount: ₹${booking.totalAmount.toStringAsFixed(0)}\n'
+                'Selected Method: ${booking.paymentMethod}\n'
+                'Current Status: ${booking.paymentStatus}',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            const Divider(height: 16),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _updatePaymentStatus(
+                    booking.id, 'Paid via Direct UPI ($nowStr)');
+              },
+              child: Row(
+                children: const [
+                  Icon(Icons.qr_code_2_rounded,
+                      color: AppColors.primaryMintDark, size: 20),
+                  SizedBox(width: 12),
+                  Text(
+                    'Mark as Paid via Direct UPI',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _updatePaymentStatus(booking.id, 'Paid via Cash ($nowStr)');
+              },
+              child: Row(
+                children: const [
+                  Icon(Icons.payments_rounded,
+                      color: Color(0xFF0D9488), size: 20),
+                  SizedBox(width: 12),
+                  Text(
+                    'Mark as Paid via Cash',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _updatePaymentStatus(
+                    booking.id, 'Pending (Pay upon completion)');
+              },
+              child: Row(
+                children: const [
+                  Icon(Icons.hourglass_empty_rounded,
+                      color: AppColors.textMuted, size: 20),
+                  SizedBox(width: 12),
+                  Text(
+                    'Reset to Payment Pending',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showEditServiceDialog(Map<String, dynamic> service) {
     final priceCtrl =
         TextEditingController(text: '${service['base_price']}');
@@ -507,6 +789,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
     );
   }
 
+  void _confirmExitConsole() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: const [
+            Icon(Icons.exit_to_app_rounded,
+                color: AppColors.primaryMintDark, size: 24),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Exit Business Console?',
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Return to customer app view? You can switch back to the Business Owner Console anytime from the Profile screen.',
+          style: TextStyle(
+              fontSize: 13, height: 1.4, color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Stay in Console'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MainNavScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryMint,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Exit to App',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final filteredBookings = _bookings.where((b) {
@@ -530,6 +864,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
             _selectedStatusFilter.toLowerCase();
       }
 
+      bool matchesCategory = true;
+      if (_selectedCategoryFilter != 'All') {
+        matchesCategory = b.serviceCategory.trim().toLowerCase() ==
+            _selectedCategoryFilter.trim().toLowerCase();
+      }
+
       bool matchesDate = true;
       if (_selectedDateFilter != null) {
         matchesDate = b.bookingDate.year == _selectedDateFilter!.year &&
@@ -544,7 +884,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           b.customerPhone.toLowerCase().contains(q) ||
           b.dhuleArea.toLowerCase().contains(q) ||
           b.serviceTitle.toLowerCase().contains(q);
-      return matchesStatus && matchesDate && matchesSearch;
+      return matchesStatus && matchesCategory && matchesDate && matchesSearch;
     }).toList();
 
     final totalBookings = _bookings.length;
@@ -595,14 +935,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: AppColors.charcoal),
             tooltip: 'Exit to Customer App',
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MainNavScreen(),
-                ),
-              );
-            },
+            onPressed: _confirmExitConsole,
           ),
         ],
         bottom: TabBar(
@@ -616,11 +949,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
           tabs: [
             Tab(
               icon: const Icon(Icons.assignment_rounded, size: 18),
-              text: 'Bookings & Dispatch ($totalBookings)',
+              text: 'Bookings ($totalBookings)',
+            ),
+            Tab(
+              icon: const Icon(Icons.people_alt_rounded, size: 18),
+              text: 'Customers (${_customerList.length})',
             ),
             Tab(
               icon: const Icon(Icons.cleaning_services_rounded, size: 18),
-              text: 'Services & Rates (${_cloudServices.length})',
+              text: 'Services (${_cloudServices.length})',
             ),
           ],
         ),
@@ -660,7 +997,78 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                           const SizedBox(height: 16),
 
                           // Bookings List
-                          if (filteredBookings.isEmpty)
+                          if (_bookings.isEmpty)
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 48),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                border:
+                                    Border.all(color: AppColors.borderLight),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    width: 68,
+                                    height: 68,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryMintLight
+                                          .withOpacity(0.5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.inbox_outlined,
+                                      size: 34,
+                                      color: AppColors.primaryMintDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  const Text(
+                                    'No bookings received yet.',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.charcoal,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  const Text(
+                                    'Real customer bookings placed from the Mopster app will appear here in real-time.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  OutlinedButton.icon(
+                                    onPressed: () => _loadData(),
+                                    icon: const Icon(Icons.refresh_rounded,
+                                        size: 18,
+                                        color: AppColors.primaryMintDark),
+                                    label: const Text(
+                                      'Refresh from Cloud',
+                                      style: TextStyle(
+                                        color: AppColors.primaryMintDark,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    style: OutlinedButton.styleFrom(
+                                      side: const BorderSide(
+                                          color: AppColors.primaryMint),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 18, vertical: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else if (filteredBookings.isEmpty)
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(36),
@@ -671,16 +1079,36 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                                     Border.all(color: AppColors.borderLight),
                               ),
                               child: Column(
-                                children: const [
-                                  Icon(Icons.inbox_rounded,
+                                children: [
+                                  const Icon(Icons.filter_alt_off_rounded,
                                       size: 40, color: AppColors.textMuted),
-                                  SizedBox(height: 10),
-                                  Text(
+                                  const SizedBox(height: 10),
+                                  const Text(
                                     'No bookings matching your filter.',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.charcoal,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'Try selecting a different status or clearing search.',
+                                    style: TextStyle(
+                                      fontSize: 12,
                                       color: AppColors.textSecondary,
                                     ),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedStatusFilter = 'All';
+                                        _selectedDateFilter = null;
+                                        _searchQuery = '';
+                                      });
+                                    },
+                                    child: const Text('Reset All Filters'),
                                   ),
                                 ],
                               ),
@@ -694,7 +1122,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                     ),
                   ),
 
-                  // TAB 2: Services & Pricing Management
+                  // TAB 2: Registered Customer Directory & History
+                  _buildCustomerTab(),
+
+                  // TAB 3: Services & Pricing Management
                   RefreshIndicator(
                     onRefresh: _loadData,
                     child: ListView.builder(
@@ -969,6 +1400,75 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               ),
             ],
           ],
+        ),
+        const SizedBox(height: 10),
+        // Category Filter Chips (All / Cleaning / Gardening)
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.accentSoftGreen.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.category_rounded,
+                        size: 13, color: AppColors.primaryMintDark),
+                    SizedBox(width: 4),
+                    Text(
+                      'Category:',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryMintDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ...['All', 'Cleaning', 'Gardening'].map((cat) {
+                final isSelected = _selectedCategoryFilter == cat;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6.0),
+                  child: ChoiceChip(
+                    label: Text(cat == 'All' ? 'All Categories' : cat),
+                    selected: isSelected,
+                    onSelected: (val) {
+                      if (val) {
+                        setState(() {
+                          _selectedCategoryFilter = cat;
+                        });
+                      }
+                    },
+                    selectedColor: AppColors.primaryMintDark,
+                    backgroundColor: Colors.white,
+                    labelStyle: TextStyle(
+                      fontSize: 11,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? Colors.white : AppColors.charcoal,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.primaryMintDark
+                            : AppColors.borderLight,
+                      ),
+                    ),
+                    visualDensity: VisualDensity.compact,
+                    showCheckmark: false,
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
         const SizedBox(height: 10),
         // Status Filter Chips
@@ -1429,8 +1929,689 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
               ),
             ],
           ),
+
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: AppColors.divider),
+          const SizedBox(height: 10),
+
+          // Payment Status & Method Row (Requirement 4)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          booking.paymentMethod.toLowerCase().contains('upi')
+                              ? Icons.qr_code_2_rounded
+                              : Icons.payments_outlined,
+                          size: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            booking.paymentMethod,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color:
+                            booking.paymentStatus.toLowerCase().contains('paid')
+                                ? const Color(0xFFD1FAE5)
+                                : const Color(0xFFFEF3C7),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        booking.paymentStatus,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: booking.paymentStatus
+                                  .toLowerCase()
+                                  .contains('paid')
+                              ? const Color(0xFF065F46)
+                              : const Color(0xFF92400E),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Record / Update Payment Button
+              OutlinedButton.icon(
+                onPressed: () => _showPaymentDialog(booking),
+                icon: const Icon(Icons.currency_rupee_rounded, size: 14),
+                label: const Text('Record Payment',
+                    style:
+                        TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF0D9488),
+                  side: const BorderSide(color: Color(0xFF0D9488)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  minimumSize: const Size(60, 32),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
+    );
+  }
+
+  // ==========================================
+  // CUSTOMER DIRECTORY & MANAGEMENT TAB
+  // ==========================================
+
+  Widget _buildCustomerTab() {
+    final query = _customerSearchQuery.toLowerCase().trim();
+    final filtered = _customerList.where((c) {
+      if (query.isEmpty) return true;
+      return c.name.toLowerCase().contains(query) ||
+          c.phone.toLowerCase().contains(query) ||
+          (c.email != null && c.email!.toLowerCase().contains(query)) ||
+          c.dhuleArea.toLowerCase().contains(query) ||
+          c.homeAddress.toLowerCase().contains(query);
+    }).toList();
+
+    final totalWithBookings =
+        _customerList.where((c) => c.bookingCount > 0).length;
+    final totalBookingsPlaced = _bookings.length;
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Customer KPI Summary Cards
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildKpiCard(
+                    'Registered Users',
+                    '${_customerList.length}',
+                    Icons.people_alt_rounded,
+                    AppColors.primaryMint,
+                  ),
+                  const SizedBox(width: 10),
+                  _buildKpiCard(
+                    'Active Bookers',
+                    '$totalWithBookings',
+                    Icons.verified_user_rounded,
+                    AppColors.statusConfirmed,
+                  ),
+                  const SizedBox(width: 10),
+                  _buildKpiCard(
+                    'Total Bookings',
+                    '$totalBookingsPlaced',
+                    Icons.receipt_long_rounded,
+                    const Color(0xFF7C3AED),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Search Filter Box
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.borderLight),
+              ),
+              child: TextField(
+                onChanged: (val) {
+                  setState(() {
+                    _customerSearchQuery = val;
+                  });
+                },
+                decoration: const InputDecoration(
+                  hintText: 'Search customer name, mobile, email, locality...',
+                  hintStyle:
+                      TextStyle(fontSize: 13, color: AppColors.textMuted),
+                  prefixIcon: Icon(Icons.search_rounded,
+                      color: AppColors.primaryMintDark, size: 20),
+                  border: InputBorder.none,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Customer Directory List
+            if (_customerList.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 48),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 68,
+                      height: 68,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryMintLight.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.people_outline_rounded,
+                        size: 34,
+                        color: AppColors.primaryMintDark,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No registered customers yet.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.charcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Customers who book services will appear here with their contact and address details.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (filtered.isEmpty)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(36),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderLight),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.person_search_rounded,
+                        size: 40, color: AppColors.textMuted),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'No customers matching your search.',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _customerSearchQuery = '';
+                        });
+                      },
+                      child: const Text('Clear Search'),
+                    ),
+                  ],
+                ),
+              )
+            else
+              ...filtered.map((customer) => _buildCustomerCard(customer)),
+
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCustomerCard(AdminCustomerSummary customer) {
+    final regDateStr =
+        DateFormat('dd MMM yyyy').format(customer.registrationDate);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.borderLight),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row 1: Avatar, Name, Verified Mobile & Bookings Chip
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: AppColors.primaryMintLight,
+                child: Text(
+                  customer.initials,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primaryMintDark,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      customer.name.isNotEmpty
+                          ? customer.name
+                          : 'Dhule Customer',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.charcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.phone_android_rounded,
+                            size: 13, color: AppColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Text(
+                          customer.phone,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.charcoal,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8F5E9),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                                color: AppColors.statusConfirmed
+                                    .withOpacity(0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.verified_rounded,
+                                  size: 10, color: AppColors.statusConfirmed),
+                              SizedBox(width: 3),
+                              Text(
+                                'VERIFIED',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.statusConfirmed,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: customer.bookingCount > 0
+                      ? AppColors.primaryMintLight
+                      : AppColors.surfaceMuted,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: customer.bookingCount > 0
+                        ? AppColors.primaryMint.withOpacity(0.3)
+                        : AppColors.borderLight,
+                  ),
+                ),
+                child: Text(
+                  '${customer.bookingCount} ${customer.bookingCount == 1 ? 'Booking' : 'Bookings'}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: customer.bookingCount > 0
+                        ? AppColors.primaryMintDark
+                        : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          const Divider(height: 1, color: AppColors.divider),
+          const SizedBox(height: 10),
+
+          // Email block
+          if (customer.email != null && customer.email!.isNotEmpty) ...[
+            Row(
+              children: [
+                const Icon(Icons.email_outlined,
+                    size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 6),
+                Text(
+                  customer.email!,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+          ],
+
+          // Locality and Address
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.location_on_rounded,
+                  size: 14, color: AppColors.textMuted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '${customer.homeAddress.isNotEmpty ? customer.homeAddress : 'Address not specified'} (${customer.dhuleArea}, Dhule)',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 6),
+
+          // Registration Date & Total Spend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_rounded,
+                      size: 13, color: AppColors.textMuted),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Registered: $regDateStr',
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textMuted),
+                  ),
+                ],
+              ),
+              if (customer.totalSpend > 0)
+                Text(
+                  'Settled: ₹${customer.totalSpend.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF0D9488),
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Action Button: View Booking History
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => _showCustomerHistoryDialog(customer),
+              icon: const Icon(Icons.history_rounded, size: 16),
+              label: Text(
+                customer.bookingCount > 0
+                    ? 'View Customer Booking History (${customer.bookingCount})'
+                    : 'Customer Booking History (None yet)',
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.primaryMintDark,
+                side: const BorderSide(color: AppColors.primaryMint),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCustomerHistoryDialog(AdminCustomerSummary customer) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Container(
+          height: MediaQuery.of(ctx).size.height * 0.75,
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          customer.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.charcoal,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${customer.phone} • ${customer.dhuleArea}, Dhule',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              const Divider(height: 1, color: AppColors.divider),
+              const SizedBox(height: 12),
+              Text(
+                'Customer Booking History (${customer.bookings.length})',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.charcoal,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: customer.bookings.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.inbox_rounded,
+                                size: 40, color: AppColors.textMuted),
+                            SizedBox(height: 8),
+                            Text(
+                              'No bookings recorded for this customer yet.',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: customer.bookings.length,
+                        itemBuilder: (context, index) {
+                          final b = customer.bookings[index];
+                          final dateStr =
+                              DateFormat('dd MMM yyyy').format(b.bookingDate);
+
+                          Color statusColor;
+                          if (b.isPendingApproval) {
+                            statusColor = AppColors.statusPending;
+                          } else if (b.isConfirmed) {
+                            statusColor = AppColors.statusConfirmed;
+                          } else if (b.isInProgress) {
+                            statusColor = const Color(0xFF7C3AED);
+                          } else if (b.isCompleted) {
+                            statusColor = AppColors.statusCompleted;
+                          } else {
+                            statusColor = AppColors.statusCancelled;
+                          }
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border:
+                                  Border.all(color: AppColors.borderLight),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      b.id,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 12,
+                                        color: AppColors.charcoal,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withOpacity(0.12),
+                                        borderRadius:
+                                            BorderRadius.circular(8),
+                                        border: Border.all(
+                                            color: statusColor
+                                                .withOpacity(0.3)),
+                                      ),
+                                      child: Text(
+                                        b.bookingStatus,
+                                        style: TextStyle(
+                                          color: statusColor,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      b.serviceTitle,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.charcoal,
+                                      ),
+                                    ),
+                                    Text(
+                                      '₹${b.totalAmount.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w900,
+                                        color: AppColors.primaryMintDark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Scheduled: $dateStr (${b.timeSlot})',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                if (b.assignedStaff.isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Staff: ${b.assignedStaff}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

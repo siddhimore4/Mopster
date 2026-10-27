@@ -19,6 +19,7 @@ class BookingStorage extends ChangeNotifier {
   static const String _userNameKey = 'mopster_user_name';
   static const String _userPhoneKey = 'mopster_user_phone';
   static const String _userAddressKey = 'mopster_user_address';
+  static const String _userCustomerIdKey = 'mopster_user_customer_id';
 
   List<BookingModel> _bookings = [];
   List<String> _myBookingIds = [];
@@ -30,6 +31,7 @@ class BookingStorage extends ChangeNotifier {
   String _customerName = '';
   String _customerPhone = '';
   String _customerAddress = '';
+  String _customerId = '';
 
   List<BookingModel> get bookings => List.unmodifiable(_bookings);
   List<BookingModel> get upcomingBookings =>
@@ -45,22 +47,70 @@ class BookingStorage extends ChangeNotifier {
   String get customerName => _customerName;
   String get customerPhone => _customerPhone;
   String get customerAddress => _customerAddress;
+  String get customerId => _customerId;
   bool get isInitialized => _isInitialized;
   bool get isSyncing => _isSyncing;
 
-  /// Detect and eliminate any dummy or test bookings
+  bool _lastCloudSyncSuccess = true;
+  String? _lastCloudError;
+  RealtimeChannel? _realtimeChannel;
+
+  bool get lastCloudSyncSuccess => _lastCloudSyncSuccess;
+  String? get lastCloudError => _lastCloudError;
+
+  /// Detect and eliminate any dummy, sample, or test bookings
   static bool isDummyBooking(BookingModel b) {
-    final id = b.id.toUpperCase();
+    final id = b.id.toUpperCase().trim();
     final name = b.customerName.toLowerCase().trim();
-    final phone = b.customerPhone.replaceAll(' ', '').trim();
-    return id == 'MOP-DHU-8102' ||
+    final phone = b.customerPhone
+        .replaceAll(' ', '')
+        .replaceAll('+91', '')
+        .replaceAll('-', '')
+        .trim();
+    final address = b.fullAddress.toLowerCase();
+
+    // 1. Check ID patterns
+    if (id == 'MOP-DHU-8102' ||
         id == 'MOP-DHU-7954' ||
         id == 'MOP-DHU-5506' ||
-        name == 'rohan patil' ||
+        id.startsWith('MOP-TEST') ||
+        id.startsWith('MOP-INSPECT') ||
+        id.contains('TEST') ||
+        id.contains('DUMMY') ||
+        id.contains('SAMPLE')) {
+      return true;
+    }
+
+    // 2. Check customer name patterns
+    if (name == 'rohan patil' ||
         name == 'rohit patel' ||
         name == 'rohan patel' ||
-        phone.contains('9822144556') ||
-        phone.contains('98221 44556');
+        name == 'inspect' ||
+        name == 'test sync' ||
+        name == 'test customer' ||
+        name == 'test user' ||
+        name == 'dummy user' ||
+        name == 'sample customer' ||
+        name == 'sample user' ||
+        name == 'test') {
+      return true;
+    }
+
+    // 3. Check dummy test phone numbers
+    if (phone.contains('9822144556') ||
+        phone.contains('9822100000') ||
+        phone.contains('9876543210') ||
+        phone.contains('0000000000') ||
+        phone == '1234567890') {
+      return true;
+    }
+
+    // 4. Check dummy addresses
+    if (address.contains('row house 14') || address.contains('test street')) {
+      return true;
+    }
+
+    return false;
   }
 
   /// Initialize and load saved bookings from disk and synchronize with Supabase
@@ -75,6 +125,7 @@ class BookingStorage extends ChangeNotifier {
       _customerName = prefs.getString(_userNameKey) ?? '';
       _customerPhone = prefs.getString(_userPhoneKey) ?? '';
       _customerAddress = prefs.getString(_userAddressKey) ?? '';
+      _customerId = prefs.getString(_userCustomerIdKey) ?? '';
 
       // Purge any legacy dummy/sample customer profile data
       final lowerName = _customerName.toLowerCase().trim();
@@ -124,8 +175,9 @@ class BookingStorage extends ChangeNotifier {
     _isInitialized = true;
     notifyListeners();
 
-    // Trigger cloud synchronization in the background
+    // Trigger cloud synchronization and realtime updates
     refreshFromCloud();
+    _setupRealtimeSubscription();
   }
 
   /// Fetch genuine customer bookings from Supabase and merge with local store.
@@ -152,6 +204,7 @@ class BookingStorage extends ChangeNotifier {
         // Filter: only show bookings belonging to the current customer
         final customerPhoneClean =
             _customerPhone.replaceAll(' ', '').replaceAll('+91', '').trim();
+        final currentCustId = _customerId.trim();
 
         final myRemoteBookings = remoteBookings.where((b) {
           final isMineById = _myBookingIds.contains(b.id);
@@ -160,7 +213,10 @@ class BookingStorage extends ChangeNotifier {
           final isMineByPhone = customerPhoneClean.isNotEmpty &&
               bookingPhoneClean.isNotEmpty &&
               bookingPhoneClean == customerPhoneClean;
-          return isMineById || isMineByPhone;
+          final isMineByCustId = currentCustId.isNotEmpty &&
+              b.customerId != null &&
+              b.customerId == currentCustId;
+          return isMineById || isMineByPhone || isMineByCustId;
         }).toList();
 
         // Merge local and remote
@@ -192,10 +248,31 @@ class BookingStorage extends ChangeNotifier {
     }
   }
 
-  /// Create a new booking with Pending Approval status
+  /// Set up Supabase Realtime subscription so customer app receives live updates
+  void _setupRealtimeSubscription() {
+    if (_realtimeChannel != null) return;
+    try {
+      final supabase = Supabase.instance.client;
+      _realtimeChannel = supabase.channel('customer_bookings_live_sync')
+        ..onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'bookings',
+          callback: (payload) {
+            debugPrint('Realtime customer booking change: ${payload.eventType}');
+            refreshFromCloud();
+          },
+        )
+        ..subscribe();
+    } catch (e) {
+      debugPrint('Note: Realtime subscription in BookingStorage: $e');
+    }
+  }
+
+  /// Create a new booking with Pending Approval status and synchronize with Supabase Cloud
   Future<bool> addBooking(BookingModel newBooking) async {
     try {
-      // 1. Add locally first for instant user feedback
+      // 1. Add locally first for instant user feedback and offline capability
       _bookings.insert(0, newBooking);
       if (!_myBookingIds.contains(newBooking.id)) {
         _myBookingIds.add(newBooking.id);
@@ -206,12 +283,20 @@ class BookingStorage extends ChangeNotifier {
       await _persistToDisk(prefs);
       notifyListeners();
 
-      // 2. Persist to Supabase Cloud Database with 'Pending Approval' status
+      // 2. Persist to Supabase Cloud Database using standard schema columns
       try {
         final supabase = Supabase.instance.client;
-        await supabase.from('bookings').insert(newBooking.toSupabaseMap());
+        await supabase
+            .from('bookings')
+            .insert(newBooking.toSupabaseMap(includeCustomerId: false));
+        _lastCloudSyncSuccess = true;
+        _lastCloudError = null;
+        debugPrint(
+            'Booking ${newBooking.id} successfully saved to Supabase Cloud with "Pending Approval" status.');
       } catch (cloudErr) {
-        debugPrint('Supabase insert warning (saved locally): $cloudErr');
+        debugPrint('Supabase cloud insert warning (saved locally): $cloudErr');
+        _lastCloudSyncSuccess = false;
+        _lastCloudError = cloudErr.toString();
       }
 
       return true;
@@ -248,9 +333,49 @@ class BookingStorage extends ChangeNotifier {
     return false;
   }
 
-  /// Cancel an existing booking in Supabase and locally
+  /// Update an existing booking's payment status in Supabase and locally
+  Future<bool> updatePaymentStatus(
+      String bookingId, String newPaymentStatus) async {
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    if (index != -1) {
+      final updated = _bookings[index].copyWith(
+        paymentStatus: newPaymentStatus,
+      );
+      _bookings[index] = updated;
+      final prefs = await SharedPreferences.getInstance();
+      await _persistToDisk(prefs);
+      notifyListeners();
+
+      // Update in Supabase
+      try {
+        final supabase = Supabase.instance.client;
+        await supabase
+            .from('bookings')
+            .update({'payment_status': newPaymentStatus}).eq('id', bookingId);
+      } catch (cloudErr) {
+        debugPrint(
+            'Supabase payment status update warning (saved locally): $cloudErr');
+      }
+
+      return true;
+    }
+    return false;
+  }
+
+  /// Cancel an existing booking in Supabase and locally if eligible
   Future<bool> cancelBooking(String bookingId) async {
-    return updateBookingStatus(bookingId, 'Cancelled');
+    final index = _bookings.indexWhere((b) => b.id == bookingId);
+    if (index != -1) {
+      final b = _bookings[index];
+      // Business Rule: Customers cannot cancel bookings that are already in progress or completed
+      if (!b.canCancel) {
+        debugPrint(
+            'Cancellation rejected for ${b.id}: status is "${b.bookingStatus}".');
+        return false;
+      }
+      return updateBookingStatus(bookingId, 'Cancelled');
+    }
+    return false;
   }
 
   /// Update customer locality
@@ -266,21 +391,46 @@ class BookingStorage extends ChangeNotifier {
     required String name,
     required String phone,
     required String address,
+    String? customerId,
   }) async {
     _customerName = name;
     _customerPhone = phone;
     _customerAddress = address;
+    if (customerId != null) {
+      _customerId = customerId;
+    }
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNameKey, name);
     await prefs.setString(_userPhoneKey, phone);
     await prefs.setString(_userAddressKey, address);
+    if (customerId != null) {
+      await prefs.setString(_userCustomerIdKey, customerId);
+    }
     notifyListeners();
 
-    // Re-sync bookings for this phone number if provided
-    if (_customerPhone.isNotEmpty) {
+    // Re-sync bookings for this phone number or customer ID if provided
+    if (_customerPhone.isNotEmpty || _customerId.isNotEmpty) {
       refreshFromCloud();
     }
+  }
+
+  /// Completely wipe local customer state and cached bookings on logout
+  Future<void> clearCustomerProfile() async {
+    _customerName = '';
+    _customerPhone = '';
+    _customerAddress = '';
+    _customerId = '';
+    _bookings = [];
+    _myBookingIds = [];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userNameKey);
+    await prefs.remove(_userPhoneKey);
+    await prefs.remove(_userAddressKey);
+    await prefs.remove(_userCustomerIdKey);
+    await prefs.remove(_myBookingIdsKey);
+    await prefs.remove(_storageKey);
+    notifyListeners();
   }
 
   Future<void> _persistToDisk(SharedPreferences prefs) async {

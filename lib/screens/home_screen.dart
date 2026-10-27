@@ -4,14 +4,20 @@ import '../config/constants.dart';
 import '../data/booking_storage.dart';
 import '../data/sample_services.dart';
 import '../models/service_item.dart';
+import '../services/auth_service.dart';
 import '../widgets/service_card.dart';
 import 'services_list_screen.dart';
 import 'service_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onNavigateToBookings;
+  final VoidCallback? onNavigateToProfile;
 
-  const HomeScreen({super.key, this.onNavigateToBookings});
+  const HomeScreen({
+    super.key,
+    this.onNavigateToBookings,
+    this.onNavigateToProfile,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -130,8 +136,25 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: AnimatedBuilder(
-          animation: storage,
+          animation: Listenable.merge([storage, AuthService()]),
           builder: (context, _) {
+            final auth = AuthService();
+            final customerDisplayName = auth.currentProfile?.fullName.isNotEmpty == true
+                ? auth.currentProfile!.fullName
+                : storage.customerName.isNotEmpty
+                    ? storage.customerName
+                    : 'Welcome to Mopster';
+
+            final initials = auth.currentProfile?.initials ??
+                (customerDisplayName.isNotEmpty && customerDisplayName != 'Welcome to Mopster'
+                    ? customerDisplayName
+                        .split(' ')
+                        .map((n) => n.isNotEmpty ? n[0] : '')
+                        .take(2)
+                        .join()
+                        .toUpperCase()
+                    : 'M');
+
             return CustomScrollView(
               slivers: [
                 // Top App Bar with Greeting & Dhule Location
@@ -142,84 +165,130 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Row: Greeting & Locality Pill
+                        // Row: Greeting & Locality Pill + Profile Avatar
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: const [
+                                      Text(
+                                        'Namaste, Dhule! ',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.charcoal,
+                                        ),
+                                      ),
+                                      Text('👋', style: TextStyle(fontSize: 18)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    customerDisplayName,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      color: AppColors.textSecondary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+
+                            // Locality Pill & Profile Avatar Group
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Namaste, Dhule! ',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.charcoal,
+                                // Clickable Location Pill
+                                InkWell(
+                                  onTap: _showLocalityPicker,
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryMintLight,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: AppColors.primaryMint.withOpacity(0.3),
                                       ),
                                     ),
-                                    const Text('👋',
-                                        style: TextStyle(fontSize: 18)),
-                                  ],
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.location_on_rounded,
+                                          size: 14,
+                                          color: AppColors.primaryMintDark,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          storage.currentLocality.split(',').first,
+                                          style: const TextStyle(
+                                            color: AppColors.primaryMintDark,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          size: 15,
+                                          color: AppColors.primaryMintDark,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  storage.customerName.isNotEmpty
-                                      ? storage.customerName
-                                      : 'Welcome to Mopster',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.textSecondary,
-                                    fontWeight: FontWeight.w500,
+                                const SizedBox(width: 8),
+
+                                // Customer Profile Avatar Button
+                                Tooltip(
+                                  message: 'View Profile',
+                                  child: InkWell(
+                                    onTap: widget.onNavigateToProfile,
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      width: 36,
+                                      height: 36,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryMint,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.primaryMintDark.withOpacity(0.2),
+                                          width: 1.5,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppColors.primaryMint.withOpacity(0.25),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          initials,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
-                            ),
-
-                            // Clickable Location Pill
-                            InkWell(
-                              onTap: _showLocalityPicker,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryMintLight,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color:
-                                        AppColors.primaryMint.withOpacity(0.3),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_rounded,
-                                      size: 15,
-                                      color: AppColors.primaryMintDark,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      storage.currentLocality.split(',').first,
-                                      style: const TextStyle(
-                                        color: AppColors.primaryMintDark,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 2),
-                                    const Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      size: 16,
-                                      color: AppColors.primaryMintDark,
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ],
                         ),
