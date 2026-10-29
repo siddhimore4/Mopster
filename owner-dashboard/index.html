@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mopster — Business Owner Portal</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              mint: '#00B388',
+              mintDark: '#008F6C',
+              mintLight: '#E8F8F4',
+              charcoal: '#1E293B',
+              slate: '#F8FAFC'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #F1F5F9; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    .pulse-ring {
+      box-shadow: 0 0 0 0 rgba(0, 179, 136, 0.7);
+      animation: pulse-ring 2s infinite cubic-bezier(0.66, 0, 0, 1);
+    }
+    @keyframes pulse-ring {
+      to { box-shadow: 0 0 0 12px rgba(0, 179, 136, 0); }
+    }
+  </style>
+</head>
+<body class="bg-brand-slate text-brand-charcoal min-h-screen flex flex-col">
+
+  <!-- ==================== 1. LOGIN SCREEN ==================== -->
+  <div id="loginSection" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-8">
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="w-20 h-20 bg-brand-mint rounded-2xl flex items-center justify-center p-3 shadow-lg shadow-emerald-500/20 mb-4 border border-emerald-400/30">
+          <img src="assets/images/logo.png" onerror="this.onerror=null; this.src='../assets/images/logo.png'" alt="Mopster Logo" class="w-full h-full object-contain">
+        </div>
+        <h1 class="text-2xl font-extrabold text-brand-charcoal tracking-tight">Business Owner Portal</h1>
+        <p class="text-sm font-semibold text-brand-mint mt-1">Mopster • Dhule Operations</p>
+        <p class="text-xs text-slate-500 mt-2 max-w-xs">Private dashboard for service dispatch, customer management, and booking fulfillment.</p>
+      </div>
+
+      <div id="loginError" class="hidden mb-6 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+        <span id="loginErrorMsg">Invalid credentials.</span>
+      </div>
+
+      <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Owner Email or ID</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input type="text" id="ownerEmail" required value="owner@mopster.in"
+              placeholder="e.g. owner@mopster.in"
+              class="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50 focus:border-brand-mint font-medium transition">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Admin Access Key</label>
+          <div class="relative">
+            <i data-lucide="key-round" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input type="password" id="ownerPin" required placeholder="Enter access key"
+              class="w-full pl-10 pr-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50 focus:border-brand-mint font-medium transition">
+          </div>
+          <p class="text-[11px] text-slate-400 mt-1.5">Authorized operations key for Dhule management.</p>
+        </div>
+
+        <div class="flex items-center justify-between text-xs pt-1">
+          <label class="flex items-center gap-2 cursor-pointer text-slate-600 font-medium">
+            <input type="checkbox" id="rememberSession" class="rounded border-slate-300 text-brand-mint focus:ring-brand-mint">
+            <span>Keep signed in on this device</span>
+          </label>
+        </div>
+
+        <button type="submit" id="loginBtn"
+          class="w-full py-3.5 px-4 bg-brand-mint hover:bg-brand-mintDark text-white font-bold rounded-xl shadow-lg shadow-brand-mint/25 transition duration-150 flex items-center justify-center gap-2">
+          <span>Authenticate & Access Dashboard</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </form>
+
+      <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+        <p class="text-[11px] text-slate-400 font-medium">Strictly confidential. Unauthorized access is monitored and logged.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. MAIN DASHBOARD ==================== -->
+  <div id="dashboardSection" class="hidden flex-1 flex flex-col">
+    <!-- Top Nav -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="w-11 h-11 bg-brand-mint rounded-xl flex items-center justify-center p-2 shadow-sm border border-emerald-400/30">
+            <img src="assets/images/logo.png" onerror="this.onerror=null; this.src='../assets/images/logo.png'" alt="Mopster" class="w-full h-full object-contain">
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-extrabold text-brand-charcoal tracking-tight">Mopster Owner Console</h1>
+              <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Dhule Ops</span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium hidden sm:block">Live dispatch & booking fulfillment</p>
+          </div>
+        </div>
+
+        <!-- Controls: Realtime indicator, Sound toggle, Refresh, Logout -->
+        <div class="flex items-center gap-3">
+          <!-- Realtime status badge -->
+          <div id="realtimeBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Realtime Live</span>
+          </div>
+
+          <!-- Audio alert toggle button -->
+          <button id="soundToggleBtn" onclick="toggleAudio()" title="Toggle Sound Alerts"
+            class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 transition flex items-center gap-1.5 text-xs font-semibold">
+            <i id="soundIcon" data-lucide="volume-2" class="w-4 h-4 text-brand-mint"></i>
+            <span class="hidden md:inline">Alert Chime: ON</span>
+          </button>
+
+          <!-- Refresh button -->
+          <button onclick="fetchBookings(true)" title="Refresh Bookings"
+            class="p-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 transition">
+            <i data-lucide="refresh-cw" id="refreshIcon" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Logout -->
+          <button onclick="handleLogout()"
+            class="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Log Out</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      
+      <!-- Realtime Toast Banner -->
+      <div id="newBookingAlert" class="hidden p-4 rounded-2xl bg-emerald-600 text-white shadow-xl flex items-center justify-between animate-bounce">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <p class="font-extrabold text-sm" id="alertTitle">New Booking Received!</p>
+            <p class="text-xs text-emerald-100" id="alertDesc">A new customer has just placed a booking in Dhule.</p>
+          </div>
+        </div>
+        <button onclick="dismissAlert()" class="px-3 py-1.5 bg-white text-emerald-800 text-xs font-bold rounded-lg hover:bg-emerald-50">
+          View Now
+        </button>
+      </div>
+
+      <!-- Metrics Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <!-- Total -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Bookings</p>
+          <p class="text-2xl font-black text-brand-charcoal mt-1" id="statTotal">0</p>
+          <p class="text-[11px] text-slate-400 mt-1">Supabase DB records</p>
+        </div>
+        <!-- Pending Approval -->
+        <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 shadow-xs">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-bold text-amber-800 uppercase tracking-wider">Pending Action</p>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping" id="pendingPulse"></span>
+          </div>
+          <p class="text-2xl font-black text-amber-900 mt-1" id="statPending">0</p>
+          <p class="text-[11px] text-amber-700 mt-1">Requires approval</p>
+        </div>
+        <!-- Confirmed -->
+        <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 shadow-xs">
+          <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Confirmed</p>
+          <p class="text-2xl font-black text-emerald-900 mt-1" id="statConfirmed">0</p>
+          <p class="text-[11px] text-emerald-700 mt-1">Approved & scheduled</p>
+        </div>
+        <!-- In Progress -->
+        <div class="bg-blue-50/70 p-4 rounded-2xl border border-blue-200 shadow-xs">
+          <p class="text-xs font-bold text-blue-800 uppercase tracking-wider">In Progress</p>
+          <p class="text-2xl font-black text-blue-900 mt-1" id="statInProgress">0</p>
+          <p class="text-[11px] text-blue-700 mt-1">Team on site</p>
+        </div>
+        <!-- Completed -->
+        <div class="bg-purple-50/70 p-4 rounded-2xl border border-purple-200 shadow-xs">
+          <p class="text-xs font-bold text-purple-800 uppercase tracking-wider">Completed</p>
+          <p class="text-2xl font-black text-purple-900 mt-1" id="statCompleted">0</p>
+          <p class="text-[11px] text-purple-700 mt-1">Jobs fulfilled</p>
+        </div>
+        <!-- Revenue -->
+        <div class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-xs">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Revenue (₹)</p>
+          <p class="text-2xl font-black text-emerald-400 mt-1" id="statRevenue">₹0</p>
+          <p class="text-[11px] text-slate-400 mt-1">Confirmed + Completed</p>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <!-- Search box -->
+          <div class="relative flex-1 max-w-md">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+            <input type="text" id="searchInput" oninput="applyFilters()"
+              placeholder="Search by ID, Customer Name, Phone, Area..."
+              class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50 focus:border-brand-mint">
+          </div>
+
+          <!-- Category filter & CSV Export -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs font-bold">
+              <button onclick="setCategoryFilter('All')" id="catTabAll" class="px-3 py-1.5 rounded-lg bg-white shadow-xs text-brand-charcoal">All</button>
+              <button onclick="setCategoryFilter('Home Cleaning')" id="catTabClean" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-charcoal">Cleaning</button>
+              <button onclick="setCategoryFilter('Gardening Services')" id="catTabGarden" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-charcoal">Gardening</button>
+            </div>
+
+            <button onclick="exportCSV()"
+              class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition flex items-center gap-1.5">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Status Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold border-t border-slate-100 pt-3">
+          <button onclick="setStatusFilter('All')" id="statusTabAll" class="px-3.5 py-1.5 rounded-xl bg-slate-900 text-white shrink-0">All Bookings (<span id="countAll">0</span>)</button>
+          <button onclick="setStatusFilter('Pending Approval')" id="statusTabPending" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-amber-800 shrink-0">Pending Approval (<span id="countPending">0</span>)</button>
+          <button onclick="setStatusFilter('Confirmed')" id="statusTabConfirmed" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-emerald-800 shrink-0">Confirmed (<span id="countConfirmed">0</span>)</button>
+          <button onclick="setStatusFilter('In Progress')" id="statusTabInProgress" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-blue-800 shrink-0">In Progress (<span id="countInProgress">0</span>)</button>
+          <button onclick="setStatusFilter('Completed')" id="statusTabCompleted" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-purple-800 shrink-0">Completed (<span id="countCompleted">0</span>)</button>
+          <button onclick="setStatusFilter('Past')" id="statusTabPast" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 shrink-0">Rejected / Cancelled (<span id="countPast">0</span>)</button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="py-16 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-mint border-t-transparent"></div>
+        <p class="text-xs font-bold text-slate-500 mt-3">Connecting to Supabase Cloud & fetching bookings...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-xs max-w-lg mx-auto">
+        <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="calendar-x" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base font-extrabold text-brand-charcoal">No bookings found</h3>
+        <p class="text-xs text-slate-500 mt-1">There are currently no bookings received matching your search or filter.</p>
+      </div>
+
+      <!-- Bookings List Container -->
+      <div id="bookingsList" class="space-y-4"></div>
+
+    </main>
+  </div>
+
+  <!-- ==================== 3. MODAL: WORKER ASSIGNMENT & STATUS UPDATE ==================== -->
+  <div id="actionModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-5 animate-scaleIn">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="font-extrabold text-lg text-brand-charcoal" id="modalTitle">Manage Booking</h3>
+          <p class="text-xs text-slate-500 font-mono mt-0.5" id="modalBookingId">ID: MOP-DHU-XXXX</p>
+        </div>
+        <button onclick="closeModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <!-- Worker Assignment -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Assign Team / Specialist</label>
+          <select id="workerSelect" class="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50 focus:border-brand-mint font-medium">
+            <option value="Owner Fulfilled (Self)">Owner Fulfilled (Self)</option>
+            <option value="Mopster Core Team (Dhule Operations)">Mopster Core Team (Dhule Operations)</option>
+            <option value="Dhule Cleaning Squad A">Dhule Cleaning Squad A</option>
+            <option value="Dhule Garden Specialist Team">Dhule Garden Specialist Team</option>
+            <option value="Unassigned / Pending Team Allocation">Unassigned / Pending Team Allocation</option>
+          </select>
+        </div>
+
+        <!-- Custom Worker Text -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Or Custom Staff / Contractor Name</label>
+          <input type="text" id="customWorkerInput" placeholder="e.g. Ramesh Shinde (+91 98XXX)"
+            class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50">
+        </div>
+
+        <!-- Status update selector -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Update Booking Status</label>
+          <select id="statusSelect" class="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-mint/50 focus:border-brand-mint font-bold">
+            <option value="Pending Approval">Pending Approval (Awaiting Review)</option>
+            <option value="Confirmed">Confirmed (Approved & Scheduled)</option>
+            <option value="In Progress">In Progress (Specialist on Site)</option>
+            <option value="Completed">Completed (Job Finished)</option>
+            <option value="Rejected">Rejected (Cannot Fulfill)</option>
+            <option value="Cancelled">Cancelled (Customer / Admin Cancelled)</option>
+          </select>
+        </div>
+
+        <!-- Payment recording -->
+        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Record Payment</label>
+          <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+            <button type="button" onclick="setPaymentOption('Paid via Direct UPI')"
+              class="p-2.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl text-center hover:bg-emerald-50 text-emerald-700">
+              Paid via UPI
+            </button>
+            <button type="button" onclick="setPaymentOption('Paid via Cash')"
+              class="p-2.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-xl text-center hover:bg-emerald-50 text-emerald-700">
+              Paid via Cash
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2" id="currentPaymentStatusText">Status: Pending</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+        <button onclick="closeModal()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+          Cancel
+        </button>
+        <button onclick="saveBookingChanges()" id="saveChangesBtn"
+          class="px-5 py-2.5 bg-brand-mint hover:bg-brand-mintDark text-white text-xs font-bold rounded-xl shadow-md shadow-brand-mint/20 transition">
+          Save Changes to Supabase
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core JavaScript Logic -->
+  <script>
+    // Configuration for Supabase
+    const SUPABASE_URL = "https://guuylbabycuvzamwtruk.supabase.co";
+    const SUPABASE_ANON = "sb_publishable_9ZCc8tobvlw2m2IHGGphMw_y197Gmc4";
+    const VALID_ADMIN_PINS = ["mopster2026", "dhule@2026"];
+
+    let supabaseClient = null;
+    let allBookings = [];
+    let currentCategoryFilter = 'All';
+    let currentStatusFilter = 'All';
+    let activeModalBooking = null;
+    let audioAlertsEnabled = true;
+    let audioCtx = null;
+
+    // Web Audio Synthesizer for pleasant 2-tone chime
+    function playChime() {
+      if (!audioAlertsEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        
+        // Tone 1: 587.33 Hz (D5)
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(587.33, now);
+        gain1.gain.setValueAtTime(0.25, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.4);
+
+        // Tone 2: 880.00 Hz (A5)
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(880.00, now + 0.15);
+        gain2.gain.setValueAtTime(0.25, now + 0.15);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(now + 0.15);
+        osc2.stop(now + 0.6);
+      } catch (e) {
+        console.warn('Audio chime note:', e);
+      }
+    }
+
+    function toggleAudio() {
+      audioAlertsEnabled = !audioAlertsEnabled;
+      const icon = document.getElementById('soundIcon');
+      const btn = document.getElementById('soundToggleBtn');
+      if (audioAlertsEnabled) {
+        btn.innerHTML = `<i data-lucide="volume-2" class="w-4 h-4 text-brand-mint"></i><span class="hidden md:inline">Alert Chime: ON</span>`;
+        playChime();
+      } else {
+        btn.innerHTML = `<i data-lucide="volume-x" class="w-4 h-4 text-slate-400"></i><span class="hidden md:inline">Alert Chime: OFF</span>`;
+      }
+      lucide.createIcons();
+    }
+
+    // Init session check on load
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      const session = sessionStorage.getItem('mopster_owner_auth') || localStorage.getItem('mopster_owner_auth');
+      if (session === 'true') {
+        showDashboard();
+      }
+    });
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const pin = document.getElementById('ownerPin').value.trim();
+      const email = document.getElementById('ownerEmail').value.trim();
+      const remember = document.getElementById('rememberSession').checked;
+      const errBox = document.getElementById('loginError');
+
+      if (VALID_ADMIN_PINS.includes(pin.toLowerCase())) {
+        errBox.classList.add('hidden');
+        if (remember) {
+          localStorage.setItem('mopster_owner_auth', 'true');
+        } else {
+          sessionStorage.setItem('mopster_owner_auth', 'true');
+        }
+        showDashboard();
+      } else {
+        errBox.classList.remove('hidden');
+        document.getElementById('loginErrorMsg').textContent = 'Invalid administrator credentials. Access restricted.';
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('mopster_owner_auth');
+      localStorage.removeItem('mopster_owner_auth');
+      window.location.reload();
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      lucide.createIcons();
+      
+      // Initialize Supabase Client
+      if (!supabaseClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+      }
+
+      fetchBookings();
+      setupRealtime();
+    }
+
+    async function fetchBookings(isManualRefresh = false) {
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (isManualRefresh) refreshIcon.classList.add('animate-spin');
+
+      document.getElementById('loadingState').classList.remove('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('bookings')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        allBookings = (data || []).filter(b => {
+          // Exclude any legacy dummy test IDs
+          const id = (b.id || '').toUpperCase();
+          return !id.startsWith('DEMO') && !id.startsWith('MOCK');
+        });
+
+        applyFilters();
+      } catch (err) {
+        console.error('Fetch error:', err);
+      } finally {
+        document.getElementById('loadingState').classList.add('hidden');
+        if (isManualRefresh) {
+          setTimeout(() => refreshIcon.classList.remove('animate-spin'), 600);
+        }
+      }
+    }
+
+    // Realtime Postgres Change Listener
+    function setupRealtime() {
+      try {
+        supabaseClient
+          .channel('public:bookings')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, (payload) => {
+            console.log('Realtime Postgres Event received:', payload);
+            
+            if (payload.eventType === 'INSERT') {
+              playChime();
+              showNewBookingAlert(payload.new);
+            }
+
+            // Refresh data seamlessly
+            fetchBookings();
+          })
+          .subscribe((status) => {
+            console.log('Realtime subscription status:', status);
+            const badge = document.getElementById('realtimeBadge');
+            if (status === 'SUBSCRIBED') {
+              badge.classList.remove('hidden');
+            }
+          });
+      } catch (e) {
+        console.warn('Realtime subscription error:', e);
+      }
+    }
+
+    function showNewBookingAlert(booking) {
+      const banner = document.getElementById('newBookingAlert');
+      document.getElementById('alertTitle').textContent = `🔔 New Booking from ${booking.customer_name || 'Customer'}!`;
+      document.getElementById('alertDesc').textContent = `${booking.service_title || 'Service'} in ${booking.dhule_area || 'Dhule'} • ₹${booking.total_amount || 0}`;
+      banner.classList.remove('hidden');
+      document.title = '(1) New Booking! — Mopster Owner';
+    }
+
+    function dismissAlert() {
+      document.getElementById('newBookingAlert').classList.add('hidden');
+      document.title = 'Mopster — Business Owner Portal';
+      setStatusFilter('Pending Approval');
+    }
+
+    function setCategoryFilter(cat) {
+      currentCategoryFilter = cat;
+      ['catTabAll', 'catTabClean', 'catTabGarden'].forEach(id => {
+        document.getElementById(id).className = 'px-3 py-1.5 rounded-lg text-slate-600 hover:text-brand-charcoal';
+      });
+      if (cat === 'All') document.getElementById('catTabAll').className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-brand-charcoal font-bold';
+      if (cat === 'Home Cleaning') document.getElementById('catTabClean').className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-brand-charcoal font-bold';
+      if (cat === 'Gardening Services') document.getElementById('catTabGarden').className = 'px-3 py-1.5 rounded-lg bg-white shadow-xs text-brand-charcoal font-bold';
+      applyFilters();
+    }
+
+    function setStatusFilter(status) {
+      currentStatusFilter = status;
+      const tabMap = {
+        'All': 'statusTabAll',
+        'Pending Approval': 'statusTabPending',
+        'Confirmed': 'statusTabConfirmed',
+        'In Progress': 'statusTabInProgress',
+        'Completed': 'statusTabCompleted',
+        'Past': 'statusTabPast'
+      };
+      Object.keys(tabMap).forEach(key => {
+        const el = document.getElementById(tabMap[key]);
+        if (key === status) {
+          el.className = 'px-3.5 py-1.5 rounded-xl bg-slate-900 text-white shrink-0 font-bold';
+        } else {
+          el.className = 'px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 shrink-0 font-bold';
+        }
+      });
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+      // Counts
+      let pendingCount = 0;
+      let confirmedCount = 0;
+      let inProgressCount = 0;
+      let completedCount = 0;
+      let pastCount = 0;
+      let totalRev = 0;
+
+      allBookings.forEach(b => {
+        const st = (b.booking_status || '').toLowerCase();
+        if (st === 'pending approval' || st === 'pending') pendingCount++;
+        else if (st === 'confirmed') confirmedCount++;
+        else if (st === 'in progress') inProgressCount++;
+        else if (st === 'completed') {
+          completedCount++;
+          totalRev += (Number(b.total_amount) || 0);
+        }
+        else if (st === 'rejected' || st === 'cancelled') pastCount++;
+      });
+
+      document.getElementById('statTotal').textContent = allBookings.length;
+      document.getElementById('statPending').textContent = pendingCount;
+      document.getElementById('statConfirmed').textContent = confirmedCount;
+      document.getElementById('statInProgress').textContent = inProgressCount;
+      document.getElementById('statCompleted').textContent = completedCount;
+      document.getElementById('statRevenue').textContent = '₹' + totalRev.toLocaleString('en-IN');
+
+      document.getElementById('countAll').textContent = allBookings.length;
+      document.getElementById('countPending').textContent = pendingCount;
+      document.getElementById('countConfirmed').textContent = confirmedCount;
+      document.getElementById('countInProgress').textContent = inProgressCount;
+      document.getElementById('countCompleted').textContent = completedCount;
+      document.getElementById('countPast').textContent = pastCount;
+
+      const filtered = allBookings.filter(b => {
+        // Status filter
+        const st = (b.booking_status || '').toLowerCase();
+        if (currentStatusFilter === 'Pending Approval' && st !== 'pending approval' && st !== 'pending') return false;
+        if (currentStatusFilter === 'Confirmed' && st !== 'confirmed') return false;
+        if (currentStatusFilter === 'In Progress' && st !== 'in progress') return false;
+        if (currentStatusFilter === 'Completed' && st !== 'completed') return false;
+        if (currentStatusFilter === 'Past' && st !== 'rejected' && st !== 'cancelled') return false;
+
+        // Category filter
+        const cat = (b.service_category || '').toLowerCase();
+        if (currentCategoryFilter === 'Home Cleaning' && !cat.includes('cleaning')) return false;
+        if (currentCategoryFilter === 'Gardening Services' && !cat.includes('garden')) return false;
+
+        // Search
+        if (q) {
+          const match = (b.id || '').toLowerCase().includes(q) ||
+                        (b.customer_name || '').toLowerCase().includes(q) ||
+                        (b.customer_phone || '').toLowerCase().includes(q) ||
+                        (b.service_title || '').toLowerCase().includes(q) ||
+                        (b.dhule_area || '').toLowerCase().includes(q) ||
+                        (b.full_address || '').toLowerCase().includes(q);
+          if (!match) return false;
+        }
+
+        return true;
+      });
+
+      renderBookings(filtered);
+    }
+
+    function renderBookings(list) {
+      const container = document.getElementById('bookingsList');
+      const emptyState = document.getElementById('emptyState');
+
+      if (list.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      container.innerHTML = list.map(b => createBookingCardHTML(b)).join('');
+      lucide.createIcons();
+    }
+
+    function createBookingCardHTML(b) {
+      const status = b.booking_status || 'Pending Approval';
+      let statusBadge = '';
+      if (status === 'Pending Approval' || status === 'Pending') {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300">⏳ Pending Approval</span>`;
+      } else if (status === 'Confirmed') {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">✓ Confirmed</span>`;
+      } else if (status === 'In Progress') {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 border border-blue-300">⚡ In Progress</span>`;
+      } else if (status === 'Completed') {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 border border-purple-300">★ Completed</span>`;
+      } else {
+        statusBadge = `<span class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-200 text-slate-700">${status}</span>`;
+      }
+
+      const isCleaning = (b.service_category || '').toLowerCase().includes('clean');
+      const catBadge = isCleaning 
+        ? `<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Cleaning</span>`
+        : `<span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Gardening</span>`;
+
+      // Format Date
+      let dateStr = b.booking_date || '';
+      try {
+        const d = new Date(b.booking_date);
+        dateStr = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      } catch (_) {}
+
+      // Clean phone for tel and wa
+      const cleanPhone = (b.customer_phone || '').replace(/\D/g, '');
+
+      return `
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:shadow-md transition">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div class="flex items-start sm:items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-brand-mintLight flex items-center justify-center text-brand-mint shrink-0 border border-brand-mint/20">
+                <i data-lucide="${isCleaning ? 'sparkles' : 'trees'}" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono text-xs font-extrabold text-slate-500">${b.id}</span>
+                  ${catBadge}
+                  ${statusBadge}
+                </div>
+                <h3 class="text-base font-extrabold text-brand-charcoal mt-1">${b.service_title || 'Home Service'}</h3>
+              </div>
+            </div>
+
+            <!-- Amount & Payment Status -->
+            <div class="flex items-center gap-3 self-end sm:self-auto">
+              <div class="text-right">
+                <p class="text-lg font-black text-brand-charcoal">₹${Number(b.total_amount || 0).toLocaleString('en-IN')}</p>
+                <p class="text-[11px] font-medium text-slate-500">${b.payment_method || 'Cash on Delivery'}</p>
+              </div>
+              <div class="px-3 py-1.5 rounded-xl text-xs font-bold ${b.payment_status && b.payment_status.toLowerCase().includes('paid') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                ${b.payment_status || 'Pending'}
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer & Service Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 text-xs">
+            <!-- Customer Column -->
+            <div class="space-y-1.5">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Customer</p>
+              <p class="font-bold text-sm text-brand-charcoal">${b.customer_name || 'Customer'}</p>
+              <div class="flex items-center gap-2 pt-0.5">
+                <a href="tel:${b.customer_phone}" class="inline-flex items-center gap-1 text-brand-mint font-bold hover:underline">
+                  <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+                  <span>${b.customer_phone}</span>
+                </a>
+                <a href="https://wa.me/${cleanPhone}" target="_blank" class="inline-flex items-center gap-1 text-emerald-600 font-bold hover:underline">
+                  <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                  <span>WhatsApp</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Schedule & Location -->
+            <div class="space-y-1.5">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Schedule & Location</p>
+              <p class="font-semibold text-brand-charcoal flex items-center gap-1">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span>${dateStr} (${b.time_slot || 'Morning'})</span>
+              </p>
+              <p class="text-slate-600 flex items-start gap-1">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5"></i>
+                <span><strong class="text-brand-charcoal">${b.dhule_area || 'Dhule'}</strong> • ${b.full_address || 'Address provided'}</span>
+              </p>
+            </div>
+
+            <!-- Assigned Staff -->
+            <div class="space-y-1.5">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Assigned Team / Specialist</p>
+              <p class="font-semibold text-brand-charcoal flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-brand-mint"></i>
+                <span>${b.assigned_staff || 'Unassigned / Pending Allocation'}</span>
+              </p>
+              ${b.special_instructions ? `
+                <p class="text-[11px] text-slate-500 italic bg-slate-50 p-2 rounded-lg border border-slate-100">
+                  "${b.special_instructions}"
+                </p>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="flex items-center justify-between pt-3 border-t border-slate-100 flex-wrap gap-2">
+            <span class="text-[11px] text-slate-400">Created: ${new Date(b.created_at).toLocaleString('en-IN')}</span>
+
+            <div class="flex items-center gap-2">
+              ${status === 'Pending Approval' || status === 'Pending' ? `
+                <button onclick="quickApprove('${b.id}')"
+                  class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                  <span>Approve Request</span>
+                </button>
+                <button onclick="quickReject('${b.id}')"
+                  class="px-3.5 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl font-bold text-xs border border-red-200">
+                  Reject
+                </button>
+              ` : ''}
+
+              <button onclick="openManageModal('${b.id}')"
+                class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold text-xs flex items-center gap-1.5">
+                <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
+                <span>Manage Dispatch</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Quick Action: Approve
+    async function quickApprove(id) {
+      if (!confirm(`Confirm approval for booking ${id}? The customer will see "Confirmed" status immediately.`)) return;
+      try {
+        const { error } = await supabaseClient
+          .from('bookings')
+          .update({
+            booking_status: 'Confirmed',
+            assigned_staff: 'Owner Fulfilled (Self)'
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+        fetchBookings();
+      } catch (err) {
+        alert('Error approving booking: ' + err.message);
+      }
+    }
+
+    // Quick Action: Reject
+    async function quickReject(id) {
+      if (!confirm(`Reject booking ${id}? Status will be marked as Rejected.`)) return;
+      try {
+        const { error } = await supabaseClient
+          .from('bookings')
+          .update({ booking_status: 'Rejected' })
+          .eq('id', id);
+
+        if (error) throw error;
+        fetchBookings();
+      } catch (err) {
+        alert('Error rejecting booking: ' + err.message);
+      }
+    }
+
+    // Open Modal
+    function openManageModal(id) {
+      activeModalBooking = allBookings.find(b => b.id === id);
+      if (!activeModalBooking) return;
+
+      document.getElementById('modalTitle').textContent = `Manage Booking`;
+      document.getElementById('modalBookingId').textContent = `ID: ${activeModalBooking.id} • ${activeModalBooking.customer_name}`;
+      document.getElementById('statusSelect').value = activeModalBooking.booking_status || 'Pending Approval';
+      
+      const staff = activeModalBooking.assigned_staff || 'Owner Fulfilled (Self)';
+      const select = document.getElementById('workerSelect');
+      const customInput = document.getElementById('customWorkerInput');
+      
+      let found = false;
+      for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === staff) {
+          select.selectedIndex = i;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        select.value = 'Unassigned / Pending Team Allocation';
+        customInput.value = staff;
+      } else {
+        customInput.value = '';
+      }
+
+      document.getElementById('currentPaymentStatusText').textContent = `Current: ${activeModalBooking.payment_status || 'Pending'}`;
+      document.getElementById('actionModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('actionModal').classList.add('hidden');
+      activeModalBooking = null;
+    }
+
+    function setPaymentOption(val) {
+      if (!activeModalBooking) return;
+      const now = new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      activeModalBooking.payment_status = `${val} (${now})`;
+      document.getElementById('currentPaymentStatusText').textContent = `Updated: ${activeModalBooking.payment_status}`;
+    }
+
+    async function saveBookingChanges() {
+      if (!activeModalBooking) return;
+      const btn = document.getElementById('saveChangesBtn');
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      const newStatus = document.getElementById('statusSelect').value;
+      const customStaff = document.getElementById('customWorkerInput').value.trim();
+      const newStaff = customStaff || document.getElementById('workerSelect').value;
+
+      try {
+        const updatePayload = {
+          booking_status: newStatus,
+          assigned_staff: newStaff
+        };
+        if (activeModalBooking.payment_status) {
+          updatePayload.payment_status = activeModalBooking.payment_status;
+        }
+
+        const { error } = await supabaseClient
+          .from('bookings')
+          .update(updatePayload)
+          .eq('id', activeModalBooking.id);
+
+        if (error) throw error;
+
+        closeModal();
+        fetchBookings();
+      } catch (err) {
+        alert('Failed to save changes: ' + err.message);
+      } finally {
+        btn.textContent = 'Save Changes to Supabase';
+        btn.disabled = false;
+      }
+    }
+
+    // Export CSV
+    function exportCSV() {
+      if (allBookings.length === 0) {
+        alert('No bookings to export.');
+        return;
+      }
+
+      const headers = ['Booking ID', 'Customer Name', 'Phone', 'Service Category', 'Service Title', 'Date', 'Time Slot', 'Area', 'Address', 'Amount', 'Payment Method', 'Payment Status', 'Booking Status', 'Assigned Staff', 'Created At'];
+      
+      const rows = allBookings.map(b => [
+        `"${b.id || ''}"`,
+        `"${(b.customer_name || '').replace(/"/g, '""')}"`,
+        `"${b.customer_phone || ''}"`,
+        `"${b.service_category || ''}"`,
+        `"${(b.service_title || '').replace(/"/g, '""')}"`,
+        `"${b.booking_date || ''}"`,
+        `"${b.time_slot || ''}"`,
+        `"${b.dhule_area || ''}"`,
+        `"${(b.full_address || '').replace(/"/g, '""')}"`,
+        b.total_amount || 0,
+        `"${b.payment_method || ''}"`,
+        `"${b.payment_status || ''}"`,
+        `"${b.booking_status || ''}"`,
+        `"${(b.assigned_staff || '').replace(/"/g, '""')}"`,
+        `"${b.created_at || ''}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `Mopster_Bookings_Dhule_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>

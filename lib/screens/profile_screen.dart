@@ -5,7 +5,6 @@ import '../data/booking_storage.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/privacy_dialog.dart';
-import 'admin/admin_login_screen.dart';
 import 'auth/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -711,31 +710,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
+                          children: const [
+                            Text(
                               'App Version',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            GestureDetector(
-                              onLongPress: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AdminLoginScreen(),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                'v1.0.0 (Dhule)',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.charcoal,
-                                ),
+                            Text(
+                              'v1.0.0 (Dhule)',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.charcoal,
                               ),
                             ),
                           ],

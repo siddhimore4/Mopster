@@ -4,7 +4,6 @@ import '../../config/constants.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/privacy_dialog.dart';
-import '../admin/admin_login_screen.dart';
 import 'otp_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -83,40 +82,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Mopster Official Brand Logo (Discreet owner access via long press)
-                  GestureDetector(
-                    onLongPress: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AdminLoginScreen(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      width: 92,
-                      height: 92,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryMint,
-                        borderRadius: BorderRadius.circular(26),
-                        border: Border.all(
-                          color: AppColors.primaryMintDark.withOpacity(0.25),
-                          width: 1.8,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryMint.withOpacity(0.25),
-                            blurRadius: 18,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
+                  // Mopster Official Brand Logo
+                  Container(
+                    width: 92,
+                    height: 92,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryMint,
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(
+                        color: AppColors.primaryMintDark.withOpacity(0.25),
+                        width: 1.8,
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          fit: BoxFit.cover,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primaryMint.withOpacity(0.25),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
                         ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -353,30 +342,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  // Business Owner Portal Link
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AdminLoginScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.admin_panel_settings_rounded,
-                        size: 16, color: AppColors.textSecondary),
-                    label: const Text(
-                      'Business Owner Portal',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textSecondary,
                       ),
                     ),
                   ),
