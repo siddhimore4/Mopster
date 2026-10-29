@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/colors.dart';
 import '../../data/booking_storage.dart';
 import '../../models/booking_model.dart';
+import '../../services/auth_service.dart';
 import '../main_nav_screen.dart';
 
 class AdminCustomerSummary {
@@ -75,8 +76,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadData();
-    _setupRealtimeSubscription();
+    if (AuthService().isOwnerAuthenticated) {
+      _loadData();
+      _setupRealtimeSubscription();
+    }
   }
 
   @override
@@ -843,6 +846,77 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (!AuthService().isOwnerAuthenticated) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: const Text(
+            'Access Restricted',
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              color: AppColors.charcoal,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: AppColors.charcoal),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.lock_rounded,
+                      size: 48, color: Colors.red.shade600),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Owner Authorization Required',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.charcoal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'This portal is strictly restricted to verified Mopster business administrators.',
+                  style:
+                      TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryMint,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text('Return to Customer App'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final filteredBookings = _bookings.where((b) {
       bool matchesStatus;
       if (_selectedStatusFilter == 'All') {

@@ -83,30 +83,40 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Mopster Official Brand Logo
-                  Container(
-                    width: 92,
-                    height: 92,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFECF8AE),
-                      borderRadius: BorderRadius.circular(26),
-                      border: Border.all(
-                        color: AppColors.primaryMint.withOpacity(0.35),
-                        width: 1.8,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primaryMint.withOpacity(0.22),
-                          blurRadius: 18,
-                          offset: const Offset(0, 6),
+                  // Mopster Official Brand Logo (Discreet owner access via long press)
+                  GestureDetector(
+                    onLongPress: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AdminLoginScreen(),
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        fit: BoxFit.cover,
+                      );
+                    },
+                    child: Container(
+                      width: 92,
+                      height: 92,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryMint,
+                        borderRadius: BorderRadius.circular(26),
+                        border: Border.all(
+                          color: AppColors.primaryMintDark.withOpacity(0.25),
+                          width: 1.8,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primaryMint.withOpacity(0.25),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),

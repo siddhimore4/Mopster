@@ -143,11 +143,11 @@ class _SplashScreenState extends State<SplashScreen>
                                 width: 128,
                                 height: 128,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFECF8AE),
+                                  color: AppColors.primaryMint,
                                   borderRadius: BorderRadius.circular(36),
                                   border: Border.all(
-                                    color: AppColors.primaryMint
-                                        .withOpacity(0.35),
+                                    color: AppColors.primaryMintDark
+                                        .withOpacity(0.25),
                                     width: 2.2,
                                   ),
                                 ),

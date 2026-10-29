@@ -174,10 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 40,
                               margin: const EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFECF8AE),
+                                color: AppColors.primaryMint,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: AppColors.primaryMint.withOpacity(0.3),
+                                  color: AppColors.primaryMintDark
+                                      .withOpacity(0.2),
                                   width: 1.2,
                                 ),
                               ),

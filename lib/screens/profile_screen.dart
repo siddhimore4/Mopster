@@ -711,20 +711,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
+                          children: [
+                            const Text(
                               'App Version',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                            Text(
-                              'v1.0.0 (Local Build)',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.charcoal,
+                            GestureDetector(
+                              onLongPress: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AdminLoginScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'v1.0.0 (Dhule)',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.charcoal,
+                                ),
                               ),
                             ),
                           ],
@@ -782,61 +793,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Business Owner & Admin Portal Link
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primaryMint.withOpacity(0.3),
-                      ),
-                    ),
-                    child: ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryMintLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.admin_panel_settings_rounded,
-                          color: AppColors.primaryMintDark,
-                          size: 20,
-                        ),
-                      ),
-                      title: const Text(
-                        'Business Owner Portal',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.charcoal,
-                        ),
-                      ),
-                      subtitle: const Text(
-                        'Dispatch bookings & manage staff (Dhule)',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                      trailing: const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                        color: AppColors.primaryMintDark,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AdminLoginScreen(),
-                          ),
-                        );
-                      },
                     ),
                   ),
 
@@ -898,10 +854,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFECF8AE),
+                            color: AppColors.primaryMint,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: AppColors.primaryMint.withOpacity(0.3),
+                              color: AppColors.primaryMintDark.withOpacity(0.2),
                               width: 1.2,
                             ),
                           ),

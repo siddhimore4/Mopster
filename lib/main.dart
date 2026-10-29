@@ -5,6 +5,7 @@ import 'config/constants.dart';
 import 'config/supabase_config.dart';
 import 'data/booking_storage.dart';
 import 'services/auth_service.dart';
+import 'screens/admin/admin_login_screen.dart';
 import 'screens/splash_screen.dart';
 
 void main() async {
@@ -62,6 +63,10 @@ class MopsterApp extends StatelessWidget {
         ),
       ),
       home: const SplashScreen(),
+      routes: {
+        '/owner': (context) => const AdminLoginScreen(),
+        '/admin': (context) => const AdminLoginScreen(),
+      },
     );
   }
 }

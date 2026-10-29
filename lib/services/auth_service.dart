@@ -18,6 +18,7 @@ class AuthService extends ChangeNotifier {
   bool _isLoading = false;
   bool _isDevModeOtp = false;
   String _activeVerificationPhone = '';
+  bool _isOwnerAuthenticated = false;
 
   CustomerProfileModel? get currentProfile => _currentProfile;
   bool get isLoggedIn => _currentProfile != null;
@@ -26,6 +27,13 @@ class AuthService extends ChangeNotifier {
   String get activeVerificationPhone => _activeVerificationPhone;
   String get currentUserId => _currentProfile?.id ?? '';
   String get devOtpCode => _devOtpCode;
+  bool get isOwnerAuthenticated =>
+      _isOwnerAuthenticated || (_currentProfile?.isAdmin == true);
+
+  void setOwnerAuthenticated(bool value) {
+    _isOwnerAuthenticated = value;
+    notifyListeners();
+  }
 
   /// Initialize and load cached session on app launch
   Future<void> init() async {
@@ -334,6 +342,7 @@ class AuthService extends ChangeNotifier {
       _currentProfile = null;
       _activeVerificationPhone = '';
       _isDevModeOtp = false;
+      _isOwnerAuthenticated = false;
 
       // Reset customer profile and wipe device booking cache in BookingStorage
       await BookingStorage().clearCustomerProfile();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/colors.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import 'admin_dashboard_screen.dart';
 
@@ -61,6 +62,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     ];
 
     if (validPins.contains(pin.toLowerCase())) {
+      AuthService().setOwnerAuthenticated(true);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
