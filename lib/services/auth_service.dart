@@ -194,6 +194,9 @@ class AuthService extends ChangeNotifier {
           e.message.toLowerCase().contains('user already exists')) {
         friendlyMessage =
             'An account with this email already exists. Please sign in instead.';
+      } else if (e.message.toLowerCase().contains('rate limit')) {
+        friendlyMessage =
+            'Email limit reached. Please disable "Confirm email" in your Supabase Dashboard (Auth > Providers > Email) to allow instant account registration without limits.';
       }
       return {
         'success': false,
