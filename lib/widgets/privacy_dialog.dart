@@ -82,7 +82,7 @@ class PrivacyDialog extends StatelessWidget {
               icon: Icons.support_agent_rounded,
               title: 'Support & Data Requests',
               description:
-                  'To modify your saved information or request account deletion, contact our Dhule helpdesk at ${AppConstants.supportEmail} or ${AppConstants.supportPhone}.',
+                  'To modify your saved information or request account deletion, contact our support team at ${AppConstants.supportEmail}.',
             ),
           ],
         ),

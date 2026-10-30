@@ -24,15 +24,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final PageController _offerController = PageController();
-  int _activeOfferPage = 0;
   String _searchQuery = '';
-
-  @override
-  void dispose() {
-    _offerController.dispose();
-    super.dispose();
-  }
 
   void _showLocalityPicker() {
     showModalBottomSheet(
@@ -372,8 +364,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const SizedBox(height: 20),
 
-                        // Promotional Offers Carousel
-                        _buildOffersCarousel(),
+                        // Permanent Mopster Brand Tagline Banner
+                        _buildBrandTaglineBanner(),
 
                         const SizedBox(height: 28),
 
@@ -546,154 +538,116 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildOffersCarousel() {
-    final List<Map<String, String>> offers = [
-      {
-        'tag': 'SPECIAL OFFER',
-        'title': 'Dhule Welcome Deal',
-        'discount': 'Flat ₹200 OFF',
-        'code': 'Use code: MOPDHULE',
-        'color': '0xFF00B388',
-      },
-      {
-        'tag': 'SEASONAL CARE',
-        'title': 'Garden Clean + Trim',
-        'discount': 'Save 15% on Combo',
-        'code': 'Book any 2 services',
-        'color': '0xFF059669',
-      },
-      {
-        'tag': 'FESTIVAL READY',
-        'title': 'Deep Cleaning Package',
-        'discount': 'Free Bathroom Sanitization',
-        'code': 'With Full Home Deep Clean',
-        'color': '0xFF0D9488',
-      },
-    ];
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 155,
-          child: PageView.builder(
-            controller: _offerController,
-            onPageChanged: (idx) {
-              setState(() {
-                _activeOfferPage = idx;
-              });
-            },
-            itemCount: offers.length,
-            itemBuilder: (context, index) {
-              final item = offers[index];
-              return Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(int.parse(item['color']!)),
-                      Color(int.parse(item['color']!)).withOpacity(0.85),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(int.parse(item['color']!)).withOpacity(0.25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -10,
-                      bottom: -10,
-                      child: Icon(
-                        Icons.local_offer_rounded,
-                        size: 90,
-                        color: Colors.white.withOpacity(0.12),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.22),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            item['tag']!,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          item['title']!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item['discount']!,
-                          style: const TextStyle(
-                            color: Color(0xFFD1FAE5),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          item['code']!,
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+  Widget _buildBrandTaglineBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            AppColors.primaryMintDark,
+            AppColors.primaryMint,
+            Color(0xFF00966F),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        const SizedBox(height: 10),
-        // Dots indicator
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            offers.length,
-            (idx) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: _activeOfferPage == idx ? 18 : 6,
-              height: 6,
-              decoration: BoxDecoration(
-                color: _activeOfferPage == idx
-                    ? AppColors.primaryMint
-                    : AppColors.borderLight,
-                borderRadius: BorderRadius.circular(3),
-              ),
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryMint.withOpacity(0.24),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Subtle decorative cleaning & gardening elements
+          Positioned(
+            right: -8,
+            bottom: -12,
+            child: Icon(
+              Icons.eco_rounded,
+              size: 96,
+              color: Colors.white.withOpacity(0.12),
             ),
           ),
-        ),
-      ],
+          Positioned(
+            right: 48,
+            top: -10,
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              size: 42,
+              color: Colors.white.withOpacity(0.14),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Branded pill
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(
+                      Icons.home_work_rounded,
+                      size: 13,
+                      color: Colors.white,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      'MOPSTER DHULE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Main Tagline
+              const Text(
+                'A Cleaner Home.\nA Greener Life.',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  height: 1.22,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Supporting Line
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 290),
+                child: Text(
+                  "From spotless spaces to thriving gardens, we've got your home covered.",
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.92),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.35,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 

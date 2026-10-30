@@ -183,42 +183,11 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
               ),
             ),
 
-            // Disclaimers & Active list
+            // Active list
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  // Notice badge
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryMintLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          size: 18,
-                          color: AppColors.primaryMintDark,
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Sample prices shown for Dhule city. Actual quotes depend on room size or garden area.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.charcoal,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
                   // Service cards
                   ...services.map((item) {
                     return ServiceCard(

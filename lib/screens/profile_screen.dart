@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
 import '../data/booking_storage.dart';
@@ -241,54 +242,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showSupportDialog(String type) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: Text(
-          type == 'call'
-              ? 'Dhule Customer Helpline'
-              : type == 'email'
-                  ? 'Email Support'
-                  : 'WhatsApp Support',
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              type == 'call'
-                  ? 'Phone: ${AppConstants.supportPhone}'
-                  : type == 'email'
-                      ? 'Email: ${AppConstants.supportEmail}'
-                      : 'WhatsApp: +91 98230 XXXXX',
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.primaryMintDark,
-                fontSize: 15,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Operating hours:\nMon - Sun: 8:00 AM to 8:00 PM\nDhule Operations Center',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textSecondary,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+  Future<void> _contactSupportEmail() async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: AppConstants.supportEmail,
+      queryParameters: {
+        'subject': 'Mopster Customer Support',
+      },
     );
+    try {
+      final launched =
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Could not open email client. Please email us at ${AppConstants.supportEmail}'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Support email: ${AppConstants.supportEmail}'),
+          ),
+        );
+      }
+    }
   }
 
   void _confirmLogout() {
@@ -304,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         content: const Text(
-          'Are you sure you want to log out? You can sign back in anytime using your registered mobile number and OTP.',
+          'Are you sure you want to log out? You can sign back in anytime using your registered email and password.',
           style: TextStyle(
             fontSize: 14,
             color: AppColors.textSecondary,
@@ -629,8 +610,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Support & Helpline Section
-                  _buildSectionHeader('Support & Dhule Helpdesk'),
+                  // Support & Helpdesk Section
+                  _buildSectionHeader('Support & Helpdesk'),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
@@ -638,45 +619,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.borderLight),
                     ),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.phone_in_talk_rounded,
-                              color: AppColors.primaryMintDark),
-                          title: const Text('Call Dhule Support'),
-                          subtitle: const Text(AppConstants.supportPhone),
-                          trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                              size: 14),
-                          onTap: () => _showSupportDialog('call'),
+                    child: ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryMintLight,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        const Divider(height: 1, color: AppColors.divider),
-                        ListTile(
-                          leading: const Icon(Icons.email_outlined,
-                              color: AppColors.primaryMintDark),
-                          title: const Text('Email Helpdesk'),
-                          subtitle: const Text(AppConstants.supportEmail),
-                          trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                              size: 14),
-                          onTap: () => _showSupportDialog('email'),
+                        child: const Icon(
+                          Icons.email_outlined,
+                          color: AppColors.primaryMintDark,
+                          size: 20,
                         ),
-                        const Divider(height: 1, color: AppColors.divider),
-                        ListTile(
-                          leading: const Icon(Icons.chat_bubble_outline_rounded,
-                              color: AppColors.primaryMintDark),
-                          title: const Text('WhatsApp Chat Assistance'),
-                          subtitle: const Text('Quick query resolution'),
-                          trailing: const Icon(Icons.arrow_forward_ios_rounded,
-                              size: 14),
-                          onTap: () => _showSupportDialog('whatsapp'),
+                      ),
+                      title: const Text(
+                        'Email Support',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.charcoal,
                         ),
-                      ],
+                      ),
+                      subtitle: const Text(
+                        AppConstants.supportEmail,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primaryMintDark,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: AppColors.textMuted,
+                      ),
+                      onTap: _contactSupportEmail,
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  // App Info & Disclaimers
-                  _buildSectionHeader('About Mopster'),
+                  // Legal & App Info
+                  _buildSectionHeader('Legal & App Info'),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(16),
@@ -687,27 +671,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              'City Operational Area',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            Text(
-                              'Dhule, Maharashtra',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.charcoal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: const [
@@ -724,27 +687,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.charcoal,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              'Local Data Persistence',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                            Text(
-                              'Enabled (Cloud Synced)',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primaryMintDark,
                               ),
                             ),
                           ],

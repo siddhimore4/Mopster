@@ -148,37 +148,80 @@ void main() {
     });
   });
 
-  group('AuthService OTP, Session & Profile Lifecycle Tests', () {
-    test('Development OTP flow: sendOtp and verifyOtp creates active session', () async {
+  group('AuthService Email & Password Customer Authentication Tests', () {
+    test('Validates customer signup input parameters correctly', () async {
       final auth = AuthService();
-      final sendResult = await auth.sendOtp('9823012345');
 
-      expect(sendResult['success'], isTrue);
-      expect(auth.activeVerificationPhone, equals('+919823012345'));
-
-      // Verify with test OTP
-      final verifyResult = await auth.verifyOtp(
+      // Invalid email
+      final badEmail = await auth.signUpWithEmail(
+        email: 'invalid-email',
+        password: 'password123',
+        fullName: 'Test User',
         phone: '9823012345',
-        otp: auth.devOtpCode,
+      );
+      expect(badEmail['success'], isFalse);
+      expect(badEmail['message'], contains('valid email address'));
+
+      // Short password (< 6 chars)
+      final shortPass = await auth.signUpWithEmail(
+        email: 'valid@example.com',
+        password: '123',
+        fullName: 'Test User',
+        phone: '9823012345',
+      );
+      expect(shortPass['success'], isFalse);
+      expect(shortPass['message'], contains('at least 6 characters'));
+
+      // Blank name
+      final blankName = await auth.signUpWithEmail(
+        email: 'valid@example.com',
+        password: 'password123',
+        fullName: '',
+        phone: '9823012345',
+      );
+      expect(blankName['success'], isFalse);
+      expect(blankName['message'], contains('full name'));
+
+      // Invalid phone
+      final badPhone = await auth.signUpWithEmail(
+        email: 'valid@example.com',
+        password: 'password123',
+        fullName: 'Test User',
+        phone: '12345',
+      );
+      expect(badPhone['success'], isFalse);
+      expect(badPhone['message'], contains('10-digit Indian'));
+    });
+
+    test('Customer Email Sign-Up creates active session and initializes profile', () async {
+      final auth = AuthService();
+      final signupResult = await auth.signUpWithEmail(
+        email: 'customer.dhule@example.com',
+        password: 'securePassword123',
+        fullName: 'Rajesh Patil',
+        phone: '9823012345',
+        dhuleArea: 'Deopur',
+        homeAddress: 'Plot 10, Wadi Bhokar Road',
       );
 
-      expect(verifyResult['success'], isTrue);
+      expect(signupResult['success'], isTrue);
       expect(auth.isLoggedIn, isTrue);
       expect(auth.currentProfile, isNotNull);
+      expect(auth.currentProfile!.email, equals('customer.dhule@example.com'));
+      expect(auth.currentProfile!.fullName, equals('Rajesh Patil'));
       expect(auth.currentProfile!.phone, equals('+919823012345'));
-
-      // Rejects invalid OTP
-      final invalidOtpResult = await auth.verifyOtp(
-        phone: '9823012345',
-        otp: '999999',
-      );
-      expect(invalidOtpResult['success'], isFalse);
+      expect(auth.currentProfile!.dhuleArea, equals('Deopur'));
+      expect(auth.currentProfile!.homeAddress, equals('Plot 10, Wadi Bhokar Road'));
     });
 
     test('Profile update synchronizes profile model and local storage', () async {
       final auth = AuthService();
-      await auth.sendOtp('9823099999');
-      await auth.verifyOtp(phone: '9823099999', otp: auth.devOtpCode);
+      await auth.signUpWithEmail(
+        email: 'amit@mopster.in',
+        password: 'password123',
+        fullName: 'Amit Deshmukh',
+        phone: '9823099999',
+      );
 
       final updateRes = await auth.updateProfile(
         fullName: 'Amit Deshmukh',
@@ -205,8 +248,12 @@ void main() {
 
     test('SignOut clears session and wipes local booking storage cache', () async {
       final auth = AuthService();
-      await auth.sendOtp('9823055555');
-      await auth.verifyOtp(phone: '9823055555', otp: auth.devOtpCode);
+      await auth.signUpWithEmail(
+        email: 'signout.test@mopster.in',
+        password: 'password123',
+        fullName: 'Signout Test',
+        phone: '9823055555',
+      );
       expect(auth.isLoggedIn, isTrue);
 
       await auth.signOut();

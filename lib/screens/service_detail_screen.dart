@@ -126,7 +126,7 @@ class ServiceDetailScreen extends StatelessWidget {
                           icon: Icons.currency_rupee_rounded,
                           iconColor: AppColors.charcoal,
                           title: service.formattedPrice,
-                          subtitle: 'Sample Price',
+                          subtitle: 'Base Price',
                         ),
                       ],
                     ),

@@ -30,10 +30,8 @@ class AppConstants {
     '06:00 PM - 08:00 PM (Evening)',
   ];
 
-  // Customer support contacts
-  static const String supportPhone = '+91 98230 XXXXX';
-  static const String supportEmail = 'support@mopster.in';
-  static const String supportHours = 'Mon - Sun: 8:00 AM - 8:00 PM';
+  // Official customer support
+  static const String supportEmail = 'mopster2026@gmail.com';
   static const String serviceAvailabilityNote =
       'Currently serving all pin codes across Dhule city (424001, 424002, 424004, 424005).';
 }
