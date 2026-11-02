@@ -25,90 +25,155 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _searchQuery = '';
+  final FocusNode _searchFocusNode = FocusNode();
+  bool _isSearchFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchFocusNode.addListener(() {
+      setState(() {
+        _isSearchFocused = _searchFocusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   void _showLocalityPicker() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (ctx) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Select Dhule Locality',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.charcoal,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.pop(ctx),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Our Dhule staff is stationed across key zones for quick dispatch.',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: AppConstants.dhuleLocalities.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1, color: AppColors.divider),
-                  itemBuilder: (ctx, index) {
-                    final area = AppConstants.dhuleLocalities[index];
-                    final isCurrent =
-                        BookingStorage().currentLocality.contains(area);
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(
-                        Icons.location_on_rounded,
-                        color: isCurrent
-                            ? AppColors.primaryMint
-                            : AppColors.textMuted,
-                      ),
-                      title: Text(
-                        area,
-                        style: TextStyle(
-                          fontWeight:
-                              isCurrent ? FontWeight.w700 : FontWeight.w500,
-                          color: isCurrent
-                              ? AppColors.primaryMintDark
-                              : AppColors.charcoal,
+        return SafeArea(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppColors.forestGreenLight,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.location_city_rounded,
+                            color: AppColors.forestGreen,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                      trailing: isCurrent
-                          ? const Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColors.primaryMint,
-                            )
-                          : null,
-                      onTap: () {
-                        BookingStorage().updateLocality('$area, Dhule');
-                        setState(() {});
-                        Navigator.pop(ctx);
-                      },
-                    );
-                  },
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Select Dhule Locality',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.deepCharcoal,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, color: AppColors.deepCharcoal),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                const Text(
+                  'Our Dhule crew is stationed across these zones for rapid arrival.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemCount: AppConstants.dhuleLocalities.length,
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1, color: AppColors.divider),
+                    itemBuilder: (ctx, index) {
+                      final area = AppConstants.dhuleLocalities[index];
+                      final isCurrent =
+                          BookingStorage().currentLocality.contains(area);
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(vertical: 2),
+                        leading: Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: isCurrent
+                                ? AppColors.forestGreen
+                                : AppColors.surfaceMuted,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.location_on_rounded,
+                            size: 18,
+                            color: isCurrent
+                                ? AppColors.electricLime
+                                : AppColors.textMuted,
+                          ),
+                        ),
+                        title: Text(
+                          area,
+                          style: TextStyle(
+                            fontWeight:
+                                isCurrent ? FontWeight.w800 : FontWeight.w600,
+                            color: isCurrent
+                                ? AppColors.forestGreen
+                                : AppColors.deepCharcoal,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        trailing: isCurrent
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.electricLime.withOpacity(0.4),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  'ACTIVE',
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.forestGreenDark,
+                                  ),
+                                ),
+                              )
+                            : null,
+                        onTap: () {
+                          BookingStorage().updateLocality('$area, Dhule');
+                          setState(() {});
+                          Navigator.pop(ctx);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -135,10 +200,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? auth.currentProfile!.fullName
                 : storage.customerName.isNotEmpty
                     ? storage.customerName
-                    : 'Welcome to Mopster';
+                    : 'Dhule Resident';
 
             final initials = auth.currentProfile?.initials ??
-                (customerDisplayName.isNotEmpty && customerDisplayName != 'Welcome to Mopster'
+                (customerDisplayName.isNotEmpty && customerDisplayName != 'Dhule Resident'
                     ? customerDisplayName
                         .split(' ')
                         .map((n) => n.isNotEmpty ? n[0] : '')
@@ -148,40 +213,49 @@ class _HomeScreenState extends State<HomeScreen> {
                     : 'M');
 
             return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
               slivers: [
-                // Top App Bar with Greeting & Dhule Location
+                // Top Custom Header: Logo, Greeting, Locality Pill, Profile Avatar
                 SliverToBoxAdapter(
                   child: Container(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
                     color: Colors.white,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Row: Greeting & Locality Pill + Profile Avatar
+                        // Row 1: Logo & Greeting & Location & Profile
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            // Official Brand Emblem with Forest & Lime Accent
                             Container(
-                              width: 40,
-                              height: 40,
-                              margin: const EdgeInsets.only(right: 10),
+                              width: 44,
+                              height: 44,
                               decoration: BoxDecoration(
-                                color: AppColors.primaryMint,
-                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.forestGreen,
+                                borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: AppColors.primaryMintDark
-                                      .withOpacity(0.2),
-                                  width: 1.2,
+                                  color: AppColors.electricLime.withOpacity(0.7),
+                                  width: 1.5,
                                 ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(11),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Image.asset(
                                   'assets/images/logo.png',
                                   fit: BoxFit.cover,
                                 ),
                               ),
                             ),
+                            const SizedBox(width: 12),
+
+                            // Greeting & Customer Name
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,12 +265,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Text(
                                         'Namaste, Dhule! ',
                                         style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.charcoal,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.deepCharcoal,
+                                          letterSpacing: -0.4,
                                         ),
                                       ),
-                                      Text('👋', style: TextStyle(fontSize: 18)),
+                                      Text('🌱', style: TextStyle(fontSize: 16)),
                                     ],
                                   ),
                                   const SizedBox(height: 2),
@@ -213,128 +288,142 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
+
+                            // Clickable Locality Pill
+                            InkWell(
+                              onTap: _showLocalityPicker,
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.forestGreenLight,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_rounded,
+                                      size: 13,
+                                      color: AppColors.forestGreen,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      storage.currentLocality.split(',').first,
+                                      style: const TextStyle(
+                                        color: AppColors.forestGreen,
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 2),
+                                    const Icon(
+                                      Icons.keyboard_arrow_down_rounded,
+                                      size: 14,
+                                      color: AppColors.forestGreen,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                             const SizedBox(width: 8),
 
-                            // Locality Pill & Profile Avatar Group
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Clickable Location Pill
-                                InkWell(
-                                  onTap: _showLocalityPicker,
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 6,
+                            // Profile Button Avatar
+                            InkWell(
+                              onTap: widget.onNavigateToProfile,
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  color: AppColors.forestGreen,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.electricLime,
+                                    width: 1.6,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.forestGreen.withOpacity(0.22),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primaryMintLight,
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: AppColors.primaryMint.withOpacity(0.3),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(
-                                          Icons.location_on_rounded,
-                                          size: 14,
-                                          color: AppColors.primaryMintDark,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          storage.currentLocality.split(',').first,
-                                          style: const TextStyle(
-                                            color: AppColors.primaryMintDark,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 2),
-                                        const Icon(
-                                          Icons.keyboard_arrow_down_rounded,
-                                          size: 15,
-                                          color: AppColors.primaryMintDark,
-                                        ),
-                                      ],
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    initials,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-
-                                // Customer Profile Avatar Button
-                                Tooltip(
-                                  message: 'View Profile',
-                                  child: InkWell(
-                                    onTap: widget.onNavigateToProfile,
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryMint,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: AppColors.primaryMintDark.withOpacity(0.2),
-                                          width: 1.5,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppColors.primaryMint.withOpacity(0.25),
-                                            blurRadius: 6,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          initials,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
 
                         const SizedBox(height: 16),
 
-                        // Search Bar
-                        Container(
+                        // Search Input with Animated Focus Ring
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
-                            color: AppColors.surfaceMuted,
-                            borderRadius: BorderRadius.circular(14),
+                            color: _isSearchFocused ? Colors.white : AppColors.surfaceMuted,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: _isSearchFocused
+                                  ? AppColors.forestGreen
+                                  : AppColors.softBorder,
+                              width: 1.5,
+                            ),
+                            boxShadow: _isSearchFocused
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.forestGreen.withOpacity(0.12),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : null,
                           ),
                           child: TextField(
+                            focusNode: _searchFocusNode,
                             onChanged: (val) {
                               setState(() {
                                 _searchQuery = val.trim();
                               });
                             },
+                            style: const TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.deepCharcoal,
+                            ),
                             decoration: InputDecoration(
-                              hintText:
-                                  'Search cleaning, gardening, lawn...',
+                              hintText: 'Search home deep clean, lawn mowing...',
                               hintStyle: const TextStyle(
                                 color: AppColors.textMuted,
-                                fontSize: 14,
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w500,
                               ),
                               prefixIcon: const Icon(
                                 Icons.search_rounded,
-                                color: AppColors.primaryMintDark,
+                                color: AppColors.forestGreen,
+                                size: 22,
                               ),
                               suffixIcon: _searchQuery.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.clear_rounded,
-                                          size: 18),
+                                      icon: const Icon(Icons.close_rounded,
+                                          size: 18, color: AppColors.textSecondary),
                                       onPressed: () {
                                         setState(() {
                                           _searchQuery = '';
@@ -355,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Main Body Content
+                // Main Content
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -364,31 +453,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const SizedBox(height: 20),
 
-                        // Permanent Mopster Brand Tagline Banner
-                        _buildBrandTaglineBanner(),
+                        // Permanent Brand Tagline Hero
+                        _buildBrandTaglineHero(),
 
                         const SizedBox(height: 28),
 
-                        // Service Categories Section
-                        const Text(
-                          'Service Categories',
-                          style: TextStyle(
-                            fontSize: 19,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.charcoal,
-                          ),
+                        // Section Header: Categories
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'Explore Services',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.deepCharcoal,
+                                    letterSpacing: -0.4,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Two specialized professional offerings',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Choose between our two specialized home services',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+
                         const SizedBox(height: 14),
 
-                        // Category Buttons (Cleaning & Gardening)
+                        // Category Buttons (Home Cleaning & Gardening Care)
                         Row(
                           children: [
                             // Cleaning Card
@@ -396,11 +498,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: _buildCategoryCard(
                                 title: 'Home Cleaning',
                                 subtitle: '5 Services',
+                                tagText: 'SPARKLING',
                                 icon: Icons.cleaning_services_rounded,
-                                gradientColors: const [
-                                  Color(0xFF00B388),
-                                  Color(0xFF008F6B),
-                                ],
+                                isPrimary: true,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -421,11 +521,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: _buildCategoryCard(
                                 title: 'Gardening Care',
                                 subtitle: '5 Services',
+                                tagText: 'ORGANIC',
                                 icon: Icons.eco_rounded,
-                                gradientColors: const [
-                                  Color(0xFF10B981),
-                                  Color(0xFF059669),
-                                ],
+                                isPrimary: false,
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -454,22 +552,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   'Popular in Dhule',
                                   style: TextStyle(
-                                    fontSize: 19,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.charcoal,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.deepCharcoal,
+                                    letterSpacing: -0.4,
                                   ),
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Most booked by Dhule residents this month',
+                                  'Most loved by Dhule households this month',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 12.5,
                                     color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
-                            TextButton(
+                            TextButton.icon(
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -481,12 +581,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 );
                               },
-                              child: const Text(
+                              label: const Text(
                                 'View All',
                                 style: TextStyle(
-                                  color: AppColors.primaryMintDark,
-                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.forestGreen,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
                                 ),
+                              ),
+                              icon: const Icon(
+                                Icons.arrow_forward_rounded,
+                                size: 14,
+                                color: AppColors.forestGreen,
                               ),
                             ),
                           ],
@@ -497,11 +603,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Popular Service Cards
                         if (popularList.isEmpty)
                           Container(
-                            padding: const EdgeInsets.all(24),
+                            padding: const EdgeInsets.all(28),
                             alignment: Alignment.center,
-                            child: const Text(
-                              'No matching services found.',
-                              style: TextStyle(color: AppColors.textSecondary),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.softBorder),
+                            ),
+                            child: Column(
+                              children: const [
+                                Icon(Icons.search_off_rounded,
+                                    size: 36, color: AppColors.textMuted),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No matching services found for your search.',
+                                  style: TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         else
@@ -520,12 +641,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }),
 
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
 
-                        // Why Choose Mopster Banner
+                        // Dhule Trust Guarantee Banner
                         _buildTrustBanner(),
 
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 32),
                       ],
                     ),
                   ),
@@ -538,113 +659,120 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBrandTaglineBanner() {
+  Widget _buildBrandTaglineHero() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [
-            AppColors.primaryMintDark,
-            AppColors.primaryMint,
-            Color(0xFF00966F),
+            AppColors.forestGreen,
+            Color(0xFF0F3629),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryMint.withOpacity(0.24),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: AppColors.forestGreen.withOpacity(0.28),
+            blurRadius: 22,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          // Subtle decorative cleaning & gardening elements
+          // Background organic accent shapes
           Positioned(
-            right: -8,
-            bottom: -12,
+            right: -15,
+            bottom: -20,
             child: Icon(
               Icons.eco_rounded,
-              size: 96,
-              color: Colors.white.withOpacity(0.12),
+              size: 120,
+              color: Colors.white.withOpacity(0.08),
             ),
           ),
           Positioned(
-            right: 48,
-            top: -10,
+            right: 42,
+            top: -12,
             child: Icon(
               Icons.auto_awesome_rounded,
-              size: 42,
-              color: Colors.white.withOpacity(0.14),
+              size: 48,
+              color: AppColors.electricLime.withOpacity(0.18),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Branded pill
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(
-                      Icons.home_work_rounded,
-                      size: 13,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      'MOPSTER DHULE',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Branded Pill: Electric Lime highlight
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4.5),
+                  decoration: BoxDecoration(
+                    color: AppColors.electricLime,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.electricLime.withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Main Tagline
-              const Text(
-                'A Cleaner Home.\nA Greener Life.',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                  height: 1.22,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Supporting Line
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 290),
-                child: Text(
-                  "From spotless spaces to thriving gardens, we've got your home covered.",
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.92),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    height: 1.35,
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.verified_rounded,
+                        size: 13,
+                        color: AppColors.deepCharcoal,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        '100% ECO-VERIFIED CARE',
+                        style: TextStyle(
+                          color: AppColors.deepCharcoal,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+
+                // Main Tagline
+                const Text(
+                  'A Cleaner Home.\nA Greener Life.',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w900,
+                    height: 1.18,
+                    letterSpacing: -0.6,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Supporting Line
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 290),
+                  child: Text(
+                    "From spotless spaces to thriving gardens, we've got your home covered.",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.88),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -654,52 +782,82 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCategoryCard({
     required String title,
     required String subtitle,
+    required String tagText,
     required IconData icon,
-    required List<Color> gradientColors,
+    required bool isPrimary,
     required VoidCallback onTap,
   }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(22),
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.borderLight, width: 1.2),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: isPrimary ? AppColors.forestGreen.withOpacity(0.2) : AppColors.softBorder,
+              width: 1.4,
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+                color: AppColors.deepCharcoal.withOpacity(0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: isPrimary ? AppColors.forestGreen : const Color(0xFF15803D),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isPrimary ? AppColors.forestGreen : const Color(0xFF15803D))
+                              .withOpacity(0.25),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Icon(icon, color: AppColors.electricLime, size: 26),
                   ),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: Colors.white, size: 26),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.freshMint,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      tagText,
+                      style: const TextStyle(
+                        fontSize: 9.5,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.forestGreenDark,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 14),
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.charcoal,
+                  fontSize: 15.5,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.deepCharcoal,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 2),
@@ -708,7 +866,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(
                   fontSize: 12,
                   color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -722,44 +880,78 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primaryMintLight,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.forestGreenLight,
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: AppColors.primaryMint.withOpacity(0.2),
+          color: AppColors.forestGreen.withOpacity(0.18),
+          width: 1.2,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
-              Icon(
-                Icons.shield_rounded,
-                color: AppColors.primaryMintDark,
-                size: 22,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: AppColors.forestGreen,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.shield_rounded,
+                  color: AppColors.electricLime,
+                  size: 18,
+                ),
               ),
-              SizedBox(width: 8),
-              Text(
-                'Mopster Dhule Guarantee',
+              const SizedBox(width: 10),
+              const Text(
+                'Mopster Dhule Promise',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: AppColors.charcoal,
+                  color: AppColors.deepCharcoal,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          const Text(
-            '• Verified background-checked local professionals in Dhule\n• 100% Satisfaction guarantee or free re-work\n• Zero pre-payment required — pay cash after service',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppColors.charcoal,
-              height: 1.6,
-            ),
-          ),
+          const SizedBox(height: 12),
+          _buildTrustPoint('Verified local Dhule specialists & background-checked crew'),
+          const SizedBox(height: 6),
+          _buildTrustPoint('100% Satisfaction guarantee or free revisit within 24h'),
+          const SizedBox(height: 6),
+          _buildTrustPoint('Zero advance needed — pay securely by cash or UPI after service'),
         ],
       ),
+    );
+  }
+
+  Widget _buildTrustPoint(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 3),
+          child: Icon(
+            Icons.check_circle_rounded,
+            size: 15,
+            color: AppColors.forestGreen,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: AppColors.deepCharcoal,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

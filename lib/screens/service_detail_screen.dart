@@ -14,6 +14,8 @@ class ServiceDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isGardening = service.category == ServiceCategory.gardening;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -21,57 +23,68 @@ class ServiceDetailScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
+              color: AppColors.deepCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           service.title,
           style: const TextStyle(
-            color: AppColors.charcoal,
+            color: AppColors.deepCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.3,
           ),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Hero Service Header Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: AppColors.softBorder, width: 1.4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: AppColors.deepCharcoal.withOpacity(0.04),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
                 child: Column(
                   children: [
+                    // Icon Emblem Box
                     Container(
-                      width: 76,
-                      height: 76,
+                      width: 80,
+                      height: 80,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryMintLight,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.primaryMint.withOpacity(0.3),
-                          width: 2,
+                        gradient: LinearGradient(
+                          colors: isGardening
+                              ? [const Color(0xFF15803D), AppColors.forestGreen]
+                              : [AppColors.forestGreen, const Color(0xFF0F3629)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.forestGreen.withOpacity(0.24),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
                       child: Icon(
                         service.icon,
-                        size: 38,
-                        color: AppColors.primaryMintDark,
+                        size: 40,
+                        color: AppColors.electricLime,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -79,52 +92,97 @@ class ServiceDetailScreen extends StatelessWidget {
                       service.title,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.charcoal,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.deepCharcoal,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentSoftGreen,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        service.categoryName,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryMintDark,
+                    const SizedBox(height: 8),
+
+                    // Category & Verified Pill
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.forestGreenLight,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.forestGreen.withOpacity(0.2),
+                            ),
+                          ),
+                          child: Text(
+                            service.categoryName.toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.forestGreen,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.electricLime.withOpacity(0.35),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(
+                                Icons.verified_rounded,
+                                size: 12,
+                                color: AppColors.forestGreenDark,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'DHULE PRO',
+                                style: TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.forestGreenDark,
+                                  letterSpacing: 0.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
+
+                    const SizedBox(height: 20),
+                    const Divider(color: AppColors.divider, height: 1),
                     const SizedBox(height: 16),
-                    const Divider(color: AppColors.divider),
-                    const SizedBox(height: 12),
+
                     // Stats Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _buildStatItem(
                           icon: Icons.star_rounded,
-                          iconColor: const Color(0xFFF59E0B),
+                          iconColor: const Color(0xFFD97706),
                           title: '${service.rating} (${service.reviewCount})',
-                          subtitle: 'Rating',
+                          subtitle: 'Verified Rating',
                         ),
                         _buildStatItem(
                           icon: Icons.timer_rounded,
-                          iconColor: AppColors.primaryMintDark,
+                          iconColor: AppColors.forestGreen,
                           title: service.duration,
                           subtitle: 'Estimated Time',
                         ),
                         _buildStatItem(
                           icon: Icons.currency_rupee_rounded,
-                          iconColor: AppColors.charcoal,
+                          iconColor: AppColors.deepCharcoal,
                           title: service.formattedPrice,
                           subtitle: 'Base Price',
                         ),
@@ -134,25 +192,26 @@ class ServiceDetailScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 26),
 
               // Description Section
               const Text(
                 'About This Service',
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.charcoal,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.deepCharcoal,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
                 ),
                 child: Text(
                   service.fullDescription,
@@ -164,23 +223,24 @@ class ServiceDetailScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 26),
 
               // Inclusions List
               const Text(
                 "What's Included",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.charcoal,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.deepCharcoal,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
                 ),
                 child: Column(
                   children: service.inclusions.map((item) {
@@ -192,10 +252,17 @@ class ServiceDetailScreen extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.check_circle_rounded,
-                            color: AppColors.primaryMint,
-                            size: 20,
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: AppColors.forestGreenLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.check_rounded,
+                              color: AppColors.forestGreen,
+                              size: 16,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -203,9 +270,9 @@ class ServiceDetailScreen extends StatelessWidget {
                               item,
                               style: const TextStyle(
                                 fontSize: 14,
-                                color: AppColors.charcoal,
-                                fontWeight: FontWeight.w500,
-                                height: 1.3,
+                                color: AppColors.deepCharcoal,
+                                fontWeight: FontWeight.w600,
+                                height: 1.35,
                               ),
                             ),
                           ),
@@ -216,7 +283,7 @@ class ServiceDetailScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 26),
 
               // Exclusions List
               if (service.exclusions.isNotEmpty) ...[
@@ -224,16 +291,17 @@ class ServiceDetailScreen extends StatelessWidget {
                   "What's Not Included",
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.deepCharcoal,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderLight),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.softBorder, width: 1.2),
                   ),
                   child: Column(
                     children: service.exclusions.map((item) {
@@ -245,19 +313,26 @@ class ServiceDetailScreen extends StatelessWidget {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.remove_circle_outline_rounded,
-                              color: AppColors.textMuted,
-                              size: 20,
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceMuted,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close_rounded,
+                                color: AppColors.textMuted,
+                                size: 14,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 item,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13.5,
                                   color: AppColors.textSecondary,
-                                  height: 1.3,
+                                  height: 1.35,
                                 ),
                               ),
                             ),
@@ -267,31 +342,34 @@ class ServiceDetailScreen extends StatelessWidget {
                     }).toList(),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
               ],
 
               // Dhule Service Area Note
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(14),
+                  color: AppColors.forestGreenLight,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColors.forestGreen.withOpacity(0.18),
+                  ),
                 ),
                 child: Row(
                   children: const [
                     Icon(
                       Icons.location_on_rounded,
-                      color: AppColors.primaryMintDark,
+                      color: AppColors.forestGreen,
                       size: 20,
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Direct doorstep service available throughout Dhule city & nearby sectors.',
+                        'Direct doorstep service available throughout Dhule city & surrounding sectors.',
                         style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.charcoal,
-                          fontWeight: FontWeight.w500,
+                          fontSize: 12.5,
+                          color: AppColors.deepCharcoal,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -299,7 +377,7 @@ class ServiceDetailScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 36),
             ],
           ),
         ),
@@ -309,13 +387,13 @@ class ServiceDetailScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           border: const Border(
-            top: BorderSide(color: AppColors.borderLight),
+            top: BorderSide(color: AppColors.softBorder, width: 1.2),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, -3),
+              color: AppColors.deepCharcoal.withOpacity(0.06),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
@@ -327,19 +405,21 @@ class ServiceDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Service Price',
+                    'BASE RATE',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10.5,
                       color: AppColors.textMuted,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
                     ),
                   ),
                   Text(
                     service.formattedPrice,
                     style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.charcoal,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.deepCharcoal,
+                      letterSpacing: -0.4,
                     ),
                   ),
                 ],
@@ -381,8 +461,8 @@ class ServiceDetailScreen extends StatelessWidget {
           title,
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: AppColors.charcoal,
+            fontWeight: FontWeight.w800,
+            color: AppColors.deepCharcoal,
           ),
         ),
         const SizedBox(height: 2),
@@ -391,6 +471,7 @@ class ServiceDetailScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 11,
             color: AppColors.textSecondary,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

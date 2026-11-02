@@ -41,15 +41,16 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
+              color: AppColors.deepCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           isCleaning ? 'Home Cleaning Services' : 'Gardening Services',
           style: const TextStyle(
-            color: AppColors.charcoal,
+            color: AppColors.deepCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.3,
           ),
         ),
         centerTitle: false,
@@ -59,13 +60,14 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
           children: [
             // Category Switcher Header
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
               color: Colors.white,
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.softBorder, width: 1),
                 ),
                 child: Row(
                   children: [
@@ -77,18 +79,19 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                             _currentCategory = ServiceCategory.cleaning;
                           });
                         },
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: isCleaning
-                                ? AppColors.primaryMint
+                                ? AppColors.forestGreen
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: isCleaning
                                 ? [
                                     BoxShadow(
                                       color:
-                                          AppColors.primaryMint.withOpacity(0.3),
+                                          AppColors.forestGreen.withOpacity(0.24),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -102,7 +105,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 Icons.cleaning_services_rounded,
                                 size: 18,
                                 color: isCleaning
-                                    ? Colors.white
+                                    ? AppColors.electricLime
                                     : AppColors.textSecondary,
                               ),
                               const SizedBox(width: 8),
@@ -111,10 +114,10 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 style: TextStyle(
                                   color: isCleaning
                                       ? Colors.white
-                                      : AppColors.charcoal,
+                                      : AppColors.deepCharcoal,
                                   fontWeight: isCleaning
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                   fontSize: 13,
                                 ),
                               ),
@@ -132,18 +135,19 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                             _currentCategory = ServiceCategory.gardening;
                           });
                         },
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 220),
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
                             color: !isCleaning
-                                ? AppColors.primaryMint
+                                ? AppColors.forestGreen
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             boxShadow: !isCleaning
                                 ? [
                                     BoxShadow(
                                       color:
-                                          AppColors.primaryMint.withOpacity(0.3),
+                                          AppColors.forestGreen.withOpacity(0.24),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -157,7 +161,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 Icons.eco_rounded,
                                 size: 18,
                                 color: !isCleaning
-                                    ? Colors.white
+                                    ? AppColors.electricLime
                                     : AppColors.textSecondary,
                               ),
                               const SizedBox(width: 8),
@@ -166,10 +170,10 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                                 style: TextStyle(
                                   color: !isCleaning
                                       ? Colors.white
-                                      : AppColors.charcoal,
+                                      : AppColors.deepCharcoal,
                                   fontWeight: !isCleaning
-                                      ? FontWeight.w700
-                                      : FontWeight.w500,
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
                                   fontSize: 13,
                                 ),
                               ),
@@ -186,9 +190,9 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
             // Active list
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.all(16.0),
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(18.0),
                 children: [
-                  // Service cards
                   ...services.map((item) {
                     return ServiceCard(
                       service: item,

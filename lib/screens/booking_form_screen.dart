@@ -88,9 +88,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.primaryMint,
+              primary: AppColors.forestGreen,
               onPrimary: Colors.white,
-              onSurface: AppColors.charcoal,
+              onSurface: AppColors.deepCharcoal,
             ),
           ),
           child: child!,
@@ -157,21 +157,22 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
+              color: AppColors.deepCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Book Service',
           style: TextStyle(
-            color: AppColors.charcoal,
+            color: AppColors.deepCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.3,
           ),
         ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -179,24 +180,31 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
               children: [
                 // Service Mini Preview Card
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: AppColors.borderLight),
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppColors.softBorder, width: 1.4),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.deepCharcoal.withOpacity(0.04),
+                        blurRadius: 14,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       Container(
-                        width: 50,
-                        height: 50,
+                        width: 52,
+                        height: 52,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryMintLight,
-                          borderRadius: BorderRadius.circular(14),
+                          color: AppColors.forestGreen,
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
                           widget.service.icon,
-                          color: AppColors.primaryMintDark,
+                          color: AppColors.electricLime,
                           size: 26,
                         ),
                       ),
@@ -209,8 +217,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                               widget.service.title,
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.charcoal,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.deepCharcoal,
+                                letterSpacing: -0.3,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -219,6 +228,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
@@ -227,37 +237,41 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                       Text(
                         widget.service.formattedPrice,
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.charcoal,
+                          fontSize: 19,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.deepCharcoal,
+                          letterSpacing: -0.3,
                         ),
                       ),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // SECTION 1: Preferred Date & Time Selection
-                _buildSectionHeader('1. Choose Preferred Date & Time Window'),
-                const SizedBox(height: 4),
+                _buildSectionHeader(
+                  number: '1',
+                  title: 'Select Preferred Date & Time Slot',
+                ),
+                const SizedBox(height: 6),
                 const Text(
-                  'Your chosen date and time are requested preferences. The business owner will review and approve availability before confirming.',
+                  'Your slot will be reviewed by the business owner for rapid approval.',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.5,
                     color: AppColors.textSecondary,
-                    height: 1.3,
+                    height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // Date Picker Card
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.borderLight),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.softBorder, width: 1.2),
                   ),
                   child: InkWell(
                     onTap: _pickDate,
@@ -266,21 +280,29 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
-                              Icons.calendar_month_rounded,
-                              color: AppColors.primaryMint,
-                              size: 22,
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.forestGreenLight,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_month_rounded,
+                                color: AppColors.forestGreen,
+                                size: 22,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Service Date',
+                                  'SERVICE DATE',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 10.5,
                                     color: AppColors.textMuted,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -288,8 +310,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                                   dateStr,
                                   style: const TextStyle(
                                     fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.charcoal,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.deepCharcoal,
                                   ),
                                 ),
                               ],
@@ -298,18 +320,18 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
+                            horizontal: 12,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryMintLight,
-                            borderRadius: BorderRadius.circular(8),
+                            color: AppColors.forestGreen,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
                             'Change',
                             style: TextStyle(
-                              color: AppColors.primaryMintDark,
-                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
                               fontSize: 12,
                             ),
                           ),
@@ -319,68 +341,115 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
 
-                // Time Slots Radio Chips
+                // Time Slots Grid/Cards
                 const Text(
-                  'Select preferred time window:',
+                  'Available Time Windows',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w600,
+                    color: AppColors.deepCharcoal,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Column(
                   children: AppConstants.bookingTimeSlots.map((slot) {
                     final isSelected = slot == _selectedTimeSlot;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primaryMintLight
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedTimeSlot = slot;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primaryMint
-                              : AppColors.borderLight,
-                          width: isSelected ? 1.5 : 1.0,
-                        ),
-                      ),
-                      child: RadioListTile<String>(
-                        value: slot,
-                        groupValue: _selectedTimeSlot,
-                        activeColor: AppColors.primaryMint,
-                        title: Text(
-                          slot,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
+                              ? AppColors.forestGreen
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
                             color: isSelected
-                                ? AppColors.primaryMintDark
-                                : AppColors.charcoal,
+                                ? AppColors.forestGreen
+                                : AppColors.softBorder,
+                            width: isSelected ? 1.6 : 1.2,
                           ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ]
+                              : null,
                         ),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              _selectedTimeSlot = val;
-                            });
-                          }
-                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              isSelected
+                                  ? Icons.radio_button_checked_rounded
+                                  : Icons.radio_button_off_rounded,
+                              size: 20,
+                              color: isSelected
+                                  ? AppColors.electricLime
+                                  : AppColors.textMuted,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              slot,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.deepCharcoal,
+                              ),
+                            ),
+                            const Spacer(),
+                            if (isSelected)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.electricLime,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Text(
+                                  'SELECTED',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppColors.deepCharcoal,
+                                    letterSpacing: 0.4,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // SECTION 2: Contact & Dhule Address
-                _buildSectionHeader('2. Your Dhule Address & Contact'),
-                const SizedBox(height: 12),
+                _buildSectionHeader(
+                  number: '2',
+                  title: 'Your Dhule Service Address',
+                ),
+                const SizedBox(height: 14),
 
                 // Customer Name
                 _buildTextField(
@@ -402,7 +471,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 _buildTextField(
                   controller: _phoneController,
                   label: 'Contact Number',
-                  hint: 'Enter your phone number',
+                  hint: 'Enter 10-digit mobile number',
                   icon: Icons.phone_android_rounded,
                   prefixText: '+91 ',
                   keyboardType: TextInputType.phone,
@@ -425,22 +494,23 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.borderLight),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.softBorder, width: 1.2),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedDhuleArea,
                       decoration: const InputDecoration(
                         border: InputBorder.none,
-                        labelText: 'Dhule Locality / Zone',
+                        labelText: 'Dhule Locality / Sector',
                         labelStyle: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
                         icon: Icon(
                           Icons.location_city_rounded,
-                          color: AppColors.primaryMint,
+                          color: AppColors.forestGreen,
                         ),
                       ),
                       items: AppConstants.dhuleLocalities.map((area) {
@@ -450,8 +520,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                             area,
                             style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.charcoal,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.deepCharcoal,
                             ),
                           ),
                         );
@@ -472,8 +542,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 // Full Street Address
                 _buildTextField(
                   controller: _addressController,
-                  label: 'Full Address in Dhule',
-                  hint: 'Enter your house/flat no., society, landmark',
+                  label: 'Full Street Address in Dhule',
+                  hint: 'House/Flat no., Society name, Landmark',
                   icon: Icons.home_outlined,
                   maxLines: 2,
                   validator: (val) {
@@ -491,7 +561,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   controller: _instructionsController,
                   label: 'Special Instructions (Optional)',
                   hint:
-                      'e.g. Ring the bell twice, terrace key is with security...',
+                      'e.g. Ring doorbell twice, terrace keys with security...',
                   icon: Icons.notes_rounded,
                   maxLines: 2,
                 ),
@@ -505,7 +575,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   onPressed: _proceedToSummary,
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -514,14 +584,43 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w800,
-        color: AppColors.charcoal,
-      ),
+  Widget _buildSectionHeader({
+    required String number,
+    required String title,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            color: AppColors.forestGreen,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16.5,
+              fontWeight: FontWeight.w900,
+              color: AppColors.deepCharcoal,
+              letterSpacing: -0.3,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -538,8 +637,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.borderLight),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.softBorder, width: 1.2),
       ),
       child: TextFormField(
         controller: controller,
@@ -547,22 +646,23 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         maxLines: maxLines,
         validator: validator,
         style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: AppColors.charcoal,
+          fontSize: 14.5,
+          fontWeight: FontWeight.w700,
+          color: AppColors.deepCharcoal,
         ),
         decoration: InputDecoration(
           prefixText: prefixText,
           prefixStyle: const TextStyle(
-            color: AppColors.charcoal,
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
+            color: AppColors.deepCharcoal,
+            fontWeight: FontWeight.w800,
+            fontSize: 14.5,
           ),
-          prefixIcon: Icon(icon, color: AppColors.primaryMint, size: 20),
+          prefixIcon: Icon(icon, color: AppColors.forestGreen, size: 20),
           labelText: label,
           labelStyle: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 13,
+            fontWeight: FontWeight.w600,
           ),
           hintText: hint,
           hintStyle: const TextStyle(

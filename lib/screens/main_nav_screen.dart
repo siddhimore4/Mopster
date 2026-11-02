@@ -26,6 +26,7 @@ class MainNavScreenState extends State<MainNavScreen> {
   }
 
   void switchTab(int index) {
+    if (_currentIndex == index) return;
     setState(() {
       _currentIndex = index;
     });
@@ -43,62 +44,113 @@ class MainNavScreenState extends State<MainNavScreen> {
     ];
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: IndexedStack(
         index: _currentIndex,
         children: pages,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: const Border(
-            top: BorderSide(color: AppColors.borderLight, width: 1.0),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: AppColors.softBorder, width: 1.5),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.deepCharcoal.withOpacity(0.08),
+                blurRadius: 24,
+                spreadRadius: 0,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: AppColors.forestGreen.withOpacity(0.04),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, -3),
-            ),
-          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(
+                index: 0,
+                label: 'Home',
+                selectedIcon: Icons.home_rounded,
+                unselectedIcon: Icons.home_outlined,
+              ),
+              _buildNavItem(
+                index: 1,
+                label: 'Bookings',
+                selectedIcon: Icons.calendar_month_rounded,
+                unselectedIcon: Icons.calendar_today_outlined,
+              ),
+              _buildNavItem(
+                index: 2,
+                label: 'Profile',
+                selectedIcon: Icons.person_rounded,
+                unselectedIcon: Icons.person_outline_rounded,
+              ),
+            ],
+          ),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
-            child: BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: switchTab,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              type: BottomNavigationBarType.fixed,
-              selectedItemColor: AppColors.primaryMint,
-              unselectedItemColor: AppColors.textMuted,
-              selectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 12,
-              ),
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home_rounded),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.calendar_today_outlined),
-                  activeIcon: Icon(Icons.calendar_month_rounded),
-                  label: 'My Bookings',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline_rounded),
-                  activeIcon: Icon(Icons.person_rounded),
-                  label: 'Profile',
-                ),
-              ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required int index,
+    required String label,
+    required IconData selectedIcon,
+    required IconData unselectedIcon,
+  }) {
+    final bool isSelected = _currentIndex == index;
+
+    return GestureDetector(
+      onTap: () => switchTab(index),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.symmetric(
+          horizontal: isSelected ? 18 : 14,
+          vertical: 10,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.forestGreen : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.forestGreen.withOpacity(0.26),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isSelected ? selectedIcon : unselectedIcon,
+              size: 20,
+              color: isSelected ? AppColors.electricLime : AppColors.mutedGrey,
             ),
-          ),
+            if (isSelected) ...[
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );

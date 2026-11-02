@@ -975,51 +975,66 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         .fold(0.0, (sum, b) => sum + b.totalAmount);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.warmCream,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               'Mopster Business Console',
               style: TextStyle(
-                color: AppColors.charcoal,
+                color: AppColors.deepCharcoal,
                 fontSize: 18,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.3,
               ),
             ),
-            Text(
-              'Dhule Operations & Dispatch • Supabase Cloud',
-              style: TextStyle(
-                color: AppColors.primaryMintDark,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
+            Row(
+              children: [
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF10B981),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
+                const Text(
+                  'Dhule Operations • Supabase Realtime',
+                  style: TextStyle(
+                    color: AppColors.forestGreen,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.charcoal),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.deepCharcoal),
             tooltip: 'Refresh from Supabase',
             onPressed: _loadData,
           ),
           IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppColors.charcoal),
+            icon: const Icon(Icons.logout_rounded, color: AppColors.deepCharcoal),
             tooltip: 'Exit to Customer App',
             onPressed: _confirmExitConsole,
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primaryMintDark,
-          unselectedLabelColor: AppColors.textSecondary,
-          indicatorColor: AppColors.primaryMint,
+          labelColor: AppColors.forestGreen,
+          unselectedLabelColor: AppColors.mutedGrey,
+          indicatorColor: AppColors.forestGreen,
           indicatorWeight: 3,
           labelStyle:
-              const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+              const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
           tabs: [
             Tab(
               icon: const Icon(Icons.assignment_rounded, size: 18),

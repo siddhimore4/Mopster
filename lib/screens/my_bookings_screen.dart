@@ -35,41 +35,53 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
     final storage = BookingStorage();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.warmCream,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: const Text(
           'My Bookings',
           style: TextStyle(
-            color: AppColors.charcoal,
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
+            color: AppColors.deepCharcoal,
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.4,
           ),
         ),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
+          preferredSize: const Size.fromHeight(56),
           child: AnimatedBuilder(
             animation: storage,
             builder: (context, _) {
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: AppColors.primaryMint,
+                    borderRadius: BorderRadius.circular(12),
+                    color: AppColors.forestGreen,
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   labelColor: Colors.white,
-                  unselectedLabelColor: AppColors.charcoal,
+                  unselectedLabelColor: AppColors.deepCharcoal,
                   labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     fontSize: 12,
+                    letterSpacing: -0.2,
                   ),
                   unselectedLabelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -80,7 +92,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                       text: 'Upcoming (${storage.upcomingBookings.length})',
                     ),
                     Tab(
-                      text: 'In Progress (${storage.inProgressBookings.length})',
+                      text: 'Active (${storage.inProgressBookings.length})',
                     ),
                     Tab(
                       text: 'Past (${storage.pastBookings.length})',
@@ -155,32 +167,50 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
   }) {
     if (bookings.isEmpty) {
       return Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 76,
-                height: 76,
-                decoration: const BoxDecoration(
-                  color: AppColors.surfaceMuted,
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [AppColors.freshMint, Color(0xFFE8F6EE)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColors.electricLime,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.06),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.event_busy_rounded,
-                  size: 38,
-                  color: AppColors.textMuted,
+                child: const Center(
+                  child: Icon(
+                    Icons.calendar_today_rounded,
+                    size: 40,
+                    color: AppColors.forestGreen,
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               Text(
                 emptyTitle,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.deepCharcoal,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 8),
@@ -189,25 +219,28 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
-                  height: 1.4,
+                  color: AppColors.mutedGrey,
+                  height: 1.45,
                 ),
               ),
               if (showExploreButton) ...[
-                const SizedBox(height: 24),
-                CustomButton(
-                  text: 'Book a Service',
-                  icon: Icons.cleaning_services_rounded,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ServicesListScreen(
-                          category: ServiceCategory.cleaning,
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: 200,
+                  child: CustomButton(
+                    text: 'Book a Service',
+                    icon: Icons.cleaning_services_rounded,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ServicesListScreen(
+                            category: ServiceCategory.cleaning,
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ],
             ],
@@ -217,7 +250,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16.0),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       itemCount: bookings.length,
       itemBuilder: (context, index) {
         final item = bookings[index];

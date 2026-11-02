@@ -37,7 +37,7 @@ class BookingSummaryScreen extends StatefulWidget {
 }
 
 class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
-  String _selectedPaymentMethod = 'cash'; // 'cash' or 'online_gateway'
+  String _selectedPaymentMethod = 'cash'; // 'cash' or 'direct_upi'
   bool _isSubmitting = false;
 
   String _generateBookingId() {
@@ -54,9 +54,11 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         widget.fullAddress.trim().isEmpty ||
         widget.service.id.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: AppColors.statusCancelled,
-          content: Text(
+          content: const Text(
             'Please fill in all required customer details (name, phone, address).',
           ),
         ),
@@ -72,9 +74,11 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
     if (verifiedService.basePrice <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: AppColors.statusCancelled,
-          content: Text(
+          content: const Text(
             'Invalid service rate. Please select a valid service.',
           ),
         ),
@@ -128,9 +132,11 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           backgroundColor: AppColors.statusCancelled,
-          content: Text(
+          content: const Text(
             'Failed to save booking. Please check your network and try again.',
           ),
         ),
@@ -144,52 +150,84 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         DateFormat('EEEE, dd MMMM yyyy').format(widget.bookingDate);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.warmCream,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
-          onPressed: () => Navigator.pop(context),
+        scrolledUnderElevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.softBorder),
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.deepCharcoal,
+                  size: 16,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
         ),
         title: const Text(
           'Booking Summary',
           style: TextStyle(
-            color: AppColors.charcoal,
+            color: AppColors.deepCharcoal,
             fontSize: 18,
             fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
           ),
         ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 1. Service Review Card
               _buildSectionTitle('Selected Service'),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.04),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 52,
-                      height: 52,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryMintLight,
-                        borderRadius: BorderRadius.circular(14),
+                        gradient: const LinearGradient(
+                          colors: [AppColors.freshMint, Color(0xFFEAF9ED)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.forestGreen.withOpacity(0.12),
+                        ),
                       ),
                       child: Icon(
                         widget.service.icon,
-                        color: AppColors.primaryMintDark,
+                        color: AppColors.forestGreen,
                         size: 28,
                       ),
                     ),
@@ -202,65 +240,96 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                             widget.service.title,
                             style: const TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.charcoal,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.deepCharcoal,
+                              letterSpacing: -0.2,
                             ),
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            'Duration: ${widget.service.duration}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.freshMint,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  widget.service.duration,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.forestGreen,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    Text(
-                      widget.service.formattedPrice,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.charcoal,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.electricLime.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.electricLime),
+                      ),
+                      child: Text(
+                        widget.service.formattedPrice,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.forestGreen,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // 2. Schedule & Location Details
               _buildSectionTitle('Appointment & Dhule Address'),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.03),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     _buildDetailRow(
-                      icon: Icons.calendar_today_rounded,
+                      icon: Icons.calendar_month_rounded,
                       label: 'Preferred Date',
                       value: dateFormatted,
                     ),
-                    const Divider(height: 20, color: AppColors.divider),
+                    const Divider(height: 24, color: AppColors.softBorder),
                     _buildDetailRow(
-                      icon: Icons.access_time_rounded,
+                      icon: Icons.access_time_filled_rounded,
                       label: 'Preferred Slot',
                       value: widget.timeSlot,
                     ),
-                    const Divider(height: 20, color: AppColors.divider),
+                    const Divider(height: 24, color: AppColors.softBorder),
                     _buildDetailRow(
                       icon: Icons.person_rounded,
                       label: 'Customer',
-                      value: '${widget.customerName} (${widget.customerPhone})',
+                      value: '${widget.customerName} • ${widget.customerPhone}',
                     ),
-                    const Divider(height: 20, color: AppColors.divider),
+                    const Divider(height: 24, color: AppColors.softBorder),
                     _buildDetailRow(
                       icon: Icons.location_on_rounded,
                       label: 'Service Address',
@@ -268,10 +337,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           '${widget.fullAddress}\nLocality: ${widget.dhuleArea}, Dhule',
                     ),
                     if (widget.specialInstructions.isNotEmpty) ...[
-                      const Divider(height: 20, color: AppColors.divider),
+                      const Divider(height: 24, color: AppColors.softBorder),
                       _buildDetailRow(
-                        icon: Icons.notes_rounded,
-                        label: 'Instructions',
+                        icon: Icons.chat_bubble_outline_rounded,
+                        label: 'Notes',
                         value: widget.specialInstructions,
                       ),
                     ],
@@ -279,131 +348,71 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              // 3. Payment Mode (Requirement 7)
+              // 3. Payment Mode
               _buildSectionTitle('Payment Method'),
               const SizedBox(height: 4),
               const Text(
                 'Choose how you would like to settle the service charges:',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: AppColors.mutedGrey,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
-              // Option A: Cash on Delivery (ACTIVE)
-              Container(
-                decoration: BoxDecoration(
-                  color: _selectedPaymentMethod == 'cash'
-                      ? AppColors.primaryMintLight
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: _selectedPaymentMethod == 'cash'
-                        ? AppColors.primaryMint
-                        : AppColors.borderLight,
-                    width: _selectedPaymentMethod == 'cash' ? 1.5 : 1.0,
-                  ),
-                ),
-                child: RadioListTile<String>(
-                  value: 'cash',
-                  groupValue: _selectedPaymentMethod,
-                  activeColor: AppColors.primaryMint,
-                  title: const Text(
-                    'Cash on Delivery / Pay After Service',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.charcoal,
-                    ),
-                  ),
-                  subtitle: const Text(
-                    'Inspect the work first, then pay in cash to the service specialist upon completion.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedPaymentMethod = val;
-                      });
-                    }
-                  },
-                ),
+              // Option A: Cash on Delivery
+              _buildPaymentOption(
+                value: 'cash',
+                title: 'Cash on Delivery (Pay After Service)',
+                subtitle:
+                    'Inspect the work first, then pay directly to your Dhule specialist upon completion.',
+                icon: Icons.payments_rounded,
               ),
 
               const SizedBox(height: 10),
 
-              // Option B: Direct UPI Payment (ACTIVE)
-              Container(
-                decoration: BoxDecoration(
-                  color: _selectedPaymentMethod == 'direct_upi'
-                      ? AppColors.primaryMintLight
-                      : Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: _selectedPaymentMethod == 'direct_upi'
-                        ? AppColors.primaryMint
-                        : AppColors.borderLight,
-                    width: _selectedPaymentMethod == 'direct_upi' ? 1.5 : 1.0,
-                  ),
-                ),
-                child: RadioListTile<String>(
-                  value: 'direct_upi',
-                  groupValue: _selectedPaymentMethod,
-                  activeColor: AppColors.primaryMint,
-                  title: const Text(
-                    'Direct UPI to Business (GPay / PhonePe / Paytm)',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.charcoal,
-                    ),
-                  ),
-                  subtitle: const Text(
-                    'Scan Mopster QR code or pay via UPI ID upon service completion. Verified and recorded by business.',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() {
-                        _selectedPaymentMethod = val;
-                      });
-                    }
-                  },
-                ),
+              // Option B: Direct UPI Payment
+              _buildPaymentOption(
+                value: 'direct_upi',
+                title: 'Direct UPI (GPay / PhonePe / Paytm)',
+                subtitle:
+                    'Scan Mopster QR code or pay via verified UPI upon service completion.',
+                icon: Icons.qr_code_2_rounded,
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
               // 4. Price Breakdown
               _buildSectionTitle('Bill Details'),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.borderLight),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.03),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    _buildBillRow('Item Total (Sample Rate)',
+                    _buildBillRow('Item Total (Standard Rate)',
                         widget.service.formattedPrice),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
                     _buildBillRow('Dhule Doorstep Convenience Fee', 'FREE',
                         isGreen: true),
-                    const SizedBox(height: 8),
-                    _buildBillRow('Taxes & Local Cleaning Cess', '₹0',
+                    const SizedBox(height: 10),
+                    _buildBillRow('Local Taxes & Service Cess', '₹0',
                         isGreen: true),
-                    const Divider(height: 24, color: AppColors.divider),
+                    const Divider(height: 26, color: AppColors.softBorder),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -412,15 +421,16 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.charcoal,
+                            color: AppColors.deepCharcoal,
+                            letterSpacing: -0.2,
                           ),
                         ),
                         Text(
                           widget.service.formattedPrice,
                           style: const TextStyle(
-                            fontSize: 20,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.primaryMintDark,
+                            color: AppColors.forestGreen,
                           ),
                         ),
                       ],
@@ -436,7 +446,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
                 ),
                 child: Row(
@@ -454,7 +464,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           color: Color(0xFF92400E),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                           height: 1.4,
                         ),
                       ),
@@ -468,7 +478,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               // Submit Request Button
               CustomButton(
                 text: 'Submit Booking Request',
-                icon: Icons.send_rounded,
+                icon: Icons.arrow_forward_rounded,
                 isLoading: _isSubmitting,
                 onPressed: _isSubmitting ? null : _handleConfirmBooking,
               ),
@@ -481,14 +491,131 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w800,
-        color: AppColors.charcoal,
+  Widget _buildPaymentOption({
+    required String value,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+  }) {
+    final isSelected = _selectedPaymentMethod == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedPaymentMethod = value;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.white.withOpacity(0.85),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: isSelected ? AppColors.forestGreen : AppColors.softBorder,
+            width: isSelected ? 2.0 : 1.2,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.forestGreen.withOpacity(0.08),
+                    blurRadius: 14,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.freshMint : const Color(0xFFF3F5F2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: isSelected ? AppColors.forestGreen : AppColors.mutedGrey,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected ? AppColors.forestGreen : AppColors.deepCharcoal,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.mutedGrey,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Container(
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? AppColors.forestGreen : AppColors.mutedGrey,
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? Center(
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: const BoxDecoration(
+                          color: AppColors.forestGreen,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Row(
+      children: [
+        Container(
+          width: 4,
+          height: 14,
+          decoration: BoxDecoration(
+            color: AppColors.electricLime,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: AppColors.deepCharcoal,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ],
     );
   }
 
@@ -500,15 +627,22 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.primaryMintDark),
-        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: AppColors.freshMint.withOpacity(0.6),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 16, color: AppColors.forestGreen),
+        ),
+        const SizedBox(width: 12),
         SizedBox(
-          width: 100,
+          width: 95,
           child: Text(
             label,
             style: const TextStyle(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: AppColors.mutedGrey,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -519,7 +653,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.charcoal,
+              color: AppColors.deepCharcoal,
+              height: 1.35,
             ),
           ),
         ),
@@ -535,15 +670,16 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: AppColors.textSecondary,
+            color: AppColors.mutedGrey,
+            fontWeight: FontWeight.w500,
           ),
         ),
         Text(
           value,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: isGreen ? AppColors.primaryMintDark : AppColors.charcoal,
+            fontWeight: FontWeight.w800,
+            color: isGreen ? AppColors.forestGreen : AppColors.deepCharcoal,
           ),
         ),
       ],
