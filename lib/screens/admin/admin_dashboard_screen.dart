@@ -1233,21 +1233,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: isCleaning
-                                      ? AppColors.primaryMintLight
-                                      : AppColors.accentSoftGreen,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  isCleaning
-                                      ? Icons.cleaning_services_rounded
-                                      : Icons.eco_rounded,
-                                  color: AppColors.primaryMintDark,
-                                  size: 22,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: Image.asset(
+                                    'assets/images/services/${s['id']}.jpg',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Container(
+                                      color: isCleaning
+                                          ? AppColors.primaryMintLight
+                                          : AppColors.accentSoftGreen,
+                                      child: Icon(
+                                        isCleaning
+                                            ? Icons.cleaning_services_rounded
+                                            : Icons.eco_rounded,
+                                        color: AppColors.primaryMintDark,
+                                        size: 22,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 14),

@@ -17,6 +17,7 @@ class ServiceItem {
   final IconData icon;
   final String tag;
   final bool isPopular;
+  final String? imageAsset;
 
   const ServiceItem({
     required this.id,
@@ -33,6 +34,7 @@ class ServiceItem {
     required this.icon,
     this.tag = '',
     this.isPopular = false,
+    this.imageAsset,
   });
 
   String get formattedPrice => '₹${basePrice.toStringAsFixed(0)}';
@@ -45,4 +47,10 @@ class ServiceItem {
         return 'Gardening Care';
     }
   }
+
+  /// Resolved local asset path for this service's photo
+  String get imagePath =>
+      (imageAsset != null && imageAsset!.isNotEmpty)
+          ? imageAsset!
+          : 'assets/images/services/$id.jpg';
 }

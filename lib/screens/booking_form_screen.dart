@@ -195,17 +195,24 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   ),
                   child: Row(
                     children: [
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: AppColors.forestGreen,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Icon(
-                          widget.service.icon,
-                          color: AppColors.electricLime,
-                          size: 26,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: SizedBox(
+                          width: 52,
+                          height: 52,
+                          child: Image.asset(
+                            widget.service.imagePath,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              color: AppColors.forestGreen,
+                              child: Icon(
+                                widget.service.icon,
+                                color: AppColors.electricLime,
+                                size: 26,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),

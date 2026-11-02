@@ -211,24 +211,34 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.freshMint, Color(0xFFEAF9ED)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        width: 58,
+                        height: 58,
+                        child: Image.asset(
+                          widget.service.imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [AppColors.freshMint, Color(0xFFEAF9ED)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.forestGreen.withOpacity(0.12),
+                              ),
+                            ),
+                            child: Icon(
+                              widget.service.icon,
+                              color: AppColors.forestGreen,
+                              size: 28,
+                            ),
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.forestGreen.withOpacity(0.12),
-                        ),
-                      ),
-                      child: Icon(
-                        widget.service.icon,
-                        color: AppColors.forestGreen,
-                        size: 28,
                       ),
                     ),
                     const SizedBox(width: 14),

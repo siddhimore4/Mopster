@@ -17,7 +17,7 @@ class SampleServices {
           'Intensive whole-home scrub, degreasing, and sanitization for total freshness.',
       fullDescription:
           'Complete end-to-end deep cleaning for your house in Dhule. Our trained staff handles hard-water stains, floor scrubbing with safe eco-friendly agents, ceiling fan wiping, cobweb removal, and switchboard care. Perfect before festivals, house warmings, or seasonal cleanups.',
-      basePrice: 2499.0, // Configurable sample price
+      basePrice: 2499.0,
       duration: '4 - 5 hours',
       rating: 4.9,
       reviewCount: 142,
@@ -35,6 +35,7 @@ class SampleServices {
       icon: Icons.cleaning_services_rounded,
       tag: 'Most Popular',
       isPopular: true,
+      imageAsset: 'assets/images/services/clean_deep.jpg',
     ),
 
     ServiceItem(
@@ -45,7 +46,7 @@ class SampleServices {
           'Descaling, tile stain removal, mirror polishing, and germ sanitization.',
       fullDescription:
           'Thorough cleaning and descaling of bathroom tiles, toilet bowl, taps, shower heads, and mirrors. Eliminates yellow stains, water marks, mold, and unpleasant odors, leaving your bathroom hygienic and fresh.',
-      basePrice: 499.0, // Configurable sample price
+      basePrice: 499.0,
       duration: '60 - 75 mins',
       rating: 4.8,
       reviewCount: 98,
@@ -62,6 +63,7 @@ class SampleServices {
       icon: Icons.bathtub_rounded,
       tag: 'Best Value',
       isPopular: true,
+      imageAsset: 'assets/images/services/clean_bathroom.jpg',
     ),
 
     ServiceItem(
@@ -72,7 +74,7 @@ class SampleServices {
           'Degreasing stovetop, chimney surface, countertop, sink & cabinet wiping.',
       fullDescription:
           'Specialized kitchen cleaning designed for Indian cooking residues. Removes grease, oil splatters, and stubborn stains from the stove, chimney exteriors, tiled backsplash, and stainless steel sinks.',
-      basePrice: 899.0, // Configurable sample price
+      basePrice: 899.0,
       duration: '90 - 120 mins',
       rating: 4.8,
       reviewCount: 84,
@@ -90,6 +92,7 @@ class SampleServices {
       icon: Icons.countertops_rounded,
       tag: 'Kitchen Hero',
       isPopular: true,
+      imageAsset: 'assets/images/services/clean_kitchen.jpg',
     ),
 
     ServiceItem(
@@ -100,7 +103,7 @@ class SampleServices {
           'Standard comprehensive cleaning of living rooms, bedrooms, and common areas.',
       fullDescription:
           'A reliable, thorough cleaning service covering all living rooms, bedrooms, balconies, and entryways. Ideal for regular monthly hygiene maintenance for families across Dhule.',
-      basePrice: 1699.0, // Configurable sample price
+      basePrice: 1699.0,
       duration: '3 - 4 hours',
       rating: 4.7,
       reviewCount: 110,
@@ -118,6 +121,7 @@ class SampleServices {
       icon: Icons.home_work_rounded,
       tag: 'Family Favorite',
       isPopular: false,
+      imageAsset: 'assets/images/services/clean_fullhome.jpg',
     ),
 
     ServiceItem(
@@ -128,7 +132,7 @@ class SampleServices {
           'Quick touch-up cleaning: fan dusting, cobwebs, dry vacuuming, and mopping.',
       fullDescription:
           'Need your home spruced up before guests arrive? This express general cleaning takes care of ceiling cobwebs, dry dust on furniture, curtain dusting, and aromatic floor mopping.',
-      basePrice: 599.0, // Configurable sample price
+      basePrice: 599.0,
       duration: '90 mins',
       rating: 4.7,
       reviewCount: 65,
@@ -145,6 +149,7 @@ class SampleServices {
       icon: Icons.dry_cleaning_rounded,
       tag: 'Express',
       isPopular: false,
+      imageAsset: 'assets/images/services/clean_dusting.jpg',
     ),
 
     // ==========================================
@@ -158,7 +163,7 @@ class SampleServices {
           'Nutrient feeding, organic pest spray, leaf wiping, and health diagnosis.',
       fullDescription:
           'Expert care for your balcony and terrace potted plants. Our Dhule gardening specialist inspects plant health, removes yellowing foliage, loosens topsoil, applies organic vermicompost, and sprays neem oil to prevent insects.',
-      basePrice: 449.0, // Configurable sample price
+      basePrice: 449.0,
       duration: '60 - 90 mins',
       rating: 4.9,
       reviewCount: 76,
@@ -175,6 +180,7 @@ class SampleServices {
       icon: Icons.eco_rounded,
       tag: 'Top Rated',
       isPopular: true,
+      imageAsset: 'assets/images/services/garden_care.jpg',
     ),
 
     ServiceItem(
@@ -185,7 +191,7 @@ class SampleServices {
           'Complete cleanup of dry leaves, weed removal, walkway clearing & garden tidying.',
       fullDescription:
           'Transforms overgrown and messy garden yards into clean, peaceful outdoor spaces. We pull out stubborn wild weeds, rake dry fallen leaves, edge stone pathways, and bag up organic yard waste neatly.',
-      basePrice: 799.0, // Configurable sample price
+      basePrice: 799.0,
       duration: '2 - 3 hours',
       rating: 4.8,
       reviewCount: 52,
@@ -202,6 +208,7 @@ class SampleServices {
       icon: Icons.yard_rounded,
       tag: 'High Demand',
       isPopular: true,
+      imageAsset: 'assets/images/services/garden_cleanup.jpg',
     ),
 
     ServiceItem(
@@ -212,7 +219,7 @@ class SampleServices {
           'Artful shaping of shrubs, rose bushes, hedges, and flowering plants.',
       fullDescription:
           'Proper pruning stimulates fresh blooms and healthy branches. Handled with sterilized pruning shears, we shape your garden hedges, trim rose bushes for winter/spring flowering, and remove diseased stems safely.',
-      basePrice: 599.0, // Configurable sample price
+      basePrice: 599.0,
       duration: '90 - 120 mins',
       rating: 4.8,
       reviewCount: 43,
@@ -229,6 +236,7 @@ class SampleServices {
       icon: Icons.content_cut_rounded,
       tag: 'Craftsman',
       isPopular: false,
+      imageAsset: 'assets/images/services/garden_pruning.jpg',
     ),
 
     ServiceItem(
@@ -239,7 +247,7 @@ class SampleServices {
           'Uniform lawn mowing, edge border trimming, aeration, and grass fertilization.',
       fullDescription:
           'Keep your Dhule bungalow or society lawn green, soft, and uniformly cut. Includes grass cutting with calibrated mowers, precision border trimming near flower beds, and organic lawn feed application.',
-      basePrice: 999.0, // Configurable sample price
+      basePrice: 999.0,
       duration: '2 - 3 hours',
       rating: 4.7,
       reviewCount: 39,
@@ -256,6 +264,7 @@ class SampleServices {
       icon: Icons.grass_rounded,
       tag: 'Estate Favorite',
       isPopular: false,
+      imageAsset: 'assets/images/services/garden_lawn.jpg',
     ),
 
     ServiceItem(
@@ -266,7 +275,7 @@ class SampleServices {
           'Transfer root-bound plants to fresh soil mix, terracotta pots, or planters.',
       fullDescription:
           'Plants stop growing when their roots choke in old, compacted soil. We prepare a premium potting mix (soil, coco peat, vermicompost, perlite), untangle root balls, and transplant your favorite plants into larger planters.',
-      basePrice: 499.0, // Configurable sample price
+      basePrice: 499.0,
       duration: '60 - 90 mins',
       rating: 4.9,
       reviewCount: 61,
@@ -283,6 +292,7 @@ class SampleServices {
       icon: Icons.local_florist_rounded,
       tag: 'Plant Health',
       isPopular: false,
+      imageAsset: 'assets/images/services/garden_potting.jpg',
     ),
   ];
 
