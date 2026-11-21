@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../config/colors.dart';
+import '../../config/typography.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 import 'admin_dashboard_screen.dart';
@@ -83,19 +84,23 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.ivoryCard,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.softBorder, height: 1),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
+              color: AppColors.darkCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Admin Portal Login',
-          style: TextStyle(
-            color: AppColors.charcoal,
+          style: AppTypography.headingMedium(
+            color: AppColors.darkCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w800,
           ),
         ),
       ),
@@ -109,12 +114,12 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
               child: Container(
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.borderLight),
+                  border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: AppColors.darkCharcoal.withOpacity(0.04),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -128,25 +133,24 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       child: Container(
                         width: 68,
                         height: 68,
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryMintLight,
+                        decoration: const BoxDecoration(
+                          color: AppColors.lightBeige,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.admin_panel_settings_rounded,
                           size: 36,
-                          color: AppColors.primaryMintDark,
+                          color: AppColors.primaryForestGreen,
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
-                    const Center(
+                    Center(
                       child: Text(
                         'Mopster Business Portal',
-                        style: TextStyle(
+                        style: AppTypography.headingLarge(
+                          color: AppColors.darkCharcoal,
                           fontSize: 22,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.charcoal,
                         ),
                       ),
                     ),
@@ -157,7 +161,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: AppColors.mutedGreyText,
                         ),
                       ),
                     ),
@@ -169,25 +173,26 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.charcoal,
+                        color: AppColors.darkCharcoal,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceMuted,
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.softBorder),
                       ),
                       child: TextField(
                         controller: _emailController,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.charcoal,
+                          color: AppColors.darkCharcoal,
                         ),
                         decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.email_outlined,
-                              color: AppColors.primaryMint, size: 20),
+                              color: AppColors.primaryForestGreen, size: 20),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 16, vertical: 14),
@@ -203,14 +208,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.charcoal,
+                        color: AppColors.darkCharcoal,
                       ),
                     ),
                     const SizedBox(height: 6),
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceMuted,
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.softBorder),
                       ),
                       child: TextField(
                         controller: _pinController,
@@ -219,18 +225,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.charcoal,
+                          color: AppColors.darkCharcoal,
                         ),
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.lock_outline_rounded,
-                              color: AppColors.primaryMint, size: 20),
+                              color: AppColors.primaryForestGreen, size: 20),
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
                               size: 20,
-                              color: AppColors.textMuted,
+                              color: AppColors.mutedGreyText,
                             ),
                             onPressed: () {
                               setState(() {
@@ -241,7 +247,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           hintText: 'Enter admin access key',
                           hintStyle: const TextStyle(
                             fontSize: 13,
-                            color: AppColors.textMuted,
+                            color: AppColors.mutedGreyText,
                           ),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(
@@ -298,13 +304,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                           });
                         },
                         icon: const Icon(Icons.key_rounded,
-                            size: 15, color: AppColors.primaryMintDark),
+                            size: 15, color: AppColors.primaryForestGreen),
                         label: const Text(
                           'Quick Fill Default Key (mopster2026)',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.primaryMintDark,
+                            color: AppColors.primaryForestGreen,
                           ),
                         ),
                       ),

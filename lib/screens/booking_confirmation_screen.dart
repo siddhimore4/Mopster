@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../models/booking_model.dart';
 import '../widgets/custom_button.dart';
 import 'main_nav_screen.dart';
@@ -19,7 +20,7 @@ class BookingConfirmationScreen extends StatelessWidget {
         DateFormat('EEEE, dd MMMM yyyy').format(booking.bookingDate);
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
@@ -28,7 +29,7 @@ class BookingConfirmationScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 24),
 
-              // Animated Celebratory Badge
+              // Celebratory Badge
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -37,22 +38,22 @@ class BookingConfirmationScreen extends StatelessWidget {
                     height: 110,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.freshMint.withOpacity(0.5),
+                      color: AppColors.lightBeige,
                     ),
                   ),
                   Container(
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.electricLime,
-                        width: 3,
+                        color: AppColors.accentOlive,
+                        width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.forestGreen.withOpacity(0.12),
+                          color: AppColors.darkCharcoal.withOpacity(0.06),
                           blurRadius: 24,
                           offset: const Offset(0, 8),
                         ),
@@ -61,7 +62,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     child: const Center(
                       child: Icon(
                         Icons.hourglass_top_rounded,
-                        color: Color(0xFFD97706),
+                        color: AppColors.accentOlive,
                         size: 44,
                       ),
                     ),
@@ -74,18 +75,16 @@ class BookingConfirmationScreen extends StatelessWidget {
               // Headline
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
                     'Request Submitted!',
-                    style: TextStyle(
+                    style: AppTypography.headingHero(
+                      color: AppColors.darkCharcoal,
                       fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.deepCharcoal,
-                      letterSpacing: -0.5,
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Text('🌱', style: TextStyle(fontSize: 24)),
+                  const SizedBox(width: 8),
+                  const Text('🌿', style: TextStyle(fontSize: 24)),
                 ],
               ),
 
@@ -96,7 +95,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.mutedGrey,
+                  color: AppColors.mutedGreyText,
                   height: 1.45,
                   fontWeight: FontWeight.w500,
                 ),
@@ -109,12 +108,12 @@ class BookingConfirmationScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.04),
+                      color: AppColors.darkCharcoal.withOpacity(0.04),
                       blurRadius: 18,
                       offset: const Offset(0, 6),
                     ),
@@ -133,7 +132,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                               'BOOKING REFERENCE',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.mutedGrey,
+                                color: AppColors.mutedGreyText,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.8,
                               ),
@@ -143,8 +142,8 @@ class BookingConfirmationScreen extends StatelessWidget {
                               booking.id,
                               style: const TextStyle(
                                 fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.forestGreen,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryForestGreen,
                                 letterSpacing: 0.3,
                               ),
                             ),
@@ -156,10 +155,10 @@ class BookingConfirmationScreen extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFEF3C7),
+                            color: AppColors.lightBeige,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: const Color(0xFFF59E0B).withOpacity(0.4),
+                              color: AppColors.softBorder,
                             ),
                           ),
                           child: Row(
@@ -168,15 +167,15 @@ class BookingConfirmationScreen extends StatelessWidget {
                               Icon(
                                 Icons.access_time_filled_rounded,
                                 size: 14,
-                                color: Color(0xFFB45309),
+                                color: AppColors.statusPending,
                               ),
                               SizedBox(width: 5),
                               Text(
                                 'Pending Approval',
                                 style: TextStyle(
-                                  color: Color(0xFFB45309),
+                                  color: AppColors.statusPending,
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ],
@@ -210,10 +209,10 @@ class BookingConfirmationScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: AppColors.lightBeige,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFF59E0B).withOpacity(0.35),
+                    color: AppColors.softBorder,
                   ),
                 ),
                 child: Row(
@@ -221,7 +220,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                   children: const [
                     Icon(
                       Icons.info_outline_rounded,
-                      color: Color(0xFFB45309),
+                      color: AppColors.accentOlive,
                       size: 20,
                     ),
                     SizedBox(width: 12),
@@ -230,7 +229,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                         'Notice: Your service is NOT yet confirmed. The business owner in Dhule will review and confirm availability. You will see the updated status in "My Bookings" once approved.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF92400E),
+                          color: AppColors.darkCharcoal,
                           height: 1.45,
                           fontWeight: FontWeight.w600,
                         ),
@@ -291,7 +290,7 @@ class BookingConfirmationScreen extends StatelessWidget {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: AppColors.mutedGrey,
+            color: AppColors.mutedGreyText,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -299,8 +298,8 @@ class BookingConfirmationScreen extends StatelessWidget {
           value,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isHighlight ? FontWeight.w900 : FontWeight.w700,
-            color: isHighlight ? AppColors.forestGreen : AppColors.deepCharcoal,
+            fontWeight: isHighlight ? FontWeight.w800 : FontWeight.w700,
+            color: isHighlight ? AppColors.primaryForestGreen : AppColors.darkCharcoal,
           ),
         ),
       ],

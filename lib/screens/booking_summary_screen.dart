@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../data/booking_storage.dart';
 import '../data/sample_services.dart';
 import '../models/booking_model.dart';
@@ -150,7 +151,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         DateFormat('EEEE, dd MMMM yyyy').format(widget.bookingDate);
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -160,14 +161,14 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           child: Center(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.ivoryCard,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.softBorder),
               ),
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.deepCharcoal,
+                  color: AppColors.darkCharcoal,
                   size: 16,
                 ),
                 onPressed: () => Navigator.pop(context),
@@ -175,13 +176,11 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             ),
           ),
         ),
-        title: const Text(
+        title: Text(
           'Booking Summary',
-          style: TextStyle(
-            color: AppColors.deepCharcoal,
+          style: AppTypography.headingMedium(
+            color: AppColors.darkCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.3,
           ),
         ),
         centerTitle: true,
@@ -198,12 +197,12 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.04),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -222,19 +221,15 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [AppColors.freshMint, Color(0xFFEAF9ED)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: AppColors.lightBeige,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: AppColors.forestGreen.withOpacity(0.12),
+                                color: AppColors.softBorder,
                               ),
                             ),
                             child: Icon(
                               widget.service.icon,
-                              color: AppColors.forestGreen,
+                              color: AppColors.primaryForestGreen,
                               size: 28,
                             ),
                           ),
@@ -248,11 +243,9 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         children: [
                           Text(
                             widget.service.title,
-                            style: const TextStyle(
+                            style: AppTypography.headingSmall(
+                              color: AppColors.darkCharcoal,
                               fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.deepCharcoal,
-                              letterSpacing: -0.2,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -264,7 +257,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.freshMint,
+                                  color: AppColors.lightBeige,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
@@ -272,7 +265,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
-                                    color: AppColors.forestGreen,
+                                    color: AppColors.primaryForestGreen,
                                   ),
                                 ),
                               ),
@@ -284,16 +277,15 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: AppColors.electricLime.withOpacity(0.25),
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.electricLime),
+                        border: Border.all(color: AppColors.softBorder),
                       ),
                       child: Text(
                         widget.service.formattedPrice,
-                        style: const TextStyle(
+                        style: AppTypography.headingSmall(
+                          color: AppColors.primaryForestGreen,
                           fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.forestGreen,
                         ),
                       ),
                     ),
@@ -309,12 +301,12 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.03),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -367,7 +359,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                 'Choose how you would like to settle the service charges:',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.mutedGrey,
+                  color: AppColors.mutedGreyText,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -401,12 +393,12 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.03),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -431,16 +423,15 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.deepCharcoal,
+                            color: AppColors.darkCharcoal,
                             letterSpacing: -0.2,
                           ),
                         ),
                         Text(
                           widget.service.formattedPrice,
-                          style: const TextStyle(
+                          style: AppTypography.headingLarge(
+                            color: AppColors.primaryForestGreen,
                             fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.forestGreen,
                           ),
                         ),
                       ],
@@ -455,16 +446,16 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: AppColors.lightBeige,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
+                  border: Border.all(color: AppColors.softBorder),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Icon(
                       Icons.hourglass_top_rounded,
-                      color: Color(0xFFB45309),
+                      color: AppColors.accentOlive,
                       size: 20,
                     ),
                     SizedBox(width: 10),
@@ -473,7 +464,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         'Approval Required: This booking request will be saved as "Pending Approval". The business owner will review your requested time and address before confirming.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF92400E),
+                          color: AppColors.darkCharcoal,
                           fontWeight: FontWeight.w600,
                           height: 1.4,
                         ),
@@ -518,16 +509,16 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.85),
+          color: AppColors.ivoryCard,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? AppColors.forestGreen : AppColors.softBorder,
+            color: isSelected ? AppColors.primaryForestGreen : AppColors.softBorder,
             width: isSelected ? 2.0 : 1.2,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.forestGreen.withOpacity(0.08),
+                    color: AppColors.primaryForestGreen.withOpacity(0.08),
                     blurRadius: 14,
                     offset: const Offset(0, 4),
                   ),
@@ -540,13 +531,13 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isSelected ? AppColors.freshMint : const Color(0xFFF3F5F2),
+                color: AppColors.lightBeige,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
                 icon,
                 size: 20,
-                color: isSelected ? AppColors.forestGreen : AppColors.mutedGrey,
+                color: isSelected ? AppColors.primaryForestGreen : AppColors.mutedGreyText,
               ),
             ),
             const SizedBox(width: 14),
@@ -558,8 +549,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                     title,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: isSelected ? AppColors.forestGreen : AppColors.deepCharcoal,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? AppColors.primaryForestGreen : AppColors.darkCharcoal,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -567,7 +558,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                     subtitle,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppColors.mutedGrey,
+                      color: AppColors.mutedGreyText,
                       height: 1.35,
                     ),
                   ),
@@ -581,7 +572,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? AppColors.forestGreen : AppColors.mutedGrey,
+                  color: isSelected ? AppColors.primaryForestGreen : AppColors.softBorder,
                   width: 2,
                 ),
               ),
@@ -591,7 +582,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                         width: 12,
                         height: 12,
                         decoration: const BoxDecoration(
-                          color: AppColors.forestGreen,
+                          color: AppColors.primaryForestGreen,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -611,18 +602,16 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           width: 4,
           height: 14,
           decoration: BoxDecoration(
-            color: AppColors.electricLime,
+            color: AppColors.accentOlive,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: AppTypography.headingSmall(
+            color: AppColors.darkCharcoal,
             fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: AppColors.deepCharcoal,
-            letterSpacing: -0.2,
           ),
         ),
       ],
@@ -640,10 +629,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.freshMint.withOpacity(0.6),
+            color: AppColors.lightBeige,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 16, color: AppColors.forestGreen),
+          child: Icon(icon, size: 16, color: AppColors.primaryForestGreen),
         ),
         const SizedBox(width: 12),
         SizedBox(
@@ -652,7 +641,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             label,
             style: const TextStyle(
               fontSize: 13,
-              color: AppColors.mutedGrey,
+              color: AppColors.mutedGreyText,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -663,7 +652,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.deepCharcoal,
+              color: AppColors.darkCharcoal,
               height: 1.35,
             ),
           ),
@@ -680,7 +669,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           label,
           style: const TextStyle(
             fontSize: 13,
-            color: AppColors.mutedGrey,
+            color: AppColors.mutedGreyText,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -688,8 +677,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
           value,
           style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: isGreen ? AppColors.forestGreen : AppColors.deepCharcoal,
+            fontWeight: FontWeight.w700,
+            color: isGreen ? AppColors.primaryForestGreen : AppColors.darkCharcoal,
           ),
         ),
       ],

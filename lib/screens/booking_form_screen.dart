@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
+import '../config/typography.dart';
 import '../data/booking_storage.dart';
 import '../models/service_item.dart';
 import '../services/auth_service.dart';
@@ -88,9 +89,10 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: AppColors.forestGreen,
+              primary: AppColors.primaryForestGreen,
               onPrimary: Colors.white,
-              onSurface: AppColors.deepCharcoal,
+              surface: AppColors.ivoryCard,
+              onSurface: AppColors.darkCharcoal,
             ),
           ),
           child: child!,
@@ -153,20 +155,23 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.ivoryCard,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.softBorder, height: 1),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.deepCharcoal, size: 20),
+              color: AppColors.darkCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Book Service',
-          style: TextStyle(
-            color: AppColors.deepCharcoal,
+          style: AppTypography.headingMedium(
+            color: AppColors.darkCharcoal,
             fontSize: 18,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.3,
           ),
         ),
       ),
@@ -182,12 +187,12 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.ivoryCard,
                     borderRadius: BorderRadius.circular(22),
                     border: Border.all(color: AppColors.softBorder, width: 1.4),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.deepCharcoal.withOpacity(0.04),
+                        color: AppColors.darkCharcoal.withOpacity(0.04),
                         blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),
@@ -205,10 +210,10 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
                                 Container(
-                              color: AppColors.forestGreen,
+                              color: AppColors.lightBeige,
                               child: Icon(
                                 widget.service.icon,
-                                color: AppColors.electricLime,
+                                color: AppColors.primaryForestGreen,
                                 size: 26,
                               ),
                             ),
@@ -222,11 +227,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                           children: [
                             Text(
                               widget.service.title,
-                              style: const TextStyle(
+                              style: AppTypography.headingSmall(
+                                color: AppColors.darkCharcoal,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.deepCharcoal,
-                                letterSpacing: -0.3,
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -234,7 +237,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                               widget.service.categoryName,
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                color: AppColors.mutedGreyText,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -243,11 +246,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                       ),
                       Text(
                         widget.service.formattedPrice,
-                        style: const TextStyle(
+                        style: AppTypography.headingMedium(
+                          color: AppColors.primaryForestGreen,
                           fontSize: 19,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.deepCharcoal,
-                          letterSpacing: -0.3,
                         ),
                       ),
                     ],
@@ -276,7 +277,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.ivoryCard,
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(color: AppColors.softBorder, width: 1.2),
                   ),
@@ -290,12 +291,12 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: AppColors.forestGreenLight,
+                                color: AppColors.lightBeige,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
                                 Icons.calendar_month_rounded,
-                                color: AppColors.forestGreen,
+                                color: AppColors.primaryForestGreen,
                                 size: 22,
                               ),
                             ),
@@ -307,7 +308,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                                   'SERVICE DATE',
                                   style: TextStyle(
                                     fontSize: 10.5,
-                                    color: AppColors.textMuted,
+                                    color: AppColors.mutedGreyText,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 0.5,
                                   ),
@@ -318,7 +319,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                                   style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w800,
-                                    color: AppColors.deepCharcoal,
+                                    color: AppColors.darkCharcoal,
                                   ),
                                 ),
                               ],
@@ -331,14 +332,14 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
                             'Change',
                             style: TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               fontSize: 12,
                             ),
                           ),
@@ -351,12 +352,11 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                 const SizedBox(height: 18),
 
                 // Time Slots Grid/Cards
-                const Text(
+                Text(
                   'Available Time Windows',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.deepCharcoal,
-                    fontWeight: FontWeight.w700,
+                  style: AppTypography.headingSmall(
+                    color: AppColors.darkCharcoal,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -378,19 +378,19 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.forestGreen
-                              : Colors.white,
+                              ? AppColors.primaryForestGreen
+                              : AppColors.ivoryCard,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: isSelected
-                                ? AppColors.forestGreen
+                                ? AppColors.primaryForestGreen
                                 : AppColors.softBorder,
                             width: isSelected ? 1.6 : 1.2,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    color: AppColors.primaryForestGreen.withOpacity(0.2),
                                     blurRadius: 10,
                                     offset: const Offset(0, 3),
                                   ),
@@ -405,8 +405,8 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                                   : Icons.radio_button_off_rounded,
                               size: 20,
                               color: isSelected
-                                  ? AppColors.electricLime
-                                  : AppColors.textMuted,
+                                  ? AppColors.secondarySage
+                                  : AppColors.mutedGreyText,
                             ),
                             const SizedBox(width: 12),
                             Text(
@@ -414,11 +414,11 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: isSelected
-                                    ? FontWeight.w800
+                                    ? FontWeight.w700
                                     : FontWeight.w600,
                                 color: isSelected
                                     ? Colors.white
-                                    : AppColors.deepCharcoal,
+                                    : AppColors.darkCharcoal,
                               ),
                             ),
                             const Spacer(),
@@ -429,15 +429,15 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                                   vertical: 3,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.electricLime,
+                                  color: AppColors.accentOlive,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Text(
                                   'SELECTED',
                                   style: TextStyle(
                                     fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.deepCharcoal,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
                                     letterSpacing: 0.4,
                                   ),
                                 ),
@@ -500,7 +500,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.ivoryCard,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.softBorder, width: 1.2),
                   ),
@@ -511,13 +511,13 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                         border: InputBorder.none,
                         labelText: 'Dhule Locality / Sector',
                         labelStyle: TextStyle(
-                          color: AppColors.textSecondary,
+                          color: AppColors.mutedGreyText,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                         icon: Icon(
                           Icons.location_city_rounded,
-                          color: AppColors.forestGreen,
+                          color: AppColors.primaryForestGreen,
                         ),
                       ),
                       items: AppConstants.dhuleLocalities.map((area) {
@@ -528,7 +528,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.deepCharcoal,
+                              color: AppColors.darkCharcoal,
                             ),
                           ),
                         );
@@ -568,7 +568,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
                   controller: _instructionsController,
                   label: 'Special Instructions (Optional)',
                   hint:
-                      'e.g. Ring doorbell twice, terrace keys with security...',
+                       'e.g. Ring doorbell twice, terrace keys with security...',
                   icon: Icons.notes_rounded,
                   maxLines: 2,
                 ),
@@ -601,7 +601,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
           width: 24,
           height: 24,
           decoration: const BoxDecoration(
-            color: AppColors.forestGreen,
+            color: AppColors.primaryForestGreen,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -619,11 +619,9 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         Expanded(
           child: Text(
             title,
-            style: const TextStyle(
+            style: AppTypography.headingSmall(
+              color: AppColors.darkCharcoal,
               fontSize: 16.5,
-              fontWeight: FontWeight.w900,
-              color: AppColors.deepCharcoal,
-              letterSpacing: -0.3,
             ),
           ),
         ),
@@ -643,7 +641,7 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.ivoryCard,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.softBorder, width: 1.2),
       ),
@@ -655,25 +653,25 @@ class _BookingFormScreenState extends State<BookingFormScreen> {
         style: const TextStyle(
           fontSize: 14.5,
           fontWeight: FontWeight.w700,
-          color: AppColors.deepCharcoal,
+          color: AppColors.darkCharcoal,
         ),
         decoration: InputDecoration(
           prefixText: prefixText,
           prefixStyle: const TextStyle(
-            color: AppColors.deepCharcoal,
-            fontWeight: FontWeight.w800,
+            color: AppColors.darkCharcoal,
+            fontWeight: FontWeight.w700,
             fontSize: 14.5,
           ),
-          prefixIcon: Icon(icon, color: AppColors.forestGreen, size: 20),
+          prefixIcon: Icon(icon, color: AppColors.primaryForestGreen, size: 20),
           labelText: label,
           labelStyle: const TextStyle(
-            color: AppColors.textSecondary,
+            color: AppColors.mutedGreyText,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
           hintText: hint,
           hintStyle: const TextStyle(
-            color: AppColors.textMuted,
+            color: AppColors.mutedGreyText,
             fontSize: 13,
           ),
           border: InputBorder.none,

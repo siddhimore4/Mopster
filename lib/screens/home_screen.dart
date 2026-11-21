@@ -219,27 +219,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverToBoxAdapter(
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
-                    color: Colors.white,
+                    color: AppColors.cardBackground,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Row 1: Logo & Greeting & Location & Profile
                         Row(
                           children: [
-                            // Official Brand Emblem with Forest & Lime Accent
+                            // Official Brand Emblem with Forest & Ivory Styling
                             Container(
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: AppColors.forestGreen,
+                                color: AppColors.cardBackground,
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: AppColors.electricLime.withOpacity(0.7),
-                                  width: 1.5,
+                                  color: AppColors.softBorderStrong,
+                                  width: 1.4,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    color: AppColors.darkCharcoal.withOpacity(0.04),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -265,10 +265,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Text(
                                         'Namaste, Dhule! ',
                                         style: TextStyle(
+                                          fontFamily: 'serif',
                                           fontSize: 18,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.deepCharcoal,
-                                          letterSpacing: -0.4,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.darkCharcoal,
+                                          letterSpacing: -0.3,
                                         ),
                                       ),
                                       Text('🌱', style: TextStyle(fontSize: 16)),
@@ -280,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: const TextStyle(
                                       fontSize: 13,
                                       color: AppColors.textSecondary,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -299,10 +300,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.forestGreenLight,
+                                  color: AppColors.secondarySage.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: AppColors.forestGreen.withOpacity(0.2),
+                                    color: AppColors.secondarySage.withOpacity(0.4),
                                     width: 1.2,
                                   ),
                                 ),
@@ -468,15 +469,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   'Explore Services',
                                   style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.deepCharcoal,
-                                    letterSpacing: -0.4,
+                                    fontFamily: 'serif',
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.darkCharcoal,
+                                    letterSpacing: -0.3,
                                   ),
                                 ),
                                 SizedBox(height: 2),
                                 Text(
-                                  'Two specialized professional offerings',
+                                  'Specialized professional care for your home',
                                   style: TextStyle(
                                     fontSize: 12.5,
                                     color: AppColors.textSecondary,
@@ -556,10 +558,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   'Popular in Dhule',
                                   style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.deepCharcoal,
-                                    letterSpacing: -0.4,
+                                    fontFamily: 'serif',
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.darkCharcoal,
+                                    letterSpacing: -0.3,
                                   ),
                                 ),
                                 SizedBox(height: 2),
@@ -716,12 +719,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4.5),
                   decoration: BoxDecoration(
-                    color: AppColors.electricLime,
+                    color: AppColors.accentOlive,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.electricLime.withOpacity(0.4),
-                        blurRadius: 8,
+                        color: Colors.black.withOpacity(0.18),
+                        blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -732,16 +735,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icon(
                         Icons.verified_rounded,
                         size: 13,
-                        color: AppColors.deepCharcoal,
+                        color: Colors.white,
                       ),
                       SizedBox(width: 5),
                       Text(
                         '100% ECO-VERIFIED CARE',
                         style: TextStyle(
-                          color: AppColors.deepCharcoal,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
                         ),
                       ),
                     ],
@@ -753,11 +756,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Text(
                   'A Cleaner Home.\nA Greener Life.',
                   style: TextStyle(
+                    fontFamily: 'serif',
                     color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                    height: 1.18,
-                    letterSpacing: -0.6,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                    letterSpacing: -0.4,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -768,10 +772,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     "From spotless spaces to thriving gardens, we've got your home covered.",
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.88),
+                      color: Colors.white.withOpacity(0.9),
                       fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      height: 1.4,
+                      fontWeight: FontWeight.w400,
+                      height: 1.45,
                     ),
                   ),
                 ),
@@ -801,15 +805,15 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: AppColors.forestGreen.withOpacity(0.2),
-              width: 1.4,
+              color: AppColors.softBorder,
+              width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.deepCharcoal.withOpacity(0.04),
+                color: AppColors.darkCharcoal.withOpacity(0.04),
                 blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
@@ -831,16 +835,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.forestGreen.withOpacity(0.25),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
+                                color: AppColors.forestGreen.withOpacity(0.2),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
                           child: const Icon(
                             Icons.local_car_wash_rounded,
-                            color: AppColors.electricLime,
-                            size: 24,
+                            color: Colors.white,
+                            size: 22,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -848,14 +852,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3.5),
                           decoration: BoxDecoration(
-                            color: AppColors.freshMint,
+                            color: AppColors.secondarySage.withOpacity(0.25),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
                             'NEW CATEGORY',
                             style: TextStyle(
                               fontSize: 9.5,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.forestGreenDark,
                               letterSpacing: 0.4,
                             ),
@@ -867,10 +871,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Car Washing',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.deepCharcoal,
-                        letterSpacing: -0.3,
+                        fontFamily: 'serif',
+                        fontSize: 16.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkCharcoal,
+                        letterSpacing: -0.2,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -879,7 +884,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -920,15 +925,15 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.cardBackground,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: isPrimary ? AppColors.forestGreen.withOpacity(0.2) : AppColors.softBorder,
-              width: 1.4,
+              color: isPrimary ? AppColors.forestGreen.withOpacity(0.25) : AppColors.softBorder,
+              width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.deepCharcoal.withOpacity(0.04),
+                color: AppColors.darkCharcoal.withOpacity(0.04),
                 blurRadius: 14,
                 offset: const Offset(0, 4),
               ),
@@ -944,30 +949,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: isPrimary ? AppColors.forestGreen : const Color(0xFF15803D),
+                      color: AppColors.forestGreen,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: (isPrimary ? AppColors.forestGreen : const Color(0xFF15803D))
-                              .withOpacity(0.25),
-                          blurRadius: 8,
-                          offset: const Offset(0, 3),
+                          color: AppColors.forestGreen.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: Icon(icon, color: AppColors.electricLime, size: 26),
+                    child: Icon(icon, color: Colors.white, size: 24),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.freshMint,
+                      color: AppColors.secondarySage.withOpacity(0.25),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       tagText,
                       style: const TextStyle(
                         fontSize: 9.5,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.forestGreenDark,
                         letterSpacing: 0.4,
                       ),
@@ -979,10 +983,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.deepCharcoal,
-                  letterSpacing: -0.3,
+                  fontFamily: 'serif',
+                  fontSize: 16.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkCharcoal,
+                  letterSpacing: -0.2,
                 ),
               ),
               const SizedBox(height: 2),

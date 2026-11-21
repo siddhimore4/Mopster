@@ -147,17 +147,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.cardBackground,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.charcoal, size: 20),
+              color: AppColors.darkCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Verification Code',
           style: TextStyle(
-            color: AppColors.charcoal,
+            color: AppColors.darkCharcoal,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
@@ -177,13 +177,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryMintLight,
+                      color: AppColors.secondarySage.withOpacity(0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.mark_email_read_rounded,
-                      color: AppColors.primaryMintDark,
-                      size: 36,
+                      color: AppColors.forestGreen,
+                      size: 34,
                     ),
                   ),
                 ),
@@ -193,9 +193,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   child: Text(
                     'Verify Mobile Number',
                     style: TextStyle(
+                      fontFamily: 'serif',
                       fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.charcoal,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.darkCharcoal,
                     ),
                   ),
                 ),
@@ -248,13 +249,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.borderLight),
+                    color: AppColors.cardBackground,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: AppColors.softBorder, width: 1.2),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
-                        blurRadius: 12,
+                        color: AppColors.darkCharcoal.withOpacity(0.04),
+                        blurRadius: 14,
                         offset: const Offset(0, 4),
                       ),
                     ],

@@ -99,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
       backgroundColor: AppColors.warmCream,
       body: Stack(
         children: [
-          // Ambient organic gradient circles in the background
+          // Ambient organic natural circles in the background
           Positioned(
             top: -80,
             right: -60,
@@ -108,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
               height: 240,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.freshMint.withOpacity(0.55),
+                color: AppColors.secondarySage.withOpacity(0.18),
               ),
             ),
           ),
@@ -120,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.electricLime.withOpacity(0.22),
+                color: AppColors.accentOlive.withOpacity(0.12),
               ),
             ),
           ),
@@ -156,19 +156,11 @@ class _SplashScreenState extends State<SplashScreen>
                                       boxShadow: [
                                         BoxShadow(
                                           color: AppColors.forestGreen.withOpacity(
-                                            0.18 + (0.12 * pulse),
+                                            0.10 + (0.06 * pulse),
                                           ),
-                                          blurRadius: 30 + (12 * pulse),
-                                          spreadRadius: 2 + (4 * pulse),
-                                          offset: const Offset(0, 10),
-                                        ),
-                                        BoxShadow(
-                                          color: AppColors.electricLime.withOpacity(
-                                            0.25 + (0.15 * pulse),
-                                          ),
-                                          blurRadius: 20 + (8 * pulse),
-                                          spreadRadius: 0,
-                                          offset: const Offset(0, 4),
+                                          blurRadius: 28 + (10 * pulse),
+                                          spreadRadius: 1 + (3 * pulse),
+                                          offset: const Offset(0, 8),
                                         ),
                                       ],
                                     ),
@@ -179,15 +171,22 @@ class _SplashScreenState extends State<SplashScreen>
                                     width: 120,
                                     height: 120,
                                     decoration: BoxDecoration(
-                                      color: AppColors.forestGreen,
+                                      color: AppColors.cardBackground,
                                       borderRadius: BorderRadius.circular(36),
                                       border: Border.all(
-                                        color: AppColors.electricLime.withOpacity(0.8),
-                                        width: 2.2,
+                                        color: AppColors.softBorderStrong,
+                                        width: 1.6,
                                       ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.darkCharcoal.withOpacity(0.06),
+                                          blurRadius: 16,
+                                          offset: const Offset(0, 6),
+                                        ),
+                                      ],
                                     ),
                                     child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(33),
+                                      borderRadius: BorderRadius.circular(34),
                                       child: Image.asset(
                                         'assets/images/logo.png',
                                         fit: BoxFit.cover,
@@ -206,11 +205,11 @@ class _SplashScreenState extends State<SplashScreen>
                                         child: Container(
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
-                                            color: AppColors.electricLime,
+                                            color: AppColors.accentOlive,
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: AppColors.electricLime.withOpacity(0.5),
+                                                color: AppColors.accentOlive.withOpacity(0.35),
                                                 blurRadius: 10,
                                                 offset: const Offset(0, 2),
                                               ),
@@ -219,7 +218,7 @@ class _SplashScreenState extends State<SplashScreen>
                                           child: const Icon(
                                             Icons.auto_awesome_rounded,
                                             size: 16,
-                                            color: AppColors.deepCharcoal,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
@@ -237,10 +236,11 @@ class _SplashScreenState extends State<SplashScreen>
                         const Text(
                           AppConstants.appName,
                           style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.deepCharcoal,
-                            letterSpacing: -0.8,
+                            fontFamily: 'serif',
+                            fontSize: 38,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkCharcoal,
+                            letterSpacing: -0.6,
                           ),
                         ),
 
@@ -250,10 +250,10 @@ class _SplashScreenState extends State<SplashScreen>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppColors.forestGreenLight,
+                            color: AppColors.secondarySage.withOpacity(0.22),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                              color: AppColors.forestGreen.withOpacity(0.18),
+                              color: AppColors.secondarySage.withOpacity(0.4),
                               width: 1,
                             ),
                           ),

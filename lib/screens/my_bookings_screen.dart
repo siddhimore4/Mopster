@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../data/booking_storage.dart';
 import '../models/service_item.dart';
 import '../widgets/booking_card.dart';
@@ -35,18 +36,16 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
     final storage = BookingStorage();
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
+        title: Text(
           'My Bookings',
-          style: TextStyle(
-            color: AppColors.deepCharcoal,
+          style: AppTypography.headingLarge(
+            color: AppColors.darkCharcoal,
             fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.4,
           ),
         ),
         bottom: PreferredSize(
@@ -58,12 +57,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.04),
+                      color: AppColors.darkCharcoal.withOpacity(0.04),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -73,13 +72,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                   controller: _tabController,
                   indicator: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: AppColors.forestGreen,
+                    color: AppColors.primaryForestGreen,
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   labelColor: Colors.white,
-                  unselectedLabelColor: AppColors.deepCharcoal,
+                  unselectedLabelColor: AppColors.mutedGreyText,
                   labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 12,
                     letterSpacing: -0.2,
                   ),
@@ -176,19 +175,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                 width: 90,
                 height: 90,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AppColors.freshMint, Color(0xFFE8F6EE)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: AppColors.lightBeige,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppColors.electricLime,
-                    width: 2,
+                    color: AppColors.softBorder,
+                    width: 1.5,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.06),
+                      color: AppColors.darkCharcoal.withOpacity(0.04),
                       blurRadius: 18,
                       offset: const Offset(0, 6),
                     ),
@@ -197,8 +192,8 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                 child: const Center(
                   child: Icon(
                     Icons.calendar_today_rounded,
-                    size: 40,
-                    color: AppColors.forestGreen,
+                    size: 38,
+                    color: AppColors.primaryForestGreen,
                   ),
                 ),
               ),
@@ -206,11 +201,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
               Text(
                 emptyTitle,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: AppTypography.headingMedium(
+                  color: AppColors.darkCharcoal,
                   fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.deepCharcoal,
-                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 8),
@@ -219,7 +212,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen>
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 13,
-                  color: AppColors.mutedGrey,
+                  color: AppColors.mutedGreyText,
                   height: 1.45,
                 ),
               ),

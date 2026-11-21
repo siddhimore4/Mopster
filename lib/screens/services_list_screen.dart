@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../data/sample_services.dart';
 import '../models/service_item.dart';
 import '../widgets/service_card.dart';
@@ -49,20 +50,23 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.ivoryCard,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.softBorder, height: 1),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.deepCharcoal, size: 20),
+              color: AppColors.darkCharcoal, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           screenTitle,
-          style: const TextStyle(
-            color: AppColors.deepCharcoal,
-            fontSize: 18,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.3,
+          style: AppTypography.headingMedium(
+            color: AppColors.darkCharcoal,
+            fontSize: 19,
           ),
         ),
         centerTitle: false,
@@ -73,11 +77,11 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
             // Category Switcher Header (3 Categories)
             Container(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
-              color: Colors.white,
+              color: AppColors.ivoryCard,
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceMuted,
+                  color: AppColors.lightBeige,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.softBorder, width: 1),
                 ),
@@ -153,12 +157,12 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
           duration: const Duration(milliseconds: 220),
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.forestGreen : Colors.transparent,
+            color: isSelected ? AppColors.primaryForestGreen : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.24),
+                      color: AppColors.primaryForestGreen.withOpacity(0.24),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -172,8 +176,8 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                 icon,
                 size: 16,
                 color: isSelected
-                    ? AppColors.electricLime
-                    : AppColors.textSecondary,
+                    ? AppColors.secondarySage
+                    : AppColors.mutedGreyText,
               ),
               const SizedBox(width: 5),
               Flexible(
@@ -181,9 +185,9 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                   '$label ($count)',
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.deepCharcoal,
+                    color: isSelected ? Colors.white : AppColors.darkCharcoal,
                     fontWeight:
-                        isSelected ? FontWeight.w800 : FontWeight.w600,
+                        isSelected ? FontWeight.w700 : FontWeight.w600,
                     fontSize: 11.5,
                   ),
                 ),

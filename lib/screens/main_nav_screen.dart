@@ -54,20 +54,15 @@ class MainNavScreenState extends State<MainNavScreen> {
           margin: const EdgeInsets.fromLTRB(18, 0, 18, 14),
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.ivoryCard,
             borderRadius: BorderRadius.circular(32),
             border: Border.all(color: AppColors.softBorder, width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: AppColors.deepCharcoal.withOpacity(0.08),
+                color: AppColors.darkCharcoal.withOpacity(0.06),
                 blurRadius: 24,
                 spreadRadius: 0,
                 offset: const Offset(0, 8),
-              ),
-              BoxShadow(
-                color: AppColors.forestGreen.withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -118,12 +113,12 @@ class MainNavScreenState extends State<MainNavScreen> {
           vertical: 10,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.forestGreen : Colors.transparent,
+          color: isSelected ? AppColors.primaryForestGreen : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.forestGreen.withOpacity(0.26),
+                    color: AppColors.primaryForestGreen.withOpacity(0.26),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -136,7 +131,7 @@ class MainNavScreenState extends State<MainNavScreen> {
             Icon(
               isSelected ? selectedIcon : unselectedIcon,
               size: 20,
-              color: isSelected ? AppColors.electricLime : AppColors.mutedGrey,
+              color: isSelected ? AppColors.secondarySage : AppColors.mutedGreyText,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
@@ -144,7 +139,7 @@ class MainNavScreenState extends State<MainNavScreen> {
                 label,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 13,
                   letterSpacing: -0.2,
                 ),

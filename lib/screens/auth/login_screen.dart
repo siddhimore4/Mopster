@@ -370,17 +370,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 84,
                         height: 84,
                         decoration: BoxDecoration(
-                          color: AppColors.forestGreen,
+                          color: AppColors.cardBackground,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: AppColors.electricLime,
-                            width: 2.0,
+                            color: AppColors.softBorderStrong,
+                            width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.forestGreen.withOpacity(0.22),
+                              color: AppColors.darkCharcoal.withOpacity(0.06),
                               blurRadius: 16,
-                              offset: const Offset(0, 5),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -399,10 +399,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text(
                         AppConstants.appName,
                         style: TextStyle(
+                          fontFamily: 'serif',
                           fontSize: 34,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.deepCharcoal,
-                          letterSpacing: -0.8,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkCharcoal,
+                          letterSpacing: -0.6,
                         ),
                       ),
 
@@ -413,10 +414,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 3.5),
                         decoration: BoxDecoration(
-                          color: AppColors.forestGreenLight,
+                          color: AppColors.secondarySage.withOpacity(0.22),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: AppColors.forestGreen.withOpacity(0.18),
+                            color: AppColors.secondarySage.withOpacity(0.4),
                             width: 1,
                           ),
                         ),
@@ -436,17 +437,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(26),
+                          color: AppColors.cardBackground,
+                          borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: AppColors.softBorder,
-                            width: 1.4,
+                            width: 1.2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.deepCharcoal.withOpacity(0.05),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
+                              color: AppColors.darkCharcoal.withOpacity(0.04),
+                              blurRadius: 18,
+                              offset: const Offset(0, 6),
                             ),
                           ],
                         ),

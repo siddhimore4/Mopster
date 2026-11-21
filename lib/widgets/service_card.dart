@@ -62,22 +62,22 @@ class _ServiceCardState extends State<ServiceCard>
         child: Container(
           margin: const EdgeInsets.only(bottom: 18),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.softBorder, width: 1.4),
+            color: AppColors.cardBackground,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.softBorder, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: AppColors.deepCharcoal.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 5),
+                color: AppColors.darkCharcoal.withOpacity(0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(22),
             child: InkWell(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(22),
               onTap: widget.onTap,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,11 +135,11 @@ class _ServiceCardState extends State<ServiceCard>
                                   vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: AppColors.electricLime,
+                                  color: AppColors.accentOlive,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withOpacity(0.15),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -148,10 +148,10 @@ class _ServiceCardState extends State<ServiceCard>
                                 child: Text(
                                   service.tag.toUpperCase(),
                                   style: const TextStyle(
-                                    color: AppColors.forestGreenDark,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.5,
+                                    color: Colors.white,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.4,
                                   ),
                                 ),
                               ),
@@ -195,10 +195,11 @@ class _ServiceCardState extends State<ServiceCard>
                                   Text(
                                     service.title,
                                     style: const TextStyle(
-                                      color: AppColors.deepCharcoal,
+                                      fontFamily: 'serif',
+                                      color: AppColors.darkCharcoal,
                                       fontSize: 17.5,
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.3,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: -0.2,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
@@ -259,17 +260,17 @@ class _ServiceCardState extends State<ServiceCard>
                                                 vertical: 2.5,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: AppColors.freshMint,
+                                                color: AppColors.secondarySage
+                                                    .withOpacity(0.22),
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                               ),
                                               child: const Text(
                                                 'New',
                                                 style: TextStyle(
-                                                  color: AppColors
-                                                      .forestGreenDark,
+                                                  color: AppColors.forestGreen,
                                                   fontSize: 11,
-                                                  fontWeight: FontWeight.w800,
+                                                  fontWeight: FontWeight.w700,
                                                 ),
                                               ),
                                             ),

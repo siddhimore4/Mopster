@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../config/colors.dart';
+import '../../config/typography.dart';
 import '../../data/booking_storage.dart';
 import '../../models/booking_model.dart';
 import '../../services/auth_service.dart';
@@ -975,21 +976,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         .fold(0.0, (sum, b) => sum + b.totalAmount);
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.ivoryCard,
         elevation: 0,
-        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(49),
+          child: Column(
+            children: [
+              TabBar(
+                controller: _tabController,
+                labelColor: AppColors.primaryForestGreen,
+                unselectedLabelColor: AppColors.mutedGreyText,
+                indicatorColor: AppColors.primaryForestGreen,
+                indicatorWeight: 3,
+                labelStyle:
+                    const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                tabs: [
+                  Tab(
+                    icon: const Icon(Icons.assignment_rounded, size: 18),
+                    text: 'Bookings ($totalBookings)',
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.people_alt_rounded, size: 18),
+                    text: 'Customers (${_customerList.length})',
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.cleaning_services_rounded, size: 18),
+                    text: 'Services (${_cloudServices.length})',
+                  ),
+                ],
+              ),
+              Container(color: AppColors.softBorder, height: 1),
+            ],
+          ),
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Mopster Business Console',
-              style: TextStyle(
-                color: AppColors.deepCharcoal,
+              style: AppTypography.headingMedium(
+                color: AppColors.darkCharcoal,
                 fontSize: 18,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.3,
               ),
             ),
             Row(
@@ -1006,7 +1036,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
                 const Text(
                   'Dhule Operations • Supabase Realtime',
                   style: TextStyle(
-                    color: AppColors.forestGreen,
+                    color: AppColors.primaryForestGreen,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1017,39 +1047,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded, color: AppColors.deepCharcoal),
+            icon: const Icon(Icons.refresh_rounded, color: AppColors.darkCharcoal),
             tooltip: 'Refresh from Supabase',
             onPressed: _loadData,
           ),
           IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppColors.deepCharcoal),
+            icon: const Icon(Icons.logout_rounded, color: AppColors.darkCharcoal),
             tooltip: 'Exit to Customer App',
             onPressed: _confirmExitConsole,
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: AppColors.forestGreen,
-          unselectedLabelColor: AppColors.mutedGrey,
-          indicatorColor: AppColors.forestGreen,
-          indicatorWeight: 3,
-          labelStyle:
-              const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-          tabs: [
-            Tab(
-              icon: const Icon(Icons.assignment_rounded, size: 18),
-              text: 'Bookings ($totalBookings)',
-            ),
-            Tab(
-              icon: const Icon(Icons.people_alt_rounded, size: 18),
-              text: 'Customers (${_customerList.length})',
-            ),
-            Tab(
-              icon: const Icon(Icons.cleaning_services_rounded, size: 18),
-              text: 'Services (${_cloudServices.length})',
-            ),
-          ],
-        ),
       ),
       body: SafeArea(
         child: _isLoading

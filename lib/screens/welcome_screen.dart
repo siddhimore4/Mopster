@@ -49,15 +49,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   width: 84,
                   height: 84,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryMint,
+                    color: AppColors.cardBackground,
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: AppColors.primaryMintDark.withOpacity(0.25),
-                      width: 1.8,
+                      color: AppColors.softBorderStrong,
+                      width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryMint.withOpacity(0.22),
+                        color: AppColors.darkCharcoal.withOpacity(0.06),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
@@ -75,15 +75,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               const SizedBox(height: 24),
 
-              // Welcome Title
+              // Welcome Title (Editorial Serif)
               const Center(
                 child: Text(
                   'Welcome to Mopster',
                   style: TextStyle(
+                    fontFamily: 'serif',
                     fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
-                    letterSpacing: -0.3,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkCharcoal,
+                    letterSpacing: -0.4,
                   ),
                 ),
               ),

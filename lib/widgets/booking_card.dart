@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../models/booking_model.dart';
 
 class BookingCard extends StatelessWidget {
@@ -16,36 +17,28 @@ class BookingCard extends StatelessWidget {
   Color _getStatusColor() {
     switch (booking.bookingStatus.toLowerCase().trim()) {
       case 'confirmed':
-        return const Color(0xFF15803D);
+        return AppColors.statusConfirmed;
       case 'in progress':
-        return const Color(0xFF7C3AED);
+        return AppColors.accentOlive;
       case 'completed':
-        return const Color(0xFF2563EB);
+        return AppColors.statusCompleted;
       case 'rejected':
       case 'cancelled':
-        return const Color(0xFFDC2626);
+        return AppColors.statusCancelled;
       case 'pending approval':
       case 'pending':
       default:
-        return const Color(0xFFD97706);
+        return AppColors.statusPending;
     }
   }
 
   Color _getStatusBg() {
     switch (booking.bookingStatus.toLowerCase().trim()) {
-      case 'confirmed':
-        return const Color(0xFFDCFCE7);
-      case 'in progress':
-        return const Color(0xFFEDE9FE);
-      case 'completed':
-        return const Color(0xFFDBEAFE);
       case 'rejected':
       case 'cancelled':
         return const Color(0xFFFEE2E2);
-      case 'pending approval':
-      case 'pending':
       default:
-        return const Color(0xFFFEF3C7);
+        return AppColors.lightBeige;
     }
   }
 
@@ -87,12 +80,12 @@ class BookingCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.ivoryCard,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: AppColors.softBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: AppColors.forestGreen.withOpacity(0.04),
+            color: AppColors.darkCharcoal.withOpacity(0.04),
             blurRadius: 16,
             offset: const Offset(0, 5),
           ),
@@ -119,13 +112,13 @@ class BookingCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F5F2),
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         booking.id,
                         style: const TextStyle(
-                          color: AppColors.deepCharcoal,
+                          color: AppColors.darkCharcoal,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.3,
@@ -172,11 +165,9 @@ class BookingCard extends StatelessWidget {
                 // Service Title & Category
                 Text(
                   booking.serviceTitle,
-                  style: const TextStyle(
-                    color: AppColors.deepCharcoal,
+                  style: AppTypography.headingSmall(
+                    color: AppColors.darkCharcoal,
                     fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.2,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -188,13 +179,13 @@ class BookingCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.freshMint.withOpacity(0.6),
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         booking.serviceCategory,
                         style: const TextStyle(
-                          color: AppColors.forestGreen,
+                          color: AppColors.primaryForestGreen,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -209,7 +200,7 @@ class BookingCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAF8),
+                    color: AppColors.lightBeige.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.softBorder),
                   ),
@@ -220,13 +211,13 @@ class BookingCard extends StatelessWidget {
                           const Icon(
                             Icons.calendar_month_rounded,
                             size: 15,
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                           ),
                           const SizedBox(width: 8),
                           Text(
                             formattedDate,
                             style: const TextStyle(
-                              color: AppColors.deepCharcoal,
+                              color: AppColors.darkCharcoal,
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
@@ -239,14 +230,14 @@ class BookingCard extends StatelessWidget {
                           const Icon(
                             Icons.access_time_rounded,
                             size: 15,
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               booking.timeSlot,
                               style: const TextStyle(
-                                color: AppColors.deepCharcoal,
+                                color: AppColors.darkCharcoal,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -260,14 +251,14 @@ class BookingCard extends StatelessWidget {
                           const Icon(
                             Icons.location_on_rounded,
                             size: 15,
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               'Dhule (${booking.dhuleArea})',
                               style: const TextStyle(
-                                color: AppColors.mutedGrey,
+                                color: AppColors.mutedGreyText,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -309,17 +300,16 @@ class BookingCard extends StatelessWidget {
                         const Text(
                           'Total Payable',
                           style: TextStyle(
-                            color: AppColors.mutedGrey,
+                            color: AppColors.mutedGreyText,
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                         Text(
                           booking.formattedAmount,
-                          style: const TextStyle(
-                            color: AppColors.forestGreen,
+                          style: AppTypography.headingMedium(
+                            color: AppColors.primaryForestGreen,
                             fontSize: 19,
-                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ],
@@ -330,24 +320,25 @@ class BookingCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.freshMint,
+                        color: AppColors.lightBeige,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.softBorder),
                       ),
                       child: Row(
                         children: const [
                           Text(
                             'View Details',
                             style: TextStyle(
-                              color: AppColors.forestGreen,
+                              color: AppColors.primaryForestGreen,
                               fontSize: 12,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           SizedBox(width: 4),
                           Icon(
                             Icons.arrow_forward_ios_rounded,
                             size: 11,
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                           ),
                         ],
                       ),
@@ -370,7 +361,7 @@ class BookingCard extends StatelessWidget {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: isActive ? AppColors.forestGreen : const Color(0xFFD1D5DB),
+              color: isActive ? AppColors.primaryForestGreen : AppColors.softBorder,
               shape: BoxShape.circle,
             ),
           ),
@@ -381,7 +372,7 @@ class BookingCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 9,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-              color: isActive ? AppColors.forestGreen : AppColors.mutedGrey,
+              color: isActive ? AppColors.primaryForestGreen : AppColors.mutedGreyText,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -396,7 +387,7 @@ class BookingCard extends StatelessWidget {
       width: 14,
       height: 2,
       margin: const EdgeInsets.only(bottom: 14),
-      color: isActive ? AppColors.forestGreen : const Color(0xFFE5E7EB),
+      color: isActive ? AppColors.primaryForestGreen : AppColors.softBorder,
     );
   }
 }

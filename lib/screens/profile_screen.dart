@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
+import '../config/typography.dart';
 import '../data/booking_storage.dart';
 import '../services/auth_service.dart';
 import '../widgets/custom_button.dart';
@@ -406,18 +407,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final auth = AuthService();
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: const Text(
+        title: Text(
           'My Profile',
-          style: TextStyle(
-            color: AppColors.deepCharcoal,
+          style: AppTypography.headingLarge(
+            color: AppColors.darkCharcoal,
             fontSize: 22,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.4,
           ),
         ),
       ),
@@ -467,12 +466,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: AppColors.softBorder, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.forestGreen.withOpacity(0.04),
+                          color: AppColors.darkCharcoal.withOpacity(0.04),
                           blurRadius: 18,
                           offset: const Offset(0, 6),
                         ),
@@ -480,53 +479,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     child: Column(
                       children: [
-                        // Avatar with glowing Forest & Lime ring
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 82,
-                              height: 82,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    AppColors.electricLime,
-                                    AppColors.freshMint,
-                                    AppColors.forestGreen,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                        // Avatar with elegant nature ring
+                        Container(
+                          width: 82,
+                          height: 82,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.lightBeige,
+                            border: Border.all(
+                              color: AppColors.secondarySage,
+                              width: 2,
+                            ),
+                          ),
+                          child: Center(
+                            child: CircleAvatar(
+                              radius: 34,
+                              backgroundColor: AppColors.primaryForestGreen,
+                              child: Text(
+                                initials,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.ivoryCard,
+                                  letterSpacing: 0.5,
                                 ),
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 37,
-                              backgroundColor: Colors.white,
-                              child: CircleAvatar(
-                                radius: 34,
-                                backgroundColor: AppColors.forestGreen,
-                                child: Text(
-                                  initials,
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: AppColors.electricLime,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: 14),
                         Text(
                           displayName,
-                          style: const TextStyle(
+                          style: AppTypography.headingMedium(
+                            color: AppColors.darkCharcoal,
                             fontSize: 20,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.deepCharcoal,
-                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -537,14 +523,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const Icon(
                               Icons.phone_android_rounded,
                               size: 14,
-                              color: AppColors.mutedGrey,
+                              color: AppColors.mutedGreyText,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               displayPhone,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: AppColors.deepCharcoal,
+                                color: AppColors.darkCharcoal,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -555,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.freshMint,
+                                color: AppColors.lightBeige,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
@@ -564,7 +550,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Icon(
                                     Icons.verified_rounded,
                                     size: 11,
-                                    color: AppColors.forestGreen,
+                                    color: AppColors.primaryForestGreen,
                                   ),
                                   SizedBox(width: 3),
                                   Text(
@@ -572,7 +558,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.forestGreen,
+                                      color: AppColors.primaryForestGreen,
                                       letterSpacing: 0.5,
                                     ),
                                   ),
@@ -589,14 +575,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const Icon(
                                 Icons.email_outlined,
                                 size: 14,
-                                color: AppColors.mutedGrey,
+                                color: AppColors.mutedGreyText,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 displayEmail,
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.mutedGrey,
+                                  color: AppColors.mutedGreyText,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -611,7 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.freshMint,
+                            color: AppColors.lightBeige,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -620,15 +606,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const Icon(
                                 Icons.location_on_rounded,
                                 size: 14,
-                                color: AppColors.forestGreen,
+                                color: AppColors.primaryForestGreen,
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 '$displayLocality, Dhule',
                                 style: const TextStyle(
                                   fontSize: 12,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.forestGreen,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primaryForestGreen,
                                 ),
                               ),
                             ],
@@ -640,9 +626,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: const Icon(Icons.edit_outlined, size: 15),
                           label: const Text('Edit Details'),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: AppColors.forestGreen,
+                            foregroundColor: AppColors.primaryForestGreen,
                             side: const BorderSide(
-                              color: AppColors.forestGreen,
+                              color: AppColors.primaryForestGreen,
                               width: 1.2,
                             ),
                             shape: RoundedRectangleBorder(
@@ -664,12 +650,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: AppColors.softBorder, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.forestGreen.withOpacity(0.03),
+                          color: AppColors.darkCharcoal.withOpacity(0.03),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -681,12 +667,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppColors.freshMint,
+                            color: AppColors.lightBeige,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.home_rounded,
-                            color: AppColors.forestGreen,
+                            color: AppColors.primaryForestGreen,
                             size: 22,
                           ),
                         ),
@@ -697,11 +683,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             children: [
                               Text(
                                 'Home ($displayLocality)',
-                                style: const TextStyle(
+                                style: AppTypography.headingSmall(
+                                  color: AppColors.darkCharcoal,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.deepCharcoal,
-                                  letterSpacing: -0.2,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -711,7 +695,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     : 'No address saved yet. Tap edit to save your Dhule address.',
                                 style: const TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.mutedGrey,
+                                  color: AppColors.mutedGreyText,
                                   height: 1.4,
                                 ),
                               ),
@@ -722,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: const Icon(
                             Icons.edit_outlined,
                             size: 20,
-                            color: AppColors.mutedGrey,
+                            color: AppColors.mutedGreyText,
                           ),
                           onPressed: _editProfileModal,
                         ),
@@ -737,12 +721,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: AppColors.softBorder, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.forestGreen.withOpacity(0.03),
+                          color: AppColors.darkCharcoal.withOpacity(0.03),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -754,12 +738,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       leading: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppColors.freshMint,
+                          color: AppColors.lightBeige,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
                           Icons.email_outlined,
-                          color: AppColors.forestGreen,
+                          color: AppColors.primaryForestGreen,
                           size: 20,
                         ),
                       ),
@@ -767,22 +751,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Email Support',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.deepCharcoal,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.darkCharcoal,
                         ),
                       ),
                       subtitle: const Text(
                         AppConstants.supportEmail,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.forestGreen,
-                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryForestGreen,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       trailing: const Icon(
                         Icons.arrow_forward_ios_rounded,
                         size: 13,
-                        color: AppColors.mutedGrey,
+                        color: AppColors.mutedGreyText,
                       ),
                       onTap: _contactSupportEmail,
                     ),
@@ -796,12 +780,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: AppColors.softBorder, width: 1.2),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.forestGreen.withOpacity(0.03),
+                          color: AppColors.darkCharcoal.withOpacity(0.03),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -816,7 +800,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               'App Version',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.mutedGrey,
+                                color: AppColors.mutedGreyText,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -825,7 +809,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.deepCharcoal,
+                                color: AppColors.darkCharcoal,
                               ),
                             ),
                           ],
@@ -842,20 +826,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Row(
                                   children: [
                                     Icon(Icons.shield_outlined,
-                                        size: 18, color: AppColors.forestGreen),
+                                        size: 18, color: AppColors.primaryForestGreen),
                                     SizedBox(width: 10),
                                     Text(
                                       'Customer Privacy Policy',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.deepCharcoal,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.darkCharcoal,
                                       ),
                                     ),
                                   ],
                                 ),
                                 Icon(Icons.arrow_forward_ios_rounded,
-                                    size: 13, color: AppColors.mutedGrey),
+                                    size: 13, color: AppColors.mutedGreyText),
                               ],
                             ),
                           ),
@@ -869,7 +853,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Customer Logout Option
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.ivoryCard,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: Colors.red.shade200,
@@ -895,7 +879,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Log Out',
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: Colors.red.shade700,
                         ),
                       ),
@@ -903,7 +887,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Sign out from this account on this device',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.mutedGrey,
+                          color: AppColors.mutedGreyText,
                         ),
                       ),
                       trailing: Icon(
@@ -925,11 +909,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppColors.forestGreen,
+                            color: AppColors.ivoryCard,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: AppColors.electricLime,
-                              width: 1.5,
+                              color: AppColors.softBorder,
+                              width: 1.2,
                             ),
                           ),
                           child: ClipRRect(
@@ -945,17 +929,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           'Mopster • Dhule, Maharashtra',
                           style: TextStyle(
                             fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.deepCharcoal,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkCharcoal,
                           ),
                         ),
                         const SizedBox(height: 3),
-                        const Text(
+                        Text(
                           'A Cleaner Home. A Greener Life.',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.forestGreen,
+                          style: AppTypography.headingSmall(
+                            color: AppColors.primaryForestGreen,
+                            fontSize: 12,
                           ),
                         ),
                       ],
@@ -979,18 +962,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           width: 4,
           height: 14,
           decoration: BoxDecoration(
-            color: AppColors.electricLime,
+            color: AppColors.accentOlive,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: AppTypography.headingSmall(
+            color: AppColors.darkCharcoal,
             fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: AppColors.deepCharcoal,
-            letterSpacing: -0.2,
           ),
         ),
       ],

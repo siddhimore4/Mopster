@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
 import '../config/constants.dart';
+import '../config/typography.dart';
 
 class PrivacyDialog extends StatelessWidget {
   const PrivacyDialog({super.key});
@@ -15,29 +16,29 @@ class PrivacyDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: AppColors.ivoryCard,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primaryMintLight,
+              color: AppColors.lightBeige,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(
               Icons.privacy_tip_outlined,
-              color: AppColors.primaryMintDark,
+              color: AppColors.primaryForestGreen,
               size: 22,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
               'Privacy & Data Policy',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
+              style: AppTypography.headingSmall(
+                color: AppColors.darkCharcoal,
                 fontSize: 17,
-                color: AppColors.charcoal,
               ),
             ),
           ),
@@ -53,7 +54,7 @@ class PrivacyDialog extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primaryMintDark,
+                color: AppColors.primaryForestGreen,
               ),
             ),
             const SizedBox(height: 12),
@@ -91,7 +92,7 @@ class PrivacyDialog extends StatelessWidget {
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primaryMint,
+            backgroundColor: AppColors.primaryForestGreen,
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

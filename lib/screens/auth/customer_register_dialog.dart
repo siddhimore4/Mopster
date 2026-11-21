@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/colors.dart';
 import '../../config/constants.dart';
+import '../../config/typography.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_button.dart';
 
@@ -71,7 +72,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.ivoryCard,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -85,25 +86,24 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 child: Container(
                   width: 60,
                   height: 60,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryMintLight,
+                  decoration: const BoxDecoration(
+                    color: AppColors.lightBeige,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.person_add_alt_1_rounded,
-                    color: AppColors.primaryMintDark,
+                    color: AppColors.primaryForestGreen,
                     size: 32,
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              const Center(
+              Center(
                 child: Text(
                   'Welcome to Mopster!',
-                  style: TextStyle(
+                  style: AppTypography.headingLarge(
+                    color: AppColors.darkCharcoal,
                     fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.charcoal,
                   ),
                 ),
               ),
@@ -114,7 +114,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: AppColors.mutedGreyText,
                   ),
                 ),
               ),
@@ -126,7 +126,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: AppColors.darkCharcoal,
                 ),
               ),
               const SizedBox(height: 6),
@@ -136,7 +136,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 decoration: InputDecoration(
                   hintText: 'Enter your full name',
                   prefixIcon: const Icon(Icons.person_outline_rounded,
-                      color: AppColors.primaryMint, size: 20),
+                      color: AppColors.primaryForestGreen, size: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -162,7 +162,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: AppColors.darkCharcoal,
                 ),
               ),
               const SizedBox(height: 6),
@@ -172,7 +172,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 decoration: InputDecoration(
                   hintText: 'Enter email for booking receipts',
                   prefixIcon: const Icon(Icons.email_outlined,
-                      color: AppColors.primaryMint, size: 20),
+                      color: AppColors.primaryForestGreen, size: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -197,7 +197,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: AppColors.darkCharcoal,
                 ),
               ),
               const SizedBox(height: 6),
@@ -205,7 +205,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 value: _selectedLocality,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.location_on_rounded,
-                      color: AppColors.primaryMint, size: 20),
+                      color: AppColors.primaryForestGreen, size: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -235,7 +235,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.charcoal,
+                  color: AppColors.darkCharcoal,
                 ),
               ),
               const SizedBox(height: 6),
@@ -245,7 +245,7 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 decoration: InputDecoration(
                   hintText: 'Flat / House No, Building, Landmark',
                   prefixIcon: const Icon(Icons.home_outlined,
-                      color: AppColors.primaryMint, size: 20),
+                      color: AppColors.primaryForestGreen, size: 20),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -268,6 +268,12 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
                 isLoading: _isSaving,
                 onPressed: _handleSave,
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
             ],
           ),
         ),

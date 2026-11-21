@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../config/colors.dart';
+import '../config/typography.dart';
 import '../data/booking_storage.dart';
 import '../models/booking_model.dart';
 import '../services/ratings_service.dart';
@@ -200,7 +201,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         DateFormat('EEEE, dd MMMM yyyy').format(_currentBooking.bookingDate);
 
     return Scaffold(
-      backgroundColor: AppColors.warmCream,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -210,14 +211,14 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           child: Center(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.ivoryCard,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.softBorder),
               ),
               child: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.deepCharcoal,
+                  color: AppColors.darkCharcoal,
                   size: 16,
                 ),
                 onPressed: () => Navigator.pop(context),
@@ -227,11 +228,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         ),
         title: Text(
           _currentBooking.id,
-          style: const TextStyle(
-            color: AppColors.deepCharcoal,
+          style: AppTypography.headingSmall(
+            color: AppColors.darkCharcoal,
             fontSize: 17,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.2,
           ),
         ),
         centerTitle: true,
@@ -247,12 +246,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.04),
+                      color: AppColors.darkCharcoal.withOpacity(0.04),
                       blurRadius: 16,
                       offset: const Offset(0, 5),
                     ),
@@ -270,7 +269,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                               'CURRENT STATUS',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.mutedGrey,
+                                color: AppColors.mutedGreyText,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.8,
                               ),
@@ -280,7 +279,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                               _currentBooking.bookingStatus,
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w800,
                                 color: statusColor,
                                 letterSpacing: -0.2,
                               ),
@@ -336,12 +335,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.03),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -356,11 +355,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         children: [
                           Text(
                             _currentBooking.serviceTitle,
-                            style: const TextStyle(
+                            style: AppTypography.headingSmall(
+                              color: AppColors.darkCharcoal,
                               fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.deepCharcoal,
-                              letterSpacing: -0.2,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -370,7 +367,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.freshMint.withOpacity(0.6),
+                              color: AppColors.lightBeige,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -378,7 +375,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.forestGreen,
+                                color: AppColors.primaryForestGreen,
                               ),
                             ),
                           ),
@@ -387,10 +384,9 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     ),
                     Text(
                       _currentBooking.formattedAmount,
-                      style: const TextStyle(
+                      style: AppTypography.headingMedium(
+                        color: AppColors.primaryForestGreen,
                         fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.forestGreen,
                       ),
                     ),
                   ],
@@ -405,12 +401,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.03),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -463,12 +459,12 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.ivoryCard,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: AppColors.softBorder, width: 1.2),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.forestGreen.withOpacity(0.03),
+                      color: AppColors.darkCharcoal.withOpacity(0.03),
                       blurRadius: 14,
                       offset: const Offset(0, 4),
                     ),
@@ -523,21 +519,22 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         margin: const EdgeInsets.only(top: 14),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFFEF3C7),
+          color: AppColors.lightBeige,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.softBorder),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Icon(Icons.hourglass_top_rounded,
-                color: Color(0xFFB45309), size: 18),
+                color: AppColors.statusPending, size: 18),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Awaiting Owner Approval: Your booking request is being reviewed by the Mopster business owner. Once approved, the status will update to Confirmed.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF92400E),
+                  color: AppColors.darkCharcoal,
                   height: 1.35,
                   fontWeight: FontWeight.w600,
                 ),
@@ -551,21 +548,24 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         margin: const EdgeInsets.only(top: 14),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.freshMint,
+          color: AppColors.lightBeige,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppColors.secondarySage.withOpacity(0.5),
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Icon(Icons.check_circle_rounded,
-                color: AppColors.forestGreen, size: 18),
+                color: AppColors.primaryForestGreen, size: 18),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Booking Confirmed: The business owner has approved your appointment. Our Dhule team will arrive at your requested time slot.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.forestGreen,
+                  color: AppColors.primaryForestGreen,
                   height: 1.35,
                   fontWeight: FontWeight.w700,
                 ),
@@ -579,21 +579,22 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         margin: const EdgeInsets.only(top: 14),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFEDE9FE),
+          color: AppColors.lightBeige,
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.softBorder),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
             Icon(Icons.build_circle_rounded,
-                color: Color(0xFF7C3AED), size: 18),
+                color: AppColors.accentOlive, size: 18),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Service In Progress: Our specialist is currently executing the service at your address.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF6D28D9),
+                  color: AppColors.darkCharcoal,
                   height: 1.35,
                   fontWeight: FontWeight.w600,
                 ),
@@ -638,21 +639,22 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             margin: const EdgeInsets.only(top: 14),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFDBEAFE),
+              color: AppColors.lightBeige,
               borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.softBorder),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
                 Icon(Icons.task_alt_rounded,
-                    color: Color(0xFF2563EB), size: 18),
+                    color: AppColors.primaryForestGreen, size: 18),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     'Service Completed: Thank you for trusting Mopster for your home in Dhule!',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF1E40AF),
+                      color: AppColors.primaryForestGreen,
                       height: 1.35,
                       fontWeight: FontWeight.w700,
                     ),
@@ -710,7 +712,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             margin: const EdgeInsets.only(top: 14),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.ivoryCard,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.softBorder, width: 1.2),
             ),
@@ -730,7 +732,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.deepCharcoal,
+                            color: AppColors.darkCharcoal,
                           ),
                         ),
                       ],
@@ -756,7 +758,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     style: const TextStyle(
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
-                      color: AppColors.textSecondary,
+                      color: AppColors.mutedGreyText,
                     ),
                   ),
                 ],
@@ -764,7 +766,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 Row(
                   children: const [
                     Icon(Icons.verified_rounded,
-                        size: 14, color: AppColors.forestGreen),
+                        size: 14, color: AppColors.primaryForestGreen),
                     SizedBox(width: 5),
                     Expanded(
                       child: Text(
@@ -772,7 +774,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.forestGreenDark,
+                          color: AppColors.primaryForestGreen,
                         ),
                       ),
                     ),
@@ -788,13 +790,13 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           margin: const EdgeInsets.only(top: 14),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.ivoryCard,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: AppColors.forestGreen.withOpacity(0.25), width: 1.2),
+                color: AppColors.softBorder, width: 1.2),
             boxShadow: [
               BoxShadow(
-                color: AppColors.forestGreen.withOpacity(0.05),
+                color: AppColors.darkCharcoal.withOpacity(0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -813,7 +815,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: AppColors.deepCharcoal,
+                      color: AppColors.darkCharcoal,
                     ),
                   ),
                 ],
@@ -823,7 +825,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 'Help fellow Dhule residents by sharing your verified rating.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: AppColors.mutedGreyText,
                 ),
               ),
               const SizedBox(height: 14),
@@ -860,10 +862,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   hintText:
                       'Share details about staff punctuality & cleaning quality (optional)...',
                   hintStyle: const TextStyle(
-                      fontSize: 12, color: AppColors.textMuted),
+                      fontSize: 12, color: AppColors.mutedGreyText),
                   contentPadding: const EdgeInsets.all(12),
                   filled: true,
-                  fillColor: AppColors.surfaceMuted,
+                  fillColor: AppColors.lightBeige,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.softBorder),
@@ -875,7 +877,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                        color: AppColors.forestGreen, width: 1.5),
+                        color: AppColors.primaryForestGreen, width: 1.5),
                   ),
                 ),
               ),
@@ -899,7 +901,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                           if (success) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                backgroundColor: AppColors.forestGreen,
+                                backgroundColor: AppColors.primaryForestGreen,
                                 content: Text(
                                   'Thank you! Your verified rating was submitted and service rating updated.',
                                 ),
@@ -923,18 +925,16 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
           width: 4,
           height: 14,
           decoration: BoxDecoration(
-            color: AppColors.electricLime,
+            color: AppColors.accentOlive,
             borderRadius: BorderRadius.circular(2),
           ),
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: AppTypography.headingSmall(
+            color: AppColors.darkCharcoal,
             fontSize: 15,
-            fontWeight: FontWeight.w800,
-            color: AppColors.deepCharcoal,
-            letterSpacing: -0.2,
           ),
         ),
       ],
@@ -952,10 +952,10 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: AppColors.freshMint.withOpacity(0.6),
+            color: AppColors.lightBeige,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 16, color: AppColors.forestGreen),
+          child: Icon(icon, size: 16, color: AppColors.primaryForestGreen),
         ),
         const SizedBox(width: 12),
         SizedBox(
@@ -964,7 +964,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             label,
             style: const TextStyle(
               fontSize: 13,
-              color: AppColors.mutedGrey,
+              color: AppColors.mutedGreyText,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -975,7 +975,7 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppColors.deepCharcoal,
+              color: AppColors.darkCharcoal,
               height: 1.35,
             ),
           ),
