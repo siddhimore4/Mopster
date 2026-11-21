@@ -890,24 +890,24 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
                 onPressed: _isSubmittingReview
                     ? null
                     : () async {
+                        final messenger = ScaffoldMessenger.of(context);
                         setState(() => _isSubmittingReview = true);
                         final success = await RatingsService().submitReview(
                           booking: _currentBooking,
                           rating: _selectedRating,
                           comment: _reviewCommentController.text,
                         );
-                        if (mounted) {
-                          setState(() => _isSubmittingReview = false);
-                          if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                backgroundColor: AppColors.primaryForestGreen,
-                                content: Text(
-                                  'Thank you! Your verified rating was submitted and service rating updated.',
-                                ),
+                        if (!mounted) return;
+                        setState(() => _isSubmittingReview = false);
+                        if (success) {
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              backgroundColor: AppColors.primaryForestGreen,
+                              content: Text(
+                                'Thank you! Your verified rating was submitted and service rating updated.',
                               ),
-                            );
-                          }
+                            ),
+                          );
                         }
                       },
               ),

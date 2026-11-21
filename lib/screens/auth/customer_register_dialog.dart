@@ -274,10 +274,4 @@ class _CustomerRegisterDialogState extends State<CustomerRegisterDialog> {
       ),
     );
   }
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
