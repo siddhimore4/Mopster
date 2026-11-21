@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/booking_model.dart';
+import '../services/ratings_service.dart';
 
 /// Central Booking Repository for Mopster.
 /// Coordinates between Supabase Cloud Database and device SharedPreferences for offline capability.
@@ -163,6 +164,9 @@ class BookingStorage extends ChangeNotifier {
           await prefs.remove(_legacyStorageKey);
           await _persistToDisk(prefs);
         }
+
+        // Ingest any genuine customer reviews in local bookings
+        RatingsService().syncReviewsFromBookings(_bookings);
       } else {
         // New customer starts with ZERO bookings (no fake seeds!)
         _bookings = [];
@@ -200,6 +204,9 @@ class BookingStorage extends ChangeNotifier {
                 BookingModel.fromSupabaseMap(row as Map<String, dynamic>))
             .where((b) => !isDummyBooking(b))
             .toList();
+
+        // Ingest genuine customer reviews from completed bookings
+        RatingsService().syncReviewsFromBookings(remoteBookings);
 
         // Filter: only show bookings belonging to the current customer
         final customerPhoneClean =

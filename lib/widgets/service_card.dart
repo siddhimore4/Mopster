@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
 import '../models/service_item.dart';
+import '../services/ratings_service.dart';
 
 class ServiceCard extends StatefulWidget {
   final ServiceItem service;
@@ -201,64 +202,96 @@ class _ServiceCardState extends State<ServiceCard>
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      // Rating pill
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 7,
-                                          vertical: 2.5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFEF3C7),
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(
-                                              Icons.star_rounded,
-                                              size: 14,
-                                              color: Color(0xFFD97706),
-                                            ),
-                                            const SizedBox(width: 3),
-                                            Text(
-                                              '${service.rating}',
-                                              style: const TextStyle(
-                                                color: Color(0xFF92400E),
-                                                fontSize: 11.5,
-                                                fontWeight: FontWeight.w800,
+                                  ListenableBuilder(
+                                    listenable: RatingsService(),
+                                    builder: (context, _) {
+                                      final summary = RatingsService()
+                                          .getSummaryForService(service.id);
+                                      return Row(
+                                        children: [
+                                          if (summary.hasRatings) ...[
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 7,
+                                                vertical: 2.5,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFFFEF3C7),
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.star_rounded,
+                                                    size: 14,
+                                                    color: Color(0xFFD97706),
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    summary.averageRating!
+                                                        .toStringAsFixed(1),
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF92400E),
+                                                      fontSize: 11.5,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '(${summary.totalReviews})',
+                                              style: const TextStyle(
+                                                color: AppColors.textMuted,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                          ] else ...[
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 7,
+                                                vertical: 2.5,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.freshMint,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: const Text(
+                                                'New',
+                                                style: TextStyle(
+                                                  color: AppColors
+                                                      .forestGreenDark,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
                                           ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        '(${service.reviewCount})',
-                                        style: const TextStyle(
-                                          color: AppColors.textMuted,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Icon(
-                                        Icons.schedule_rounded,
-                                        size: 13,
-                                        color: AppColors.textMuted,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        service.duration,
-                                        style: const TextStyle(
-                                          color: AppColors.textSecondary,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
+                                          const Icon(
+                                            Icons.schedule_rounded,
+                                            size: 13,
+                                            color: AppColors.textMuted,
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            service.duration,
+                                            style: const TextStyle(
+                                              color: AppColors.textSecondary,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ],
                               ),

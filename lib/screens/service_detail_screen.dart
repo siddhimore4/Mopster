@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/colors.dart';
 import '../models/service_item.dart';
+import '../services/ratings_service.dart';
 import '../widgets/custom_button.dart';
 import 'booking_form_screen.dart';
 
@@ -237,30 +238,46 @@ class ServiceDetailScreen extends StatelessWidget {
                           const Divider(color: AppColors.softBorder, height: 1),
                           const SizedBox(height: 16),
 
-                          // Stats Row
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildStatItem(
-                                icon: Icons.star_rounded,
-                                iconColor: const Color(0xFFD97706),
-                                title:
-                                    '${service.rating} (${service.reviewCount})',
-                                subtitle: 'Verified Rating',
-                              ),
-                              _buildStatItem(
-                                icon: Icons.timer_rounded,
-                                iconColor: AppColors.forestGreen,
-                                title: service.duration,
-                                subtitle: 'Estimated Time',
-                              ),
-                              _buildStatItem(
-                                icon: Icons.currency_rupee_rounded,
-                                iconColor: AppColors.deepCharcoal,
-                                title: service.formattedPrice,
-                                subtitle: 'Base Price',
-                              ),
-                            ],
+                          // Stats Row (Dynamic genuine rating)
+                          ListenableBuilder(
+                            listenable: RatingsService(),
+                            builder: (context, _) {
+                              final summary = RatingsService()
+                                  .getSummaryForService(service.id);
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  if (summary.hasRatings)
+                                    _buildStatItem(
+                                      icon: Icons.star_rounded,
+                                      iconColor: const Color(0xFFD97706),
+                                      title:
+                                          '${summary.averageRating!.toStringAsFixed(1)} (${summary.totalReviews})',
+                                      subtitle: 'Customer Rating',
+                                    )
+                                  else
+                                    _buildStatItem(
+                                      icon: Icons.verified_outlined,
+                                      iconColor: AppColors.forestGreen,
+                                      title: 'New Service',
+                                      subtitle: 'Dhule Verified',
+                                    ),
+                                  _buildStatItem(
+                                    icon: Icons.timer_rounded,
+                                    iconColor: AppColors.forestGreen,
+                                    title: service.duration,
+                                    subtitle: 'Estimated Time',
+                                  ),
+                                  _buildStatItem(
+                                    icon: Icons.currency_rupee_rounded,
+                                    iconColor: AppColors.deepCharcoal,
+                                    title: service.formattedPrice,
+                                    subtitle: 'Base Price',
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -420,6 +437,165 @@ class ServiceDetailScreen extends StatelessWidget {
                   ),
                 ),
               ],
+
+              const SizedBox(height: 24),
+
+              // Customer Ratings & Reviews Section (strictly genuine, dynamic)
+              ListenableBuilder(
+                listenable: RatingsService(),
+                builder: (context, _) {
+                  final summary = RatingsService().getSummaryForService(service.id);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Customer Reviews',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.deepCharcoal,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          if (summary.hasRatings)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFEF3C7),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.star_rounded,
+                                      size: 16, color: Color(0xFFD97706)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${summary.averageRating!.toStringAsFixed(1)} (${summary.totalReviews})',
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF92400E),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if (summary.reviews.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                                color: AppColors.softBorder, width: 1.2),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: AppColors.freshMint.withOpacity(0.5),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.rate_review_outlined,
+                                    color: AppColors.forestGreen, size: 20),
+                              ),
+                              const SizedBox(width: 14),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'No customer reviews yet',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.deepCharcoal,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Genuine ratings appear here after customers complete their booked service.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.textSecondary,
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Column(
+                          children: summary.reviews.take(5).map((rev) {
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(
+                                    color: AppColors.softBorder, width: 1.2),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        rev.customerName,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.deepCharcoal,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: List.generate(
+                                          5,
+                                          (index) => Icon(
+                                            Icons.star_rounded,
+                                            size: 16,
+                                            color: index < rev.rating.round()
+                                                ? const Color(0xFFD97706)
+                                                : Colors.grey.shade300,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (rev.comment.isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      rev.comment,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textSecondary,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  );
+                },
+              ),
 
               const SizedBox(height: 100), // Space for sticky bottom bar
             ],

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/service_item.dart';
 
 /// Central reusable data source for Mopster services.
-/// NOTE: These sample prices are initial configurable examples for Dhule city.
-/// They can be customized or loaded from a backend in the future.
+/// NOTE: Configurable for Dhule city. Ratings and reviews are dynamically populated
+/// from genuine customer reviews; no fake default ratings or seed scores are displayed.
 class SampleServices {
   static const List<ServiceItem> allServices = [
     // ==========================================
@@ -19,8 +19,8 @@ class SampleServices {
           'Complete end-to-end deep cleaning for your house in Dhule. Our trained staff handles hard-water stains, floor scrubbing with safe eco-friendly agents, ceiling fan wiping, cobweb removal, and switchboard care. Perfect before festivals, house warmings, or seasonal cleanups.',
       basePrice: 2499.0,
       duration: '4 - 5 hours',
-      rating: 4.9,
-      reviewCount: 142,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Floor mechanical scrubbing & wet mop',
         'Ceiling fans, light fixtures & switchboards dusting',
@@ -48,8 +48,8 @@ class SampleServices {
           'Thorough cleaning and descaling of bathroom tiles, toilet bowl, taps, shower heads, and mirrors. Eliminates yellow stains, water marks, mold, and unpleasant odors, leaving your bathroom hygienic and fresh.',
       basePrice: 499.0,
       duration: '60 - 75 mins',
-      rating: 4.8,
-      reviewCount: 98,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Tile scrubbing & hard-water stain removal',
         'Toilet bowl, washbasin & shower descaling',
@@ -76,8 +76,8 @@ class SampleServices {
           'Specialized kitchen cleaning designed for Indian cooking residues. Removes grease, oil splatters, and stubborn stains from the stove, chimney exteriors, tiled backsplash, and stainless steel sinks.',
       basePrice: 899.0,
       duration: '90 - 120 mins',
-      rating: 4.8,
-      reviewCount: 84,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Stovetop & gas burner degreasing',
         'Chimney outer surface wipe & filter rinse',
@@ -105,8 +105,8 @@ class SampleServices {
           'A reliable, thorough cleaning service covering all living rooms, bedrooms, balconies, and entryways. Ideal for regular monthly hygiene maintenance for families across Dhule.',
       basePrice: 1699.0,
       duration: '3 - 4 hours',
-      rating: 4.7,
-      reviewCount: 110,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Living room & bedrooms sweeping & wet mopping',
         'Furniture surface dusting & vacuuming',
@@ -134,8 +134,8 @@ class SampleServices {
           'Need your home spruced up before guests arrive? This express general cleaning takes care of ceiling cobwebs, dry dust on furniture, curtain dusting, and aromatic floor mopping.',
       basePrice: 599.0,
       duration: '90 mins',
-      rating: 4.7,
-      reviewCount: 65,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Ceiling cobweb removal from all rooms',
         'Sofa & upholstery dry dusting',
@@ -165,8 +165,8 @@ class SampleServices {
           'Expert care for your balcony and terrace potted plants. Our Dhule gardening specialist inspects plant health, removes yellowing foliage, loosens topsoil, applies organic vermicompost, and sprays neem oil to prevent insects.',
       basePrice: 449.0,
       duration: '60 - 90 mins',
-      rating: 4.9,
-      reviewCount: 76,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Topsoil aeration (khurpi khodai)',
         'Organic compost / vermicompost top dressing',
@@ -193,8 +193,8 @@ class SampleServices {
           'Transforms overgrown and messy garden yards into clean, peaceful outdoor spaces. We pull out stubborn wild weeds, rake dry fallen leaves, edge stone pathways, and bag up organic yard waste neatly.',
       basePrice: 799.0,
       duration: '2 - 3 hours',
-      rating: 4.8,
-      reviewCount: 52,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Manual removal of wild weeds and thorny shrubs',
         'Dry leaf raking and courtyard sweeping',
@@ -221,8 +221,8 @@ class SampleServices {
           'Proper pruning stimulates fresh blooms and healthy branches. Handled with sterilized pruning shears, we shape your garden hedges, trim rose bushes for winter/spring flowering, and remove diseased stems safely.',
       basePrice: 599.0,
       duration: '90 - 120 mins',
-      rating: 4.8,
-      reviewCount: 43,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Hedge clipping & geometric shaping',
         'Rose bush deadheading and cut sealing',
@@ -249,8 +249,8 @@ class SampleServices {
           'Keep your Dhule bungalow or society lawn green, soft, and uniformly cut. Includes grass cutting with calibrated mowers, precision border trimming near flower beds, and organic lawn feed application.',
       basePrice: 999.0,
       duration: '2 - 3 hours',
-      rating: 4.7,
-      reviewCount: 39,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Uniform grass mowing (up to 1,000 sq ft)',
         'Edging along sidewalks and flower borders',
@@ -277,8 +277,8 @@ class SampleServices {
           'Plants stop growing when their roots choke in old, compacted soil. We prepare a premium potting mix (soil, coco peat, vermicompost, perlite), untangle root balls, and transplant your favorite plants into larger planters.',
       basePrice: 499.0,
       duration: '60 - 90 mins',
-      rating: 4.9,
-      reviewCount: 61,
+      rating: null,
+      reviewCount: 0,
       inclusions: [
         'Repotting up to 5 medium planters (labor & soil mixing)',
         'Root inspection & root rot treatment',
@@ -294,6 +294,40 @@ class SampleServices {
       isPopular: false,
       imageAsset: 'assets/images/services/garden_potting.jpg',
     ),
+
+    // ==========================================
+    // 3. CAR WASHING SERVICES (Dhule Doorstep Detailing)
+    // ==========================================
+    ServiceItem(
+      id: 'car_wash_doorstep',
+      title: 'Doorstep Car Wash & Detailing',
+      category: ServiceCategory.carWashing,
+      shortDescription:
+          'Exterior snow foam wash, microfiber wipe, rim scrub, and interior vacuuming at your doorstep.',
+      fullDescription:
+          'Convenient professional car detailing right in your parking spot or home driveway in Dhule. Includes high-pressure snow foam wash, scratch-safe microfiber mitt scrub, spotless rinse, tire & alloy rim polishing, interior seat and carpet vacuuming, dashboard sanitization, and streak-free window cleaning.',
+      basePrice: 599.0,
+      duration: '45 - 60 mins',
+      rating: null,
+      reviewCount: 0,
+      inclusions: [
+        'Exterior high-pressure snow foam wash & clean rinse',
+        'Gentle microfiber scratch-safe hand wash & dry',
+        'Tire & alloy wheel degreasing with silicone tire polish',
+        'Interior dry vacuuming of seats, floor mats & boot',
+        'Dashboard, steering column & console sanitizing wipe',
+        'All exterior & interior windshield streak-free shine',
+      ],
+      exclusions: [
+        'Underbody mechanical degreasing & lift work',
+        'Paint touch-up, scratch buffing & dent removal',
+        'Interior roof fabric wet shampooing',
+      ],
+      icon: Icons.local_car_wash_rounded,
+      tag: 'Doorstep Special',
+      isPopular: true,
+      imageAsset: 'assets/images/services/car_wash.jpg',
+    ),
   ];
 
   /// Get cleaning services only
@@ -303,6 +337,10 @@ class SampleServices {
   /// Get gardening services only
   static List<ServiceItem> get gardeningServices =>
       allServices.where((s) => s.category == ServiceCategory.gardening).toList();
+
+  /// Get car washing services only
+  static List<ServiceItem> get carWashingServices =>
+      allServices.where((s) => s.category == ServiceCategory.carWashing).toList();
 
   /// Get popular services for home screen showcase
   static List<ServiceItem> get popularServices =>

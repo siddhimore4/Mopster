@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../config/colors.dart';
 import '../data/booking_storage.dart';
 import '../models/booking_model.dart';
+import '../services/ratings_service.dart';
 import '../widgets/custom_button.dart';
 
 class BookingDetailsScreen extends StatefulWidget {
@@ -20,11 +21,20 @@ class BookingDetailsScreen extends StatefulWidget {
 class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
   late BookingModel _currentBooking;
   bool _isCancelling = false;
+  double _selectedRating = 5.0;
+  final TextEditingController _reviewCommentController = TextEditingController();
+  bool _isSubmittingReview = false;
 
   @override
   void initState() {
     super.initState();
     _currentBooking = widget.booking;
+  }
+
+  @override
+  void dispose() {
+    _reviewCommentController.dispose();
+    super.dispose();
   }
 
   Color _getStatusColor(String status) {
@@ -621,32 +631,38 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
         ),
       );
     } else if (_currentBooking.isCompleted) {
-      return Container(
-        margin: const EdgeInsets.only(top: 14),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFDBEAFE),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Icon(Icons.task_alt_rounded,
-                color: Color(0xFF2563EB), size: 18),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Service Completed: Thank you for trusting Mopster for your home in Dhule!',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF1E40AF),
-                  height: 1.35,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 14),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFDBEAFE),
+              borderRadius: BorderRadius.circular(14),
             ),
-          ],
-        ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Icon(Icons.task_alt_rounded,
+                    color: Color(0xFF2563EB), size: 18),
+                SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Service Completed: Thank you for trusting Mopster for your home in Dhule!',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF1E40AF),
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildRatingCard(),
+        ],
       );
     } else if (_currentBooking.isCancelled) {
       return Container(
@@ -678,6 +694,226 @@ class _BookingDetailsScreenState extends State<BookingDetailsScreen> {
       );
     }
     return const SizedBox.shrink();
+  }
+
+  Widget _buildRatingCard() {
+    return ListenableBuilder(
+      listenable: RatingsService(),
+      builder: (context, _) {
+        final hasReviewed =
+            RatingsService().hasReviewedBooking(_currentBooking.id);
+        final existingReview =
+            RatingsService().getReviewForBooking(_currentBooking.id);
+
+        if (hasReviewed && existingReview != null) {
+          return Container(
+            margin: const EdgeInsets.only(top: 14),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.softBorder, width: 1.2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.stars_rounded,
+                            color: Color(0xFFD97706), size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Your Service Rating',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.deepCharcoal,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (index) => Icon(
+                          Icons.star_rounded,
+                          size: 18,
+                          color: index < existingReview.rating.round()
+                              ? const Color(0xFFD97706)
+                              : Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (existingReview.comment.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    '"${existingReview.comment}"',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  children: const [
+                    Icon(Icons.verified_rounded,
+                        size: 14, color: AppColors.forestGreen),
+                    SizedBox(width: 5),
+                    Expanded(
+                      child: Text(
+                        'Verified Customer Feedback • Recorded in Mopster',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.forestGreenDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Not yet rated: allow customer to submit their genuine rating
+        return Container(
+          margin: const EdgeInsets.only(top: 14),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+                color: AppColors.forestGreen.withOpacity(0.25), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.forestGreen.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.star_rounded,
+                      color: Color(0xFFD97706), size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Rate Your Experience',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.deepCharcoal,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Help fellow Dhule residents by sharing your verified rating.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 14),
+              // Interactive 1-5 Star Selector
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  final starVal = index + 1.0;
+                  final isSelected = starVal <= _selectedRating;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedRating = starVal;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      child: Icon(
+                        Icons.star_rounded,
+                        size: 34,
+                        color: isSelected
+                            ? const Color(0xFFD97706)
+                            : Colors.grey.shade300,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _reviewCommentController,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  hintText:
+                      'Share details about staff punctuality & cleaning quality (optional)...',
+                  hintStyle: const TextStyle(
+                      fontSize: 12, color: AppColors.textMuted),
+                  contentPadding: const EdgeInsets.all(12),
+                  filled: true,
+                  fillColor: AppColors.surfaceMuted,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.softBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.softBorder),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                        color: AppColors.forestGreen, width: 1.5),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              CustomButton(
+                text: _isSubmittingReview
+                    ? 'Submitting...'
+                    : 'Submit Genuine Rating',
+                icon: Icons.check_circle_outline_rounded,
+                onPressed: _isSubmittingReview
+                    ? null
+                    : () async {
+                        setState(() => _isSubmittingReview = true);
+                        final success = await RatingsService().submitReview(
+                          booking: _currentBooking,
+                          rating: _selectedRating,
+                          comment: _reviewCommentController.text,
+                        );
+                        if (mounted) {
+                          setState(() => _isSubmittingReview = false);
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: AppColors.forestGreen,
+                                content: Text(
+                                  'Thank you! Your verified rating was submitted and service rating updated.',
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildSectionTitle(String title) {

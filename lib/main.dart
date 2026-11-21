@@ -5,6 +5,7 @@ import 'config/constants.dart';
 import 'config/supabase_config.dart';
 import 'data/booking_storage.dart';
 import 'services/auth_service.dart';
+import 'services/ratings_service.dart';
 import 'screens/admin/admin_login_screen.dart';
 import 'screens/splash_screen.dart';
 
@@ -26,6 +27,9 @@ void main() async {
 
   // Initialize booking persistence service (local + cloud sync)
   await BookingStorage().init();
+
+  // Initialize genuine ratings and review repository
+  await RatingsService().init();
 
   runApp(const MopsterApp());
 }

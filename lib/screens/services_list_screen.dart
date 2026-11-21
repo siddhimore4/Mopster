@@ -28,11 +28,23 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final services = _currentCategory == ServiceCategory.cleaning
-        ? SampleServices.cleaningServices
-        : SampleServices.gardeningServices;
+    final List<ServiceItem> services;
+    final String screenTitle;
 
-    final isCleaning = _currentCategory == ServiceCategory.cleaning;
+    switch (_currentCategory) {
+      case ServiceCategory.cleaning:
+        services = SampleServices.cleaningServices;
+        screenTitle = 'Home Cleaning Services';
+        break;
+      case ServiceCategory.gardening:
+        services = SampleServices.gardeningServices;
+        screenTitle = 'Gardening Services';
+        break;
+      case ServiceCategory.carWashing:
+        services = SampleServices.carWashingServices;
+        screenTitle = 'Car Washing Services';
+        break;
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -45,7 +57,7 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          isCleaning ? 'Home Cleaning Services' : 'Gardening Services',
+          screenTitle,
           style: const TextStyle(
             color: AppColors.deepCharcoal,
             fontSize: 18,
@@ -58,9 +70,9 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Category Switcher Header
+            // Category Switcher Header (3 Categories)
             Container(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 16),
               color: Colors.white,
               child: Container(
                 padding: const EdgeInsets.all(4),
@@ -71,116 +83,23 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
                 ),
                 child: Row(
                   children: [
-                    // Cleaning Tab
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _currentCategory = ServiceCategory.cleaning;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isCleaning
-                                ? AppColors.forestGreen
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: isCleaning
-                                ? [
-                                    BoxShadow(
-                                      color:
-                                          AppColors.forestGreen.withOpacity(0.24),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.cleaning_services_rounded,
-                                size: 18,
-                                color: isCleaning
-                                    ? AppColors.electricLime
-                                    : AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Cleaning (${SampleServices.cleaningServices.length})',
-                                style: TextStyle(
-                                  color: isCleaning
-                                      ? Colors.white
-                                      : AppColors.deepCharcoal,
-                                  fontWeight: isCleaning
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildCategoryTab(
+                      category: ServiceCategory.cleaning,
+                      label: 'Cleaning',
+                      icon: Icons.cleaning_services_rounded,
+                      count: SampleServices.cleaningServices.length,
                     ),
-
-                    // Gardening Tab
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _currentCategory = ServiceCategory.gardening;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 220),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: !isCleaning
-                                ? AppColors.forestGreen
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: !isCleaning
-                                ? [
-                                    BoxShadow(
-                                      color:
-                                          AppColors.forestGreen.withOpacity(0.24),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.eco_rounded,
-                                size: 18,
-                                color: !isCleaning
-                                    ? AppColors.electricLime
-                                    : AppColors.textSecondary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Gardening (${SampleServices.gardeningServices.length})',
-                                style: TextStyle(
-                                  color: !isCleaning
-                                      ? Colors.white
-                                      : AppColors.deepCharcoal,
-                                  fontWeight: !isCleaning
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildCategoryTab(
+                      category: ServiceCategory.gardening,
+                      label: 'Gardening',
+                      icon: Icons.eco_rounded,
+                      count: SampleServices.gardeningServices.length,
+                    ),
+                    _buildCategoryTab(
+                      category: ServiceCategory.carWashing,
+                      label: 'Car Wash',
+                      icon: Icons.local_car_wash_rounded,
+                      count: SampleServices.carWashingServices.length,
                     ),
                   ],
                 ),
@@ -211,6 +130,66 @@ class _ServicesListScreenState extends State<ServicesListScreen> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryTab({
+    required ServiceCategory category,
+    required String label,
+    required IconData icon,
+    required int count,
+  }) {
+    final isSelected = _currentCategory == category;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _currentCategory = category;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.forestGreen : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.forestGreen.withOpacity(0.24),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected
+                    ? AppColors.electricLime
+                    : AppColors.textSecondary,
+              ),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  '$label ($count)',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.deepCharcoal,
+                    fontWeight:
+                        isSelected ? FontWeight.w800 : FontWeight.w600,
+                    fontSize: 11.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

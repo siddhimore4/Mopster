@@ -490,14 +490,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         const SizedBox(height: 14),
 
-                        // Category Buttons (Home Cleaning & Gardening Care)
+                        // Category Buttons (Home Cleaning, Gardening Care & Car Washing)
                         Row(
                           children: [
                             // Cleaning Card
                             Expanded(
                               child: _buildCategoryCard(
                                 title: 'Home Cleaning',
-                                subtitle: '5 Services',
+                                subtitle: '${SampleServices.cleaningServices.length} Services',
                                 tagText: 'SPARKLING',
                                 icon: Icons.cleaning_services_rounded,
                                 isPrimary: true,
@@ -520,7 +520,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: _buildCategoryCard(
                                 title: 'Gardening Care',
-                                subtitle: '5 Services',
+                                subtitle: '${SampleServices.gardeningServices.length} Services',
                                 tagText: 'ORGANIC',
                                 icon: Icons.eco_rounded,
                                 isPrimary: false,
@@ -539,6 +539,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 12),
+
+                        // Car Washing Category Card (with high-quality realistic AI photo)
+                        _buildCarWashingCategoryCard(),
 
                         const SizedBox(height: 30),
 
@@ -775,6 +779,127 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCarWashingCategoryCard() {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ServicesListScreen(
+                category: ServiceCategory.carWashing,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(22),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: AppColors.forestGreen.withOpacity(0.2),
+              width: 1.4,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.deepCharcoal.withOpacity(0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.forestGreen,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.forestGreen.withOpacity(0.25),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.local_car_wash_rounded,
+                            color: AppColors.electricLime,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3.5),
+                          decoration: BoxDecoration(
+                            color: AppColors.freshMint,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'NEW CATEGORY',
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.forestGreenDark,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    const Text(
+                      'Car Washing',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.deepCharcoal,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Doorstep Foam Wash & Detailing (${SampleServices.carWashingServices.length} Service)',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: SizedBox(
+                  width: 110,
+                  height: 78,
+                  child: Image.asset(
+                    'assets/images/services/car_wash.jpg',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

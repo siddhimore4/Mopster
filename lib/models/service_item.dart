@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ServiceCategory { cleaning, gardening }
+enum ServiceCategory { cleaning, gardening, carWashing }
 
 class ServiceItem {
   final String id;
@@ -10,7 +10,7 @@ class ServiceItem {
   final String fullDescription;
   final double basePrice;
   final String duration;
-  final double rating;
+  final double? rating;
   final int reviewCount;
   final List<String> inclusions;
   final List<String> exclusions;
@@ -27,8 +27,8 @@ class ServiceItem {
     required this.fullDescription,
     required this.basePrice,
     required this.duration,
-    required this.rating,
-    required this.reviewCount,
+    this.rating,
+    this.reviewCount = 0,
     required this.inclusions,
     required this.exclusions,
     required this.icon,
@@ -39,12 +39,16 @@ class ServiceItem {
 
   String get formattedPrice => '₹${basePrice.toStringAsFixed(0)}';
 
+  bool get hasRatings => rating != null && reviewCount > 0;
+
   String get categoryName {
     switch (category) {
       case ServiceCategory.cleaning:
         return 'Home Cleaning';
       case ServiceCategory.gardening:
         return 'Gardening Care';
+      case ServiceCategory.carWashing:
+        return 'Car Washing';
     }
   }
 
